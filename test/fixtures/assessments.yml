@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  explanation: MyText
+  evaluation_status: MyString
+  evaluated_at: 2017-09-18 09:35:56
+  disputed: false
+
+two:
+  explanation: MyText
+  evaluation_status: MyString
+  evaluated_at: 2017-09-18 09:35:56
+  disputed: false
