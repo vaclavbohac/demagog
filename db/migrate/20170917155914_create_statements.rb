@@ -8,7 +8,7 @@ class CreateStatements < ActiveRecord::Migration[5.1]
       t.boolean :published
       t.boolean :count_in_statistics
 
-      t.belongs_to :speaker, index: true 
+      t.belongs_to :speaker, index: true
 
       t.timestamps
     end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Statement < ApplicationRecord
   belongs_to :speaker
   belongs_to :source
