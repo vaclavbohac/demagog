@@ -3,6 +3,7 @@
 require_relative "./veracity_migration"
 require_relative "./party_migration"
 require_relative "./speaker_migration"
+require_relative "./statement_migration"
 
 class MigrationManager
   attr_accessor :connection
@@ -15,7 +16,8 @@ class MigrationManager
     tasks = [
       VeracityMigration,
       PartyMigration,
-      SpeakerMigration
+      SpeakerMigration,
+      StatementMigration
     ]
 
     tasks.each { |task| task.new(connection).perform }

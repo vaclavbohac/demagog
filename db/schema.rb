@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170920201826) do
+ActiveRecord::Schema.define(version: 20170922161315) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -190,7 +190,7 @@ ActiveRecord::Schema.define(version: 20170920201826) do
 
   create_table "statements", force: :cascade do |t|
     t.text "content"
-    t.boolean "questionables"
+    t.text "questionables"
     t.datetime "excerpted_at"
     t.boolean "important"
     t.boolean "published"

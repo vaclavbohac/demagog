@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
-# Migrates speakers and their portraits
+require_relative "./helpers/duplication_tester"
+
 class SpeakerMigration
   attr_accessor :connection
 
   def initialize(connection)
     self.connection = connection
+
+    @duplication_tester = DuplicationTester.new
   end
 
   def get_status(id)
@@ -17,38 +20,40 @@ class SpeakerMigration
     deleted_ids.include?(id.to_i)
   end
 
-  def duplicate?(speaker)
-    # TODO: Add check for SK version
-    duplicate_ids = {
-      164 => 163, # Jan Fisher
-      182 => 181, # Vaclav Klaus
-    }
-
-    duplicate_ids.has?(speaker.id)
-  end
-
-  def create_speaker(old_speaker)
-    Speaker.new(
-      id: old_speaker["id"],
-      first_name: old_speaker["meno"],
-      last_name: old_speaker["priezvisko"],
-      before_name: old_speaker["titul_pred_menom"],
-      after_name: old_speaker["titul_za_menom"],
-      bio: old_speaker["zivotopis"],
-      website_url: old_speaker["web"],
-      status: get_status(old_speaker["id"])
-    )
-  end
-
   def perform
     old_speakers = connection.query("SELECT * FROM politik")
 
-    old_speakers.each do |old_speaker|
-      speaker = create_speaker old_speaker
+    keys = [
+      :id,
+      :first_name,
+      :last_name,
+      :before_name,
+      :after_name,
+      :bio,
+      :website_url,
+      :status,
+      :created_at,
+      :updated_at
+    ]
 
-      next if duplicate?(speaker)
+    Speaker.bulk_insert(*keys) do |worker|
+      old_speakers.each do |old_speaker|
+        next if @duplication_tester.duplicate?(old_speaker["id"])
 
-      party.save!
+        worker.add([
+                     old_speaker["id"],
+                     old_speaker["meno"],
+                     old_speaker["priezvisko"],
+                     old_speaker["titul_pred_menom"],
+                     old_speaker["titul_za_menom"],
+                     old_speaker["zivotopis"],
+                     old_speaker["web"],
+                     get_status(old_speaker["id"]),
+                     Time.now,
+                     Time.now
+                   ])
+
+      end
     end
   end
 end
