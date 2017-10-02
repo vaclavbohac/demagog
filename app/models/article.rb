@@ -12,4 +12,12 @@ class Article < ApplicationRecord
   def author
     self.user
   end
+
+  def speakers
+    Speaker.limit(5)
+  end
+
+  def self.cover_story
+    find_by({ published: true }, { published_at: :desc })
+  end
 end

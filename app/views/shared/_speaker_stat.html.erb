@@ -1,0 +1,25 @@
+<div class="speaker-stats">
+  <figure class="speaker">
+    <% if speaker_stat.portrait %>
+      <div class="photo-wrapper">
+        <%= image_tag(speaker_portrait(speaker_stat.portrait), alt: speaker_stat.full_name) %>
+      </div>
+    <% end %>
+    <p class="name"><a href="{{ path('speaker', {'id': speaker.id}) }}"><%= speaker_stat.full_name %></a></p>
+  </figure>
+  <ul class="stats">
+    <li title="Pravda" class="glyphicons true <%= "none" if speaker_stat.stats[:true].zero? %>">
+      <i></i> <%= speaker_stat.stats[:true] %>
+    </li>
+    <li title="Nepravda" class="glyphicons untrue {% if stats.untrue == 0 %}none{% endif %}">
+      <i></i> <%= speaker_stat.stats[:untrue] %>
+    </li>
+    <li title="Zavádějící" class="glyphicons misleading {% if stats.misleading == 0 %}none{% endif %}">
+      <i></i> <%= speaker_stat.stats[:misleading] %>
+    </li>
+    <li title="Neověřitelné" class="glyphicons unverifiable {% if stats.unverifiable == 0 %}none{% endif %}">
+      <i></i> <%= speaker_stat.stats[:unverifiable] %>
+    </li>
+  </ul>
+</div>
+

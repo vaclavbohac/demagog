@@ -1,0 +1,20 @@
+<div class="statement preview">
+  <figure class="speaker">
+    <p class="name">
+      <a href="{{ path('speaker', {'id': statement.speaker.id}) }}">
+        <%= statement.speaker.full_name %>
+      </a>
+      <span title="untrue" class="untrue glyphicons">
+      <i></i>
+    </p>
+  </figure>
+
+  <div class="photo-wrapper">
+    <%= image_tag(speaker_portrait(statement.speaker.portrait), alt: statement.speaker.full_name) %>
+  </div>
+
+  <p>
+    „<%= statement.content.truncate(250) %>“
+    <a href="{{ path('statement', {'id': statement.id}) }}">odůvodnění&nbsp;&rarr;</a>
+  </p>
+</div>

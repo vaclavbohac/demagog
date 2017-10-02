@@ -1,26 +1,24 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  id: 
   first_name: MyString
   last_name: MyString
   position_description: MyString
   bio: MyString
   email: MyString
-  passwod: MyString
+  password: MyString
   phone: MyString
   registered_at: 2017-09-17
   order: MyString
   active: false
 
 two:
-  id: 
   first_name: MyString
   last_name: MyString
   position_description: MyString
   bio: MyString
   email: MyString
-  passwod: MyString
+  password: MyString
   phone: MyString
   registered_at: 2017-09-17
   order: MyString

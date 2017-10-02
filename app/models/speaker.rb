@@ -7,6 +7,19 @@ class Speaker < ApplicationRecord
   belongs_to :attachment
 
   def portrait
-    self.attachment
+    attachment
+  end
+
+  def full_name
+    "#{first_name} #{last_name}"
+  end
+
+  def stats
+    {
+      true: 5,
+      untrue: 10,
+      misleading: 11,
+      unverifiable: 0
+    }
   end
 end

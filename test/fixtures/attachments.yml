@@ -1,13 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  type: 
+  attachment_type: portrait
   file: MyString
   description: MyText
   source_url: MyString
 
 two:
-  type: 
+  attachment_type: article_illustration
   file: MyString
   description: MyText
   source_url: MyString

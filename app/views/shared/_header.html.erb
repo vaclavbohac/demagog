@@ -1,0 +1,70 @@
+<div class="sticky"><nav class="top-bar" data-topbar role="navigation">
+    <ul class="title-area">
+        <li class="name">
+
+            <h1><a href="<%= root_url %>"><span class="alt">Demagog.cz </span><%= image_tag("logo.png", alt: "Demagog.cz") %></a></h1>
+        </li>
+        <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+    </ul>
+
+    <section class="top-bar-section">
+        <ul class="right">
+            <li class="has-dropdown">
+                <a href="{# statistiky #}">Přehledy</a>
+                <ul class="dropdown">
+                  <!-- <li><a href="{# statistiky #}">Výroky</a></li> -->
+                  <li><a href="{{ path('speakers') }}">Řečníci</a></li>
+                </ul>
+            </li>
+
+            <li class="has-dropdown">
+                <a>Speciály</a>
+                    <ul class="dropdown">
+                        <!-- <li><a href="https://extra.demagog.cz/sliby-milose-zemana/">Vládní sliby 2014—17</a></li> -->
+                        <li><a href="https://extra.demagog.cz/sliby-milose-zemana/">Sliby Miloše Zemana</a></li>
+                    </ul>
+            </li>
+
+            <li class="has-dropdown">
+                <a href="{{ path('article', {'id': 406}) }}">O nás</a>
+                    <ul class="dropdown">
+                        <li><a href="{{ path('article', {'id': 406}) }}">O Demagog.cz</a></li>
+                        <li><a href="{{ path('article', {'id': 406}) }}">Jak hodnotíme?</a></li>
+                        <li><a href="{{ path('article', {'id': 406}) }}">Etický kodex</a></li>
+                        <li><a href="{{ path('article', {'id': 406}) }}">Nabízíme workshopy</a></li>
+                        <li><hr></li>
+                        <li><a href="{{ path('article', {'id': 406}) }}">Financování</a></li>
+                        <li><a href="{{ path('article', {'id': 406}) }}">Czech this out!</a></li>
+                    </ul>
+            </li>
+
+            <li class="has-form">
+                <form onsubmit="searchFn(); return false;">
+                    <script>
+                        function searchFn() {
+                            var q = document.getElementById('searchQuery').value;
+                            window.open('https://search.seznam.cz/?q=' + encodeURIComponent(q) + '+site%3Ademagog.cz', '_blank');
+                        }
+                    </script>
+                    <div class="row collapse">
+                        <div class="large-8 small-9 columns">
+                            <input id="searchQuery" type="text" placeholder="">
+                        </div>
+                        <div class="large-4 small-3 columns">
+                            <a href="#" class="alert button expand" onclick="searchFn(); return false;">Hledat</a>
+                        </div>
+                    </div>
+                </form>
+            </li>
+        </ul>
+    </section>
+</nav></div>
+
+<header class="row page-header">
+    <div class="medium-5 columns">
+        <a href="<%= root_url %>">
+          <h1>Demagog.cz</h1>
+          <%= image_tag("logo.png", alt: "Demagog.cz") %>
+        </a>
+    </div>
+</header>

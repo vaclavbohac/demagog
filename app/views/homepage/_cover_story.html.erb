@@ -1,0 +1,54 @@
+<article class="cover-story">
+<% if @cover_story %>
+  <% if @cover_story.speakers.length < 3 %>
+      <div class="row">
+            <div class="columns">
+                <h1>
+                  <a href="{{ path('article', {'id': coverStory.id}) }}" ><%= @cover_story.title %></a>
+                </h1>
+            </div>
+            <div class="perex large-5 columns">
+                <p>
+                  <%= @cover_story.perex %>
+                  <a href="/article/<%= @cover_story.id %>">
+                      Prohlédnout&nbsp;diskusi
+                  </a>
+                </p>
+
+              <%= render(partial: "shared/speaker_stat", collection: @cover_story.speakers) %>
+            </div>
+
+            <% if @cover_story.illustration %>
+                <p>
+                  <%= image_tag(article_illustration(@cover_story.illustration)) %>
+                </p>
+            <% end %>
+        </div>
+    <% else %>
+      <div class="row">
+          <div class="columns">
+              <h1>
+                  <a href="{{ path('article', {'id': coverStory.id}) }}" ><%= @cover_story.title %></a>
+              </h1>
+          </div>
+          <div class="perex large-7 columns">
+              <% if @cover_story.illustration %>
+                  <p>
+                    <%= image_tag(article_illustration(@cover_story.illustration)) %>
+                  </p>
+              <% end %>
+
+            <p>
+              <%= @cover_story.perex %>
+              <a href="/article/<%= @cover_story.id %>">
+                  Prohlédnout&nbsp;diskusi
+              </a>
+            </p>
+          </div>
+          <div class="perex large-5 columns">
+            <%= render(partial: "shared/speaker_stat", collection: @cover_story.speakers) %>
+          </div>
+      </div>
+    <% end %>
+  <% end %>
+</article>

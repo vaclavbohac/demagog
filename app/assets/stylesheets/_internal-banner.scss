@@ -1,0 +1,31 @@
+.internal-banner {
+	margin-top: 30px; margin-bottom: 30px;
+	padding-top: 3px; padding-bottom: 5px;
+	display: block;
+	background: $gray;
+	border: solid $orange;
+	border-width: 0 .9375em;
+
+	p {
+		color: white;
+		margin: 0;
+
+		u {
+			color: $orange + #222;
+		}
+	}
+
+	&:hover {
+		background: $orange;
+
+		p, p u {
+			color: $black;
+		}
+	}
+
+	.glyphiconsExtra i::before {
+		top: .1em;
+		font-size: 1.3em;
+		line-height: 1em;
+	}
+}

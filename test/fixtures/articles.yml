@@ -5,7 +5,6 @@ one:
   slug: MyString
   perex: MyText
   published_at: 2017-09-18 09:04:39
-  edited_at: 2017-09-18 09:04:39
   published: false
 
 two:
@@ -13,5 +12,4 @@ two:
   slug: MyString
   perex: MyText
   published_at: 2017-09-18 09:04:39
-  edited_at: 2017-09-18 09:04:39
   published: false

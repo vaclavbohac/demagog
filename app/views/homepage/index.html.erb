@@ -1,0 +1,18 @@
+<%= render partial: "cover_story" %>
+
+<%= render partial: "interesting_statements" %>
+
+<%#>
+{% include "DemagogWebBundle:Web:_internal-banner.html.twig" %}
+
+{% for article in articles %}
+    {% include "DemagogWebBundle:Web:_article-preview.html.twig" %}
+{% endfor %}
+
+<div class="row"><div class="columns">
+    {{ knp_pagination_render(articles, "@DemagogWeb/Web/_pagination.html.twig") }}
+</div></div>
+
+{% include "DemagogWebBundle:Web:_social.html.twig" %}
+
+{#% include "DemagogWebBundle:Web:_references.html.twig" %#} %>
