@@ -2,6 +2,12 @@
 
 require_relative "./helpers/duplication_tester"
 
+class MissingPortrait
+  def id
+    nil
+  end
+end
+
 class SpeakerMigration
   attr_accessor :connection
 
@@ -25,6 +31,7 @@ class SpeakerMigration
 
     keys = [
       :id,
+      :attachment_id,
       :first_name,
       :last_name,
       :before_name,
@@ -40,8 +47,18 @@ class SpeakerMigration
       old_speakers.each do |old_speaker|
         next if @duplication_tester.duplicate?(old_speaker["id"])
 
+        portrait = MissingPortrait.new
+
+        if old_speaker["fotografia"]
+          portrait = Attachment.create(
+            attachment_type: Attachment::TYPE_PORTRAIT,
+            file: old_speaker["fotografia"]
+          )
+        end
+
         worker.add([
                      old_speaker["id"],
+                     portrait.id,
                      old_speaker["meno"],
                      old_speaker["priezvisko"],
                      old_speaker["titul_pred_menom"],
