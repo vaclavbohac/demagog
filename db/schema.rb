@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171002205032) do
+ActiveRecord::Schema.define(version: 20171002215335) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -103,6 +103,13 @@ ActiveRecord::Schema.define(version: 20171002205032) do
     t.index ["attachment_id"], name: "index_media_on_attachment_id"
   end
 
+  create_table "media_media_personalities", id: false, force: :cascade do |t|
+    t.bigint "medium_id"
+    t.bigint "media_personality_id"
+    t.index ["media_personality_id"], name: "index_media_media_personalities_on_media_personality_id"
+    t.index ["medium_id"], name: "index_media_media_personalities_on_medium_id"
+  end
+
   create_table "media_personalities", force: :cascade do |t|
     t.string "kind"
     t.string "name"
@@ -111,13 +118,6 @@ ActiveRecord::Schema.define(version: 20171002205032) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["attachment_id"], name: "index_media_personalities_on_attachment_id"
-  end
-
-  create_table "media_personalities_media", id: false, force: :cascade do |t|
-    t.bigint "medium_id"
-    t.bigint "media_personality_id"
-    t.index ["media_personality_id"], name: "index_media_personalities_media_on_media_personality_id"
-    t.index ["medium_id"], name: "index_media_personalities_media_on_medium_id"
   end
 
   create_table "memberships", force: :cascade do |t|

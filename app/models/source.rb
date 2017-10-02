@@ -3,5 +3,5 @@
 class Source < ApplicationRecord
   belongs_to :medium
   has_many :statements
-  has_one :media_personality
+  belongs_to :media_personality
 end
