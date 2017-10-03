@@ -1,9 +1,9 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+default:
   name: default
   template: MyText
 
-two:
+static:
   name: static
   template: MyText

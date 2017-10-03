@@ -11,4 +11,11 @@ class Statement < ApplicationRecord
       .where(important: true)
       .order(excerpted_at: :desc)
   end
+
+  def correct_assessment
+    Assessment.find_by(
+      statement: self,
+      evaluation_status: Assessment::STATUS_CORRECT
+    )
+  end
 end

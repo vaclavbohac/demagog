@@ -2,17 +2,18 @@
 
 <%= render partial: "interesting_statements" %>
 
-<%#>
-{% include "DemagogWebBundle:Web:_internal-banner.html.twig" %}
+<%= render partial: "internal_banner" %>
 
-{% for article in articles %}
-    {% include "DemagogWebBundle:Web:_article-preview.html.twig" %}
-{% endfor %}
+<% @articles.each do |article| %>
+  <%= render partial: "article/preview", object: article, as: :article %>
+<% end %>
 
+<%#
 <div class="row"><div class="columns">
     {{ knp_pagination_render(articles, "@DemagogWeb/Web/_pagination.html.twig") }}
 </div></div>
+%>
 
-{% include "DemagogWebBundle:Web:_social.html.twig" %}
+<%= render partial: "social" %>
 
-{#% include "DemagogWebBundle:Web:_references.html.twig" %#} %>
+<%= render partial: "references" %>

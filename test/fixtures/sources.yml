@@ -1,8 +1,10 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  transcript: MyText
+  transcript: Interview with the guy
+  medium: discussion_show
   source_url: MyString
+  media_personality: one
   released_at: 2017-09-17 18:14:51
 
 two:

@@ -1,15 +1,20 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  title: MyString
+  title: Fact checking article
   slug: MyString
   perex: MyText
+  article_type: default
+  illustration: cover_photo
+  source: one
   published_at: 2017-09-18 09:04:39
-  published: false
+  published: true
 
 two:
-  title: MyString
+  title: Static article
   slug: MyString
   perex: MyText
+  illustration: cover_photo
+  article_type: static
   published_at: 2017-09-18 09:04:39
-  published: false
+  published: true

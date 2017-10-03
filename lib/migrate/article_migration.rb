@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class EmptyIllustration
-  @id = nil
+  def id
+    nil
+  end
 end
 
 class ArticleMigration
@@ -43,7 +45,7 @@ class ArticleMigration
       old_articles.each do |old_article|
         illustration = EmptyIllustration.new
 
-        if old_article["obrazok"]
+        if old_article["obrazok"] != ""
           illustration = Attachment.create(
             file: old_article["obrazok"],
             attachment_type: Attachment::TYPE_ARTICLE_ILLUSTRATION

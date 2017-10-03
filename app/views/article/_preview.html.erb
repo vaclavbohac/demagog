@@ -1,0 +1,73 @@
+<% if local_assigns[:type] == "column" %>
+    <article class="row preview">
+        <div class="large-8 columns">
+            <h1><a class="title" href="<%= article_path(article.id) %>">Komentář: <%= article.title %></a></h1>
+
+            <p class="clickthrough">
+                <span class="label editorial">Komentář</span> <i><%= article.published_at.strftime('d.m.Y') %></i> &mdash; <%= article.perex %>
+                <a href="<%= article_path(article.id) %>">
+                    <span>Číst&nbsp;dál&nbsp;&rarr;</span>
+                </a>
+            </p>
+        </div>
+
+        <div class="large-4 columns">
+            <div class="show-for-medium-up">
+                <a title="<%= article.title %>" href="<%= article_path(article.id) %>">
+                  <%= image_tag(article_illustration(article.illustration, article.article_type.name)) %>
+                </a>
+            </div>
+        </div>
+    </article>
+<% else %>
+    <article class="row preview">
+        <div class="large-4 medium-3 columns">
+            <div class="show-for-medium-up">
+                <a title="<%= article.title %>" href="<%= article_path(article.id) %>">
+                    <% if article.illustration.file != "" %>
+                      <%= image_tag(article_illustration(article.illustration, article.article_type.name)) %>
+                    <% end %>
+                </a>
+            </div>
+        </div>
+
+        <div class="large-8 medium-9 columns">
+            <div class="speakers">
+                <% for speaker in article.speakers %>
+                    <% if speaker.portrait %>
+                        <div class="photo-wrapper" title="<%= speaker.full_name %>">
+                          <%= image_tag(speaker_portrait(speaker.portrait)) %>
+                        </div>
+                    <% end %>
+                <% end %>
+            </div>
+
+            <h1><%= link_to(article.title, article_path(article.id), class: "title") %></h1>
+
+            <p class="clickthrough">
+                <span class="label <%= article.article_type.name %>">
+                    <% if article.article_type.name == "default" %>
+                        Ověřeno
+                    <% end %>
+                    <% if article.article_type.name == "static" %>
+                        Komentář
+                    <% end %>
+                </span>
+
+                <% if (article.article_type.name == "default" and article.source) %>
+                    <i><%= article.source.medium.name %></i>,
+                <% end %>
+
+                <i><%= article.published_at %></i>
+
+                &mdash;
+
+                <%= strip_tags(article.perex).truncate(230) %>
+
+                <a href="<%= article_path(article.id) %>">
+                    <span>Číst&nbsp;dál&nbsp;&rarr;</span>
+                </a>
+            </p>
+        </div>
+    </article>
+<% end %>

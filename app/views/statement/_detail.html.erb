@@ -1,0 +1,35 @@
+<article class="row statement s-speaker-statement">
+  <div class="large-2 large-push-7 columns">
+    <% unless local_assigns[:non_attributed] %>
+      <figure class="speaker">
+        <a href="{%= path('speaker', {'id': statement.speaker.id}) %}">
+          <div class="photo-wrapper">
+            <% if statement.speaker.portrait.file != "" %>
+              <%= image_tag(speaker_portrait(statement.speaker.portrait), alt: statement.speaker.full_name) %>
+            <% end %>
+          </div>
+        </a>
+      </figure>
+    <% else %>
+        &nbsp;
+    <% end %>
+  </div>
+  <div class="large-7 large-pull-2 medium-10 columns" id="<%= statement.id %>">
+    <% if statement.important? %>
+      <span class="label secondary">důležitý výrok</span>
+    <% end %>
+
+    <p class="quote">
+      <% unless local_assigns[:non_attributed] %><b><%= statement.speaker.full_name %></b>:<% end %>
+      „<%= raw(statement.content) %>“
+    </p>
+
+    <div class="reasons <% unless statement.important? %>hidden<% end %>">
+      <p class="veracity glyphicons <%= statement.correct_assessment.veracity.default_name %>"><span class="glyphicons"><i></i></span> <%= statement.correct_assessment.veracity.name %></p>
+      <a class="show-reasons" href="#">zobrazit odůvodnění</a>
+      <div class="explanation"><%= raw(statement.correct_assessment.explanation) %></div>
+      <a class="permalink" href="{%= path('statement', {'id': statement.id}) %}"><span class="glyphicons glyphiconsExtra share"><i></i></span> sdílet výrok</a>
+    </div>
+  </div>
+  <div class="columns"></div>
+</article>

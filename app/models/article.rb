@@ -14,7 +14,14 @@ class Article < ApplicationRecord
   end
 
   def speakers
-    Speaker.limit(5)
+    # TODO: Needs to be refactored
+    ret = []
+    segments.each do |segment|
+      segment.statements.where(speaker: self).each do |speaker|
+        ret << speaker
+      end
+    end
+    ret
   end
 
   def self.cover_story

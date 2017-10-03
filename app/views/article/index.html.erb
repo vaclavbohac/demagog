@@ -1,0 +1,8 @@
+<article class="full-text">
+   <% if @article.article_type.name == "default" %>
+       <%= render("factcheck") %>
+   <% end %>
+   <% if @article.article_type.name == "static" %>
+       <%= render("editorial") %>
+   <% end %>
+</article>

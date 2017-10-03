@@ -6,7 +6,7 @@ one:
   description: MyText
   source_url: MyString
 
-two:
+cover_photo:
   attachment_type: article_illustration
   file: MyString
   description: MyText

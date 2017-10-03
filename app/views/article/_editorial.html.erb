@@ -1,0 +1,20 @@
+<div class="row">
+    <div class="columns">
+        <h1><%= @article.title %></h1>
+        <p>Publikováno <%= @article.published_at %></p>
+    </div>
+    <div class="large-7 columns">
+        <p class="lead"><%= raw(@article.perex) %></p>
+        <% @article.segments.each do |segment| %>
+          <% if segment.is_text? %>
+            <%= raw(segment.text) %>
+          <% else %>
+            {{ render(controller(
+                'DemagogWebBundle:Web/Segment:statements',
+                { 'segment': hasSegment.segment }
+            )) }}
+          <% end %>
+        <% end %>
+    </div>
+    <div class="columns"></div>
+</div>
