@@ -28,6 +28,8 @@ gem "uglifier", ">= 1.3.0"
 # gem 'therubyracer', platforms: :ruby
 # Add foundation CSS framework
 gem "foundation-rails", "~> 5.5.2"
+# Add gem for paging
+gem "kaminari"
 
 # Use CoffeeScript for .coffee assets and views
 gem "coffee-rails", "~> 4.2"

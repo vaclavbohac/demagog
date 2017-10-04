@@ -33,7 +33,7 @@
 
         <div class="large-8 medium-9 columns">
             <div class="speakers">
-                <% for speaker in article.speakers %>
+                <% for speaker in article.speakers.distinct %>
                     <% if speaker.portrait %>
                         <div class="photo-wrapper" title="<%= speaker.full_name %>">
                           <%= image_tag(speaker_portrait(speaker.portrait)) %>

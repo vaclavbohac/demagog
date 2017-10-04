@@ -8,11 +8,11 @@
   <%= render partial: "article/preview", object: article, as: :article %>
 <% end %>
 
-<%#
-<div class="row"><div class="columns">
-    {{ knp_pagination_render(articles, "@DemagogWeb/Web/_pagination.html.twig") }}
-</div></div>
-%>
+<div class="row">
+  <div class="columns">
+    <%= paginate(@articles) %>
+  </div>
+</div>
 
 <%= render partial: "social" %>
 
