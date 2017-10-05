@@ -19,9 +19,11 @@
         </div>
 
         <% if @cover_story.illustration %>
-          <p>
-            <%= image_tag(article_illustration(@cover_story.illustration)) %>
-          </p>
+          <div class="perex large-7 columns">
+            <p>
+              <%= image_tag(article_illustration(@cover_story.illustration)) %>
+            </p>
+          </div>
         <% end %>
       </div>
     <% else %>
