@@ -1,0 +1,57 @@
+<div class="row politician">
+    <div class="large-2 columns">
+        <% if @speaker.portrait %>
+            <div class="photo-wrapper" style="float: right">
+                <img src="<%= speaker_portrait(@speaker.portrait) %>" alt="<%= @speaker.full_name %>" />
+            </div>
+        <% end %>
+    </div>
+
+    <div class="large-10 columns">
+        <h1 class="s-speaker-name"><%= @speaker.full_name %> (<%= @speaker.party.short_name %>)</h1>
+
+        <p class="politicianStats">
+            <span title="Pravda" class="numberOfStatements true glyphicons circle_ok">
+                <i></i> <span class="veracityNumber"><%= @speaker.stats[:true] %> </span> Pravda
+            </span>
+            <span title="Nepravda" class="numberOfStatements untrue glyphicons circle_remove">
+                <i></i> <span class="veracityNumber"><%= @speaker.stats[:untrue] %> </span> Nepravda
+            </span>
+            <span title="Zavádějící" class="numberOfStatements misleading glyphicons circle_exclamation_mark">
+                <i></i> <span class="veracityNumber"><%= @speaker.stats[:misleading] %> </span> Zavádějící
+            </span>
+            <span title="Neověřitelné" class="numberOfStatements unverifiable glyphicons circle_question_mark">
+                <i></i> <span class="veracityNumber"><%= @speaker.stats[:unverifiable] %> </span> Neověřitelné
+            </span>
+        </p>
+    </div>
+</div>
+
+<div class="row" id="bio">
+  <div class="large-8 large-centered columns">
+    <p><%= @speaker.bio %></p>
+    <iframe src="http://www.facebook.com/plugins/like.php?href=http://demagog.cz/diskusie/269/sobotka-vs-fiala&amp;layout=standard&amp;show_faces=false&amp;width=450&amp;action=like&amp;colorscheme=light&amp;height=30" style="border:none; overflow:hidden; width:450px; height:30px;"></iframe>
+  </div>
+</div>
+
+<div class="row">
+    <div class="columns">
+        <h2 id="statements">Výroky</h2>
+        <div class="filters">
+            <p>
+              <!--
+                {%= form_start(filter, { 'attr' : { 'class': 'veracity-filter' } }) %}
+                {%= form_widget(filter.veracity) %}
+                {%= form_widget(filter.topic) %}
+                {%= form_end(filter) %}
+              -->
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="speakers-details-statements">
+  <%= render(partial: 'statement/detail', collection: @speaker.statements.where(published: true).order(excerpted_at: :desc), as: :statement, non_attributed: true) %>
+
+  {# intentionally no pagination #}
+</div>

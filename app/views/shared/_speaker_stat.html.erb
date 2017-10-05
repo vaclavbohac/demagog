@@ -5,7 +5,7 @@
         <%= image_tag(speaker_portrait(speaker_stat.portrait), alt: speaker_stat.full_name) %>
       </div>
     <% end %>
-    <p class="name"><a href="{{ path('speaker', {'id': speaker.id}) }}"><%= speaker_stat.full_name %></a></p>
+    <p class="name"><a href="<%= speaker_path(speaker_stat.id) %>"><%= speaker_stat.full_name %></a></p>
   </figure>
   <ul class="stats">
     <li title="Pravda" class="glyphicons true <%= "none" if speaker_stat.stats[:true].zero? %>">

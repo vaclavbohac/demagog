@@ -1,9 +1,13 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
+  speaker: one
+  party: one
   since: 2017-09-17 17:48:36
   until: 2017-09-17 17:48:36
 
 two:
+  speaker: two
+  party: two
   since: 2017-09-17 17:48:36
   until: 2017-09-17 17:48:36

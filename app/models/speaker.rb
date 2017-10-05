@@ -14,6 +14,10 @@ class Speaker < ApplicationRecord
     "#{first_name} #{last_name}"
   end
 
+  def party
+    parties.last
+  end
+
   def stats
     {
       true: 5,

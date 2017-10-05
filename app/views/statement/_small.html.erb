@@ -1,7 +1,7 @@
 <div class="statement preview">
   <figure class="speaker">
     <p class="name">
-      <a href="{{ path('speaker', {'id': statement.speaker.id}) }}">
+      <a href="<%= speaker_path(statement.speaker.id) %>">
         <%= statement.speaker.full_name %>
       </a>
       <span title="untrue" class="untrue glyphicons">

@@ -2,7 +2,7 @@
   <div class="large-2 large-push-7 columns">
     <% unless local_assigns[:non_attributed] %>
       <figure class="speaker">
-        <a href="{%= path('speaker', {'id': statement.speaker.id}) %}">
+        <a href="<%= speaker_path(statement.speaker.id) %>">
           <div class="photo-wrapper">
             <% if statement.speaker.portrait.file != "" %>
               <%= image_tag(speaker_portrait(statement.speaker.portrait), alt: statement.speaker.full_name) %>
