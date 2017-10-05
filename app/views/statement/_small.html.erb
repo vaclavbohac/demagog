@@ -15,6 +15,6 @@
 
   <p>
     „<%= statement.content.truncate(250) %>“
-    <a href="{{ path('statement', {'id': statement.id}) }}">odůvodnění&nbsp;&rarr;</a>
+    <a href="<%= statement_path(statement.id) %>">odůvodnění&nbsp;&rarr;</a>
   </p>
 </div>

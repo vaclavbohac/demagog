@@ -1,8 +1,10 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
+correct:
+  statement: one
+  veracity: one
   explanation: MyText
-  evaluation_status: MyString
+  evaluation_status: correct
   evaluated_at: 2017-09-18 09:35:56
   disputed: false
 

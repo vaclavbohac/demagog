@@ -3,6 +3,8 @@
 one:
   content: MyText
   questionables: false
+  speaker: one
+  source: one
   excerpted_at: 2017-09-17 17:59:14
   important: false
   published: false

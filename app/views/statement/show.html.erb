@@ -1,0 +1,32 @@
+<div class="row">
+  <div class="large-9 columns statement-detail">
+    <h1>Tento výrok byl ověřen jako
+      <span class="veracity glyphicons <%= @statement.correct_assessment.veracity.default_name %>">
+        <i></i> <%= @statement.correct_assessment.veracity.name.downcase %>
+      </span>
+    </h1>
+
+    <blockquote>
+      <b><%= @statement.speaker.full_name %>:</b> <%= raw(@statement.content) %>
+      <cite><%= @statement.source.medium.name %>, <%= @statement.source.released_at %></cite>
+    </blockquote>
+  </div>
+</div>
+<div class="row">
+  <div class="large-7 columns">
+    <h2>Odůvodnění</h2>
+    <div class="reasons"><%= raw(@statement.correct_assessment.explanation) %></div>
+  </div>
+
+  <div class="large-5 columns">
+    <h2>Řečník</h2>
+    <%= render(partial: "shared/speaker_stat", object: @statement.speaker) %>
+
+    <h2>Zmíněno</h2>
+    <ul>
+    <% @statement.articles.each do |article| %>
+      <li><%= link_to(article.title, article_path(article.id)) %></li>
+    <% end %>
+    </ul>
+  </div>
+</div>
