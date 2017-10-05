@@ -17,7 +17,7 @@
                 Moderátor: <%= @article.source.media_personality.name %>
             </p>
 
-            <%= render(partial: "shared/speaker_stat", collection: @article.speakers) %>
+            <%= render(partial: "shared/speaker_stat", collection: @article.speakers.distinct) %>
         </div>
     <% end %>
 </div>
