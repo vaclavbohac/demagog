@@ -13,3 +13,40 @@
 //= require rails-ujs
 //= require turbolinks
 //= require_tree .
+
+document.addEventListener('DOMContentLoaded', function () {
+  /**
+   * Find closest parent of given element that has className
+   * @param {HTMLElement} elem
+   * @param {string} className
+   * @return {HTMLElement}
+   */
+  function findClosest(elem, className) {
+    for (; elem && elem !== document; elem = elem.parentNode) {
+      if (elem.classList.contains(className)) {
+        return elem;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Shows assessment of given statement
+   * @param {Event} event
+   */
+  function showAssessment(event) {
+    var parent = findClosest(event.target, 'reasons');
+
+    if (parent) {
+      parent.classList.remove('hidden');
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  document
+    .querySelectorAll('.show-reasons')
+    .forEach(elem => elem.addEventListener('click', showAssessment));
+});
