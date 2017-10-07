@@ -10,6 +10,7 @@
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
 //
+//= require intersection-observer-polyfill/dist/IntersectionObserver.global.js
 //= require_tree .
 
 document.addEventListener('DOMContentLoaded', function () {

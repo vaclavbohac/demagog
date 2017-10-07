@@ -1,5 +1,7 @@
 {
   "name": "demagog",
   "private": true,
-  "dependencies": {}
+  "dependencies": {
+    "intersection-observer-polyfill": "^0.1.0"
+  }
 }
