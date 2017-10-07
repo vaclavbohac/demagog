@@ -30,6 +30,8 @@ gem "uglifier", ">= 1.3.0"
 gem "foundation-rails", "~> 5.5.2"
 # Add gem for paging
 gem "kaminari"
+# Add webpack support
+gem "webpacker", "~> 3.0"
 
 # Use CoffeeScript for .coffee assets and views
 gem "coffee-rails", "~> 4.2"
