@@ -48,5 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document
     .querySelectorAll('.show-reasons')
-    .forEach(elem => elem.addEventListener('click', showAssessment));
+    .forEach(function (elem) {
+      elem.addEventListener('click', showAssessment)
+    });
 });
