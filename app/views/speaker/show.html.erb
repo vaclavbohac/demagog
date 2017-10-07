@@ -51,7 +51,11 @@
 </div>
 
 <div class="speakers-details-statements">
-  <%= render(partial: 'statement/detail', collection: @speaker.statements.where(published: true).order(excerpted_at: :desc), as: :statement, non_attributed: true) %>
+  <%= render(partial: 'statement/detail', collection: @statements, as: :statement, non_attributed: true) %>
 
-  {# intentionally no pagination #}
+  <div class="row">
+    <div class="columns">
+      <%= paginate(@statements) %>
+    </div>
+  </div>
 </div>

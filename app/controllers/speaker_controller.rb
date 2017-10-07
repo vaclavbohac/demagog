@@ -8,5 +8,10 @@ class SpeakerController < ApplicationController
 
   def show
     @speaker = Speaker.find(params[:id])
+    @statements = @speaker
+      .statements
+      .where(published: true)
+      .order(excerpted_at: :desc)
+      .page(params[:page])
   end
 end
