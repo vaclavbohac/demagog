@@ -11,7 +11,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
 
     <link rel="shortcut icon" href="<%= asset_path("favicon.png") %>" type="image/x-icon" />
     <!-- Add apple touch icon -->
@@ -32,6 +31,8 @@
     <%= yield %>
 
     <%= render partial: "shared/footer" %>
+
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
   </body>
 </html>
 </body>
