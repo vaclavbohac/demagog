@@ -10,7 +10,6 @@
 // Read Sprockets README (https://github.com/rails/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require turbolinks
 //= require_tree .
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -50,4 +49,22 @@ document.addEventListener('DOMContentLoaded', function () {
     .forEach(function (elem) {
       elem.addEventListener('click', showAssessment)
     });
+
+  /**
+   * Render images if they are in the view port
+   * @param {IntersectionObserverEntry[]} entries
+   */
+  function renderIntersectingImages(entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.setAttribute('src', entry.target.getAttribute('data-src'));
+      }
+    });
+  }
+
+  var io = new IntersectionObserver(renderIntersectingImages);
+
+  document
+    .querySelectorAll('img.lazy-load')
+    .forEach(io.observe.bind(io));
 });

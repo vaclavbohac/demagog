@@ -14,7 +14,7 @@
         <div class="large-4 columns">
             <div class="show-for-medium-up">
                 <a title="<%= article.title %>" href="<%= article_path(article.id) %>">
-                  <%= image_tag(article_illustration(article.illustration, article.article_type.name)) %>
+                  <img class="lazy-load" data-src="<%= article_illustration(article.illustration, article.article_type.name) %>">
                 </a>
             </div>
         </div>
@@ -25,7 +25,7 @@
             <div class="show-for-medium-up">
                 <a title="<%= article.title %>" href="<%= article_path(article.id) %>">
                     <% if article.illustration.file != "" %>
-                      <%= image_tag(article_illustration(article.illustration, article.article_type.name)) %>
+                      <img class="lazy-load" data-src="<%= article_illustration(article.illustration, article.article_type.name) %>">
                     <% end %>
                 </a>
             </div>
@@ -36,7 +36,7 @@
                 <% for speaker in article.speakers.distinct %>
                     <% if speaker.portrait %>
                         <div class="photo-wrapper" title="<%= speaker.full_name %>">
-                          <%= image_tag(speaker_portrait(speaker.portrait)) %>
+                          <img class="lazy-load" data-src="<%= speaker_portrait(speaker.portrait) %>">
                         </div>
                     <% end %>
                 <% end %>

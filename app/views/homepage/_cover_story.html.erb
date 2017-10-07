@@ -15,7 +15,7 @@
             </a>
           </p>
 
-          <%= render(partial: "shared/speaker_stat", collection: @cover_story.speakers.distinct) %>
+          <%= render(partial: "shared/speaker_stat", collection: @cover_story.speakers.distinct, lazy_load_images: false) %>
         </div>
 
         <% if @cover_story.illustration %>

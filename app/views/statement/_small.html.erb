@@ -10,7 +10,7 @@
   </figure>
 
   <div class="photo-wrapper">
-    <%= image_tag(speaker_portrait(statement.speaker.portrait), alt: statement.speaker.full_name) %>
+    <img class="lazy-load" data-src="<%= speaker_portrait(statement.speaker.portrait) %>" alt="<%= statement.speaker.full_name %>">
   </div>
 
   <p>

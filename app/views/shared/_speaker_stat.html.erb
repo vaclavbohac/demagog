@@ -2,7 +2,11 @@
   <figure class="speaker">
     <% if speaker_stat.portrait %>
       <div class="photo-wrapper">
-        <%= image_tag(speaker_portrait(speaker_stat.portrait), alt: speaker_stat.full_name) %>
+        <% if local_assigns[:lazy_load_images] == false %>
+          <img class="lazy-load" data-src="<%= speaker_portrait(speaker_stat.portrait) %>" alt="<%= speaker_stat.full_name %>">
+        <% else %>
+          <%= image_tag(speaker_portrait(speaker_stat.portrait), alt: speaker_stat.full_name) %>
+        <% end %>
       </div>
     <% end %>
     <p class="name"><a href="<%= speaker_path(speaker_stat.id) %>"><%= speaker_stat.full_name %></a></p>

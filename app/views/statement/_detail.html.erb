@@ -5,7 +5,7 @@
         <a href="<%= speaker_path(statement.speaker.id) %>">
           <div class="photo-wrapper">
             <% if statement.speaker.portrait.file != "" %>
-              <%= image_tag(speaker_portrait(statement.speaker.portrait), alt: statement.speaker.full_name) %>
+              <img class="lazy-load" data-src="<%= speaker_portrait(statement.speaker.portrait) %>" alt="<%= statement.speaker.full_name %>">
             <% end %>
           </div>
         </a>
