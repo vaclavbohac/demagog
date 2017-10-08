@@ -3,13 +3,23 @@
 correct:
   statement: one
   veracity: one
-  explanation: MyText
+  explanation: Explanation why statement one is true
   evaluation_status: correct
   evaluated_at: 2017-09-18 09:35:56
   disputed: false
 
+uncorrect:
+  statement: one
+  veracity: two
+  explanation: Removed explanation why statement one is untrue
+  evaluation_status: removed
+  evaluated_at: 2017-09-18 09:35:56
+  disputed: true
+
 two:
-  explanation: MyText
-  evaluation_status: MyString
+  statement: two
+  veracity: two
+  explanation: Explanation why statement two is untrue
+  evaluation_status: correct
   evaluated_at: 2017-09-18 09:35:56
   disputed: false

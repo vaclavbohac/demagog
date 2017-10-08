@@ -2,17 +2,18 @@
 
 one:
   before_name: MyString
-  first_name: MyString
-  last_name: MyString
+  first_name: John
+  last_name: Doe
   after_name: MyString
   bio: MyText
   website_url: MyString
   status: false
+  attachment: one
 
 two:
   before_name: MyString
-  first_name: MyString
-  last_name: MyString
+  first_name: Jane
+  last_name: Doe
   after_name: MyString
   bio: MyText
   website_url: MyString

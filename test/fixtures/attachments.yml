@@ -2,7 +2,7 @@
 
 one:
   attachment_type: portrait
-  file: MyString
+  file: 123456.jpg
   description: MyText
   source_url: MyString
 

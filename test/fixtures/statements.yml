@@ -1,7 +1,28 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  content: MyText
+  content: Publised true statement
+  questionables: false
+  speaker: one
+  source: one
+  excerpted_at: 2017-09-17 17:59:14
+  important: false
+  published: true
+  count_in_statistics: false
+
+
+two:
+  content: Published false statement
+  questionables: false
+  speaker: one
+  source: two
+  excerpted_at: 2017-09-17 17:59:14
+  important: false
+  published: true
+  count_in_statistics: false
+
+three:
+  content: Not published statement
   questionables: false
   speaker: one
   source: one
@@ -10,10 +31,3 @@ one:
   published: false
   count_in_statistics: false
 
-two:
-  content: MyText
-  questionables: false
-  excerpted_at: 2017-09-17 17:59:14
-  important: false
-  published: false
-  count_in_statistics: false

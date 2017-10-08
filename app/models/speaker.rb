@@ -25,7 +25,7 @@ class Speaker < ApplicationRecord
   end
 
   def party
-    parties.last
+    memberships.current.party
   end
 
   def stats_for_debate(source)
@@ -49,22 +49,20 @@ class Speaker < ApplicationRecord
   private
     def build_stats(statements)
       correct_assessments = Assessment
+        .includes(:veracity)
         .where(statement: statements)
         .where(evaluation_status: Assessment::STATUS_CORRECT)
 
       correct_assessments.reduce(empty_stats) do |acc, assessment|
-        acc[Veracity.default_name(assessment.veracity_id).to_sym] += 1
-
+        acc[assessment.veracity.key.to_sym] += 1
         acc
       end
     end
 
     def empty_stats
-      {
-        true: 0,
-        untrue: 0,
-        misleading: 0,
-        unverifiable: 0
-      }
+      Veracity.all.reduce({}) do |acc, veracity|
+        acc[veracity.key.to_sym] = 0
+        acc
+      end
     end
 end

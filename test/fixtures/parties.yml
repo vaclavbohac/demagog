@@ -1,11 +1,11 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  name: MyString
-  short_name: MyString
-  description: MyString
+party_a:
+  name: Party A
+  short_name: pa
+  description: Description of Party A
 
-two:
-  name: MyString
-  short_name: MyString
-  description: MyString
+party_b:
+  name: Party B
+  short_name: pb
+  description: Description of Party B
