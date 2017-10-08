@@ -11,6 +11,8 @@ class Statement < ApplicationRecord
   has_many :articles, through: :article_has_segments
   has_many :assessments
 
+  scope :published, -> { where(published: true).order(excerpted_at: :desc) }
+
   def self.interesting_statements
     limit(4)
       .includes(:speaker, :attachments)

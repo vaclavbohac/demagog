@@ -29,27 +29,21 @@ class Speaker < ApplicationRecord
   end
 
   def stats_for_debate(source)
-    statements = self.statements
-      .where("statements.source_id = ?", source.id)
-      .where("statements.published = ?", true)
-
-    build_stats(statements)
+    build_stats statements.published.where(source_id: source.id)
   end
 
   def stats
-    statements = self.statements
-      .where("statements.published = ?", true)
-
-    build_stats(statements)
+    build_stats statements.published
   end
 
-  def empty_stats
-    {
-      true: 0,
-      untrue: 0,
-      misleading: 0,
-      unverifiable: 0
-    }
+  def statements_by_veracity(veracity_id)
+    statements
+      .published
+      .joins(:assessments)
+      .where(assessments: {
+        evaluation_status: Assessment::STATUS_CORRECT,
+        veracity_id: veracity_id
+      })
   end
 
   private
@@ -63,5 +57,14 @@ class Speaker < ApplicationRecord
 
         acc
       end
+    end
+
+    def empty_stats
+      {
+        true: 0,
+        untrue: 0,
+        misleading: 0,
+        unverifiable: 0
+      }
     end
 end

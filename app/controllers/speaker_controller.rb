@@ -8,11 +8,21 @@ class SpeakerController < ApplicationController
 
   def show
     @speaker = Speaker.find(params[:id])
-    @statements = @speaker
-      .statements
-      .where(published: true)
-      .order(excerpted_at: :desc)
-      .page(params[:page])
+
+    @statements = get_speaker_statements(@speaker)
+
     @stats = @speaker.stats
+    @veracities = Veracity.all
   end
+
+  private
+    def get_speaker_statements(speaker)
+      statements = if params[:veracity]
+        speaker.statements_by_veracity(params[:veracity])
+      else
+        speaker.statements.published
+      end
+
+      statements.page(params[:page])
+    end
 end
