@@ -16,6 +16,10 @@ class Article < ApplicationRecord
     self.user
   end
 
+  def unique_speakers
+    speakers.distinct
+  end
+
   def self.cover_story
     find_by({ published: true }, { published_at: :desc })
   end

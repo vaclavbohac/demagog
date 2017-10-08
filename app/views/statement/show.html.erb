@@ -20,7 +20,15 @@
 
   <div class="large-5 columns">
     <h2>Řečník</h2>
-    <%= render(partial: "shared/speaker_stat", object: @statement.speaker) %>
+    <%=
+      render(
+        partial: "shared/speaker_stat",
+        locals: {
+          speaker: @statement.speaker,
+          stats: @statement.speaker.stats
+        }
+      )
+    %>
 
     <h2>Zmíněno</h2>
     <ul>

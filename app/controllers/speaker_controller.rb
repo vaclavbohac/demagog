@@ -13,5 +13,6 @@ class SpeakerController < ApplicationController
       .where(published: true)
       .order(excerpted_at: :desc)
       .page(params[:page])
+    @stats = @speaker.stats
   end
 end

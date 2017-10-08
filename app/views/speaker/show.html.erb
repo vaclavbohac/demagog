@@ -12,16 +12,16 @@
 
         <p class="politicianStats">
             <span title="Pravda" class="numberOfStatements true glyphicons circle_ok">
-                <i></i> <span class="veracityNumber"><%= @speaker.stats[:true] %> </span> Pravda
+                <i></i> <span class="veracityNumber"><%= @stats[:true] %> </span> Pravda
             </span>
             <span title="Nepravda" class="numberOfStatements untrue glyphicons circle_remove">
-                <i></i> <span class="veracityNumber"><%= @speaker.stats[:untrue] %> </span> Nepravda
+                <i></i> <span class="veracityNumber"><%= @stats[:untrue] %> </span> Nepravda
             </span>
             <span title="Zavádějící" class="numberOfStatements misleading glyphicons circle_exclamation_mark">
-                <i></i> <span class="veracityNumber"><%= @speaker.stats[:misleading] %> </span> Zavádějící
+                <i></i> <span class="veracityNumber"><%= @stats[:misleading] %> </span> Zavádějící
             </span>
             <span title="Neověřitelné" class="numberOfStatements unverifiable glyphicons circle_question_mark">
-                <i></i> <span class="veracityNumber"><%= @speaker.stats[:unverifiable] %> </span> Neověřitelné
+                <i></i> <span class="veracityNumber"><%= @stats[:unverifiable] %> </span> Neověřitelné
             </span>
         </p>
     </div>
@@ -51,7 +51,7 @@
 </div>
 
 <div class="speakers-details-statements">
-  <%= render(partial: 'statement/detail', collection: @statements, as: :statement, non_attributed: true) %>
+  <%= render(partial: 'statement/detail', collection: @statements, as: :statement, locals: { non_attributed: true }) %>
 
   <div class="row">
     <div class="columns">

@@ -9,6 +9,7 @@ class Statement < ApplicationRecord
   has_many :segments, through: :segment_has_statements
   has_many :article_has_segments, through: :segments
   has_many :articles, through: :article_has_segments
+  has_many :assessments
 
   def self.interesting_statements
     limit(4)

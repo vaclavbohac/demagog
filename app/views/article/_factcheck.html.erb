@@ -17,7 +17,17 @@
                 Moderátor: <%= @article.source.media_personality.name %>
             </p>
 
-            <%= render(partial: "shared/speaker_stat", collection: @article.speakers.distinct) %>
+            <% @article.unique_speakers.each do |speaker| %>
+              <%=
+                render(
+                  partial: "shared/speaker_stat",
+                  locals: {
+                    speaker: speaker,
+                    stats: speaker.stats_for_debate(@article.source)
+                  }
+                )
+              %>
+            <% end %>
         </div>
     <% end %>
 </div>

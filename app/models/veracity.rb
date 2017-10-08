@@ -11,18 +11,20 @@ class Veracity < ApplicationRecord
   ID_MISLEADING = 3
   ID_UNVERIFIABLE = 4
 
-  has_many :assessments
-
-  def default_names
-    {
+  DEFAULT_NAMES = {
       Veracity::ID_TRUE => "true",
       Veracity::ID_UNTRUE => "untrue",
       Veracity::ID_MISLEADING => "misleading",
       Veracity::ID_UNVERIFIABLE => "unverifiable"
-    }
-  end
+  }
+
+  has_many :assessments
 
   def default_name
-    default_names[id]
+    Veracity::DEFAULT_NAMES[id]
+  end
+
+  def self.default_name(id)
+    Veracity::DEFAULT_NAMES[id]
   end
 end

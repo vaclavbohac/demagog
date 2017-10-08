@@ -1,6 +1,6 @@
 <article class="cover-story">
   <% if @cover_story %>
-    <% if @cover_story.speakers.distinct.length < 3 %>
+    <% if @cover_story.unique_speakers.length < 3 %>
       <div class="row">
         <div class="columns">
           <h1>
@@ -15,7 +15,16 @@
             </a>
           </p>
 
-          <%= render(partial: "shared/speaker_stat", collection: @cover_story.speakers.distinct, lazy_load_images: false) %>
+          <% @cover_story.unique_speakers.each do |speaker| %>
+            <%= render(
+              partial: "shared/speaker_stat",
+              locals: {
+                speaker: speaker,
+                stats: speaker.stats_for_debate(@cover_story.source),
+                lazy_load_images: false
+              })
+            %>
+          <% end %>
         </div>
 
         <% if @cover_story.illustration %>
@@ -48,7 +57,16 @@
           </p>
         </div>
         <div class="perex large-5 columns">
-          <%= render(partial: "shared/speaker_stat", collection: @cover_story.speakers.distinct) %>
+          <% @cover_story.unique_speakers.each do |speaker| %>
+            <%= render(
+              partial: "shared/speaker_stat",
+              locals: {
+                speaker: speaker,
+                stats: speaker.stats_for_debate(@cover_story.source),
+                lazy_load_images: false
+              })
+            %>
+          <% end %>
         </div>
       </div>
     <% end %>
