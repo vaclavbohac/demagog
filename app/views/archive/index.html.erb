@@ -1,0 +1,11 @@
+<div class="row">
+  <div class="columns">
+    <h1>Archiv textů</h1>
+
+    <% @articles.each do |article| %>
+      <%= render(partial: 'article/preview', object: article, as: :article) %>
+    <% end %>
+
+    {{ knp_pagination_render(articles, "@DemagogWeb/Web/_pagination.html.twig") }}
+  </div>
+</div>
