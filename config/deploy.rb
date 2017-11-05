@@ -26,6 +26,8 @@ set :nvm_type, :user # or :system, depends on your nvm setup
 set :nvm_node, "v6.11.5"
 set :nvm_map_bins, %w{node npm yarn}
 
+set :unicorn_config_path, "/etc/unicorn.conf"
+
 ## Defaults:
 # set :scm,           :git
 # set :branch,        :master
@@ -34,7 +36,7 @@ set :nvm_map_bins, %w{node npm yarn}
 # set :keep_releases, 5
 
 ## Linked Files & Directories (Default None):
-set :linked_files, %w{config/database.yml .env}
+set :linked_files, %w{config/database.yml config/unicorn/production.rb .env}
 # set :linked_dirs,  %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
 
 namespace :deploy do
