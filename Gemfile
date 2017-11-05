@@ -18,8 +18,8 @@ gem "bulk_insert"
 gem "pg"
 # Use MySQL adapter for migration from legacy system
 gem "mysql2"
-# Use Puma as the app server
-gem "puma", "~> 3.7"
+# Use Unicorn as the app server
+gem "unicorn"
 # Use SCSS for stylesheets
 gem "sass-rails", "~> 5.0"
 # Use Uglifier as compressor for JavaScript assets
