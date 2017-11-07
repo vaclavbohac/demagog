@@ -1,140 +1,163 @@
 body, html {
-	background: $white;
-	font-family: "Roboto", sans-serif;
+  background: $white;
+  color: $black;
+  font-family: "Lato", sans-serif;
 }
 
 body {
-	
+  padding-top: 2em;
 }
 
 h1, h2, h3, h4, h5 {
-	font-family: 'Roboto Condensed', sans-serif;
-	font-weight: bold;
-	letter-spacing: -0.02em;
-	margin-top: 1em;
-	color: $gray;
+  font-family: "Lato", sans-serif;
+  font-weight: bold;
+  letter-spacing: 0.025em;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  color: $black;
 }
 
-p, li, blockquote {
-	font-family: "Roboto", sans-serif;
+p, li, blockquote, div {
+  font-family: "Lato", sans-serif;
+  letter-spacing: 0.025em;
+}
+
+blockquote {
+  letter-spacing: 0.05em; 
 }
 
 a {
-	color: $red;
+  color: $orange;
 
-	&:hover {
-		color: $blue;
-	}
+  &:hover {
+    color: $blue;
+  }
 }
 
 img {
-	border-radius: 3px;
+  border-radius: 3px;
 }
 
 header.page-header h1 {
-	display: none;
+  display: none;
 }
 
 nav.top-bar {
-	.name {
-		visibility: hidden;
-		.alt { display: none; }
-		img { height: 40px; margin: 8px 0 0 0; }
-	}
-	.dropdown {
-		border-left: 3px solid $red;
-	}
+  margin: 2em 0;
+
+  .name {
+    margin-left: -2px;
+    .alt { display: none; }
+    img { height: 48px; }
+  }
+  .button {
+    font-family: "Lato", sans-serif;
+    background: $black;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  .has-dropdown a:hover {
+    background-color: $orange !important;
+  }
 }
 .fixed nav.top-bar {
-	box-shadow: 0 0 5px rgba(0, 0, 0, .3);
-	.name { visibility: visible; }
+  margin: 0;
+  box-shadow: 0 0 5px rgba(0, 0, 0, .3);
+  .name { visibility: visible; 
+    img { height: 32px; }
+  }
 }
 
 .social {
-	padding: 100px 0;
-	margin-bottom: -100px;
-	background: $orange;
+  padding: 40px 0;
+  @include inverted;
 }
 
 footer {
-	background: $faded;
-	margin-top: 100px;
-	padding: 100px 0;
-	
-	h2 { margin: 0; }
-	
-	p, .partners { margin: 40px 0; }
+  margin-top: 40px;
+  padding: 40px 0;
+  
+  h2 { margin: 0; }
+  
+  p, .partners { margin: 40px 0; }
 
-	.partners img {
-		max-height: 100px;
-		margin: 0px 30px 50px 0;
-	}
+  .partners img {
+    max-height: 100px;
+    margin: 0px 30px 50px 0;
+  }
 }
 
 
 
 .pagination {
-	font-size: 28px;
-	margin: 50px 0;
+  font-size: rem-calc(18);
+  margin: 50px -10px;
 
-	a {
-		padding: 0 10px;
-	}
+  span {
+    padding: 0 10px;
+  }
 
-	.current-page {
-		background-color: $gray;
-		color: $white;
-	}
+  .current-page {
+    background-color: $black;
+    color: $white;
+  }
 }
 
 .references {
-	background: $gray;
-	padding-top: 20px;
-	margin-top: 40px;
+  @include inverted;
+  padding-bottom: 40px;
 
-	a { color: $orange; }
-	p { color: $white; }
+  .photo-wrapper {
+    width: 80px;
+    height: 80px;
+    float: right;
+    margin-right: 10px;
 
-	.photo-wrapper {
-		float: left;
-		margin-right: 10px;
-	}
+    box-shadow: 0 0 0 3px $white;
+  }
 
-	h4 {
-		margin-bottom: 0;
-	}
+  h4 {
+    margin-top: 0em;
+    margin-bottom: 0;
+  }
 
-	.position {
-		font-size: 12px;
-		height: 50px;
-	}
+  .position {
+    font-size: 12px;
+    margin-bottom: 1em;
+  }
 }
 
 .discussion {
-	div.uvod, div.uvod * {
-		line-height: 25px;
-	}
+  div.uvod, div.uvod * {
+    line-height: 25px;
+  }
 }
 
 .related {
-	border-top: 1px solid #aaa;
+  border-top: 1px solid #aaa;
 
-	div > ul > li {
-		list-style-type: none;
-	}
+  div > ul > li {
+    list-style-type: none;
+  }
 }
 
 
 
 .label {
-	font-family: "Roboto Condensed", sans-serif;
-	text-transform: uppercase;
-	font-weight: bold;
-	border-radius: 3px;
-	
-	vertical-align: text-top;
-	padding: 0.25rem 0.5rem 0.15rem;
-	
-	&.factcheck { background-color: $green; }
-	&.editorial { background-color: $red; } 
+  font-family: "Lato", sans-serif;
+  text-transform: uppercase;
+  font-weight: bold;
+  border-radius: 3px;
+  
+  vertical-align: text-top;
+  padding: 0.25rem 0.5rem 0.15rem;
+  
+  &.factcheck { background-color: $true; }
+  &.editorial { background-color: $orange; } 
 }
+
+input[type="text"] {
+  border: 0.5px solid $black;
+}
+
+

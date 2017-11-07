@@ -1,168 +1,158 @@
-.veracityNumber {
-	font-size: 24px;
-	display: inline-block;
-}
-
-.true.glyphicons, .true.glyphicons i:before { color: $green; content: "\e194"; }
-.untrue.glyphicons, .untrue.glyphicons i:before { color: $red; content: "\e193"; }
-.misleading.glyphicons, .misleading.glyphicons i:before { color: $orange; content: "\e197"; }
-.unverifiable.glyphicons, .unverifiable.glyphicons i:before { color: $blue; content: "\e195"; }
-.notyet.glyphicons, .notyet.glyphicons i:before { color: $gray; }
-
 .statement .veracity {
-	color: $white !important;
-	background-color: $gray;
-	font-weight: bold;
-	margin: 6px 5px 0 0;
-	padding: 4px 10px 6px;
-
-	.glyphicons {
-		color: $white;
-
-		i:before {
-			font-size: 20px;
-			line-height: 17px;
-			color: $white;
-		}
-	}
-
-	&.true { background-color: $green }
-	&.untrue { background-color: $red; }
-	&.misleading { background-color: $orange; }
-	&.unverifiable { background-color: $blue; }
+  @include veracity;
 }
-
 
 .color-legend {
-	-webkit-box-shadow: 0 0 1px 1px #eee;
-	box-shadow: 0 0 1px 1px #eee;
-	background: #f6f6f6;
-	padding: 0 10px 5px;
+  -webkit-box-shadow: 0 0 1px 1px #eee;
+  box-shadow: 0 0 1px 1px #eee;
+  background: #f6f6f6;
+  padding: 0 10px 5px;
 
-	line-height: 32px;
-	margin-bottom: 32px;
-
-	.glyphicons i:before { font-size: 20px; line-height: 32px; }
-
+  line-height: 32px;
+  margin-bottom: 32px;
 }
 
 .row.statement {
-	margin-top: 50px;
-	overflow: hidden;
+  margin-bottom: 40px;
+  overflow: hidden;
 
-	figure.speaker {
-		float: right;
-	}
+  figure.speaker {
+    float: right;
+  }
 
-	figure.speaker:last-child {
-		float: none;
-	}
-		
-	.photo-wrapper {
-		margin-bottom: 5px;
-	}
+  figure.speaker:last-child {
+    float: none;
+  }
+    
+  .photo-wrapper {
+    margin-bottom: 5px;
+  }
 
-	&:first-child {
-		margin-top: 0;
-	}
+  &:first-child {
+    margin-top: 0;
+  }
 
-	.quote {
-		font-size: 120%;
-		font-style: italic;
-		margin-bottom: 0;
-		
-		b {
-			font-style: normal;
-			text-transform: uppercase;
-			font-size: 90%;
-		}
-	}
-	
-	.permalink {
-		color: #666;
-		padding-left: 10px;
-	}
+  .quote {
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5em;
+    
+    b {
+      font-style: normal;
+      text-transform: uppercase;
+      font-size: 90%;
+    }
+  }
+  
+  .permalink, .show-reasons {
+    display: inline-block;
+    margin-left: 1em;
+  }
 
-	.show-reasons {
-		margin-top: 5px;
-		padding: 6px 5px 7px;
-		display: inline-block;
-	}
+  .permalink {
+    color: #666;
 
-	.reasons {
-		padding-top: 15px;
-		margin-bottom: 40px;
+    &::after {
+      content: '';
+      display: inline-block;
+      background-repeat: no-repeat;
+      background-image: image-url('share.svg');
+      background-position: 50% 50%;
+      background-size: contain;
+      width: 2em;
+      height: 1em;
+      margin-bottom: -2px;
+    }
+  }
 
-		-webkit-transition: all 300ms ease;
-		-moz-transition: all 300ms ease;
-		-ms-transition: all 300ms ease;
-		-o-transition: all 300ms ease;
-		transition: all 300ms ease;
+  .reasons {
+    padding-top: 15px;
+    margin-bottom: 40px;
 
-		* {
-			line-height: 25px;
-		}
+    -webkit-transition: all 300ms ease;
+    -moz-transition: all 300ms ease;
+    -ms-transition: all 300ms ease;
+    -o-transition: all 300ms ease;
+    transition: all 300ms ease;
 
-		.veracity {
-			float: left;
-			margin-right: 12px;
-			padding: 5px 10px 7px;
-		}
+    * {
+      line-height: 25px;
+    }
 
-		table {
-			margin: 20px 0;
-			border-collapse: collapse;
-		}
+    .veracity {
+      font-size: 120%;
+      font-weight: bold;
+      float: left;
+      margin-bottom: 0.75rem;
+    }
 
-		.show-reasons {
-			display: none;
-		}
+    table {
+      margin: 20px 0;
+      border-collapse: collapse;
+    }
 
-		&.hidden {
-			padding-top: 0;
+    .show-reasons {
+      display: none;
+    }
 
-			.explanation {
-				display: none;
-			}
+    &.hidden {
+      padding-top: 0;
 
-			.show-reasons {
-				display: inline-block;
-			}
-		}
-	}
+      .explanation {
+        display: none;
+      }
+
+      .show-reasons {
+        display: inline-block;
+      }
+    }
+  }
 }
 
 
 
 .interesting-statements {
-	
-	.statement {
-		margin-top: 0;
-	}
-	.name a {
-		display: inline;
-	}
-	p {
-		font-size: .9em;
-		margin: 0;
-	}
-	.photo-wrapper {
-		float: right;
-		margin-right: 0;
-		width: 70px;
-		height: 70px;
-	}
+  @include inverted;
+  padding: 20px 0 40px;
+  margin: 20px 0 60px;
+
+  .statement {
+    margin-top: 1em;
+    margin-bottom: 1em;
+
+    .veracity {
+      @include veracity(0.8);
+      margin-left: 0.1em;
+    }
+  }
+  .name a {
+    display: inline;
+  }
+  p {
+    font-size: rem-calc(14);
+    margin: 0;
+  }
+  .photo-wrapper {
+    float: right;
+    margin-right: 0;
+    width: 70px;
+    height: 70px;
+  }
 }
 
 
 .statement-detail {
-	blockquote {
-		font-size: 130%;
-		
-		b {
-			font-size: 90%;
-			font-style: normal;
-			text-transform: uppercase;
-		}
-	}
+  blockquote {
+    font-size: 130%;
+    
+    b {
+      font-size: 90%;
+      font-style: normal;
+      text-transform: uppercase;
+    }
+  }
+
+  .veracity {
+    @include veracity;
+    white-space: nowrap;
+  }
 }
