@@ -44,6 +44,9 @@ gem "jbuilder", "~> 2.5"
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
+# Use friendly to generate slugs
+gem "friendly_id", "~> 5.1.0"
+
 # Use Capistrano for deployment
 group :development do
   gem "capistrano", require: false

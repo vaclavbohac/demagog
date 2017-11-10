@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Article < ApplicationRecord
+  extend FriendlyId
+
   belongs_to :article_type
   belongs_to :source, optional: true
   belongs_to :user, optional: true
@@ -11,6 +13,8 @@ class Article < ApplicationRecord
   has_many :statements, through: :segments
   has_many :speakers, through: :statements
   has_many :attachments, through: :speakers
+
+  friendly_id :title, use: :slugged
 
   def author
     self.user

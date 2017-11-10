@@ -67,6 +67,8 @@ class ArticleMigration
         ])
       end
     end
+
+    Article.find_each(&:save)
   end
 
   def migrate_static_pages
