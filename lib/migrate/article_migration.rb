@@ -75,7 +75,6 @@ class ArticleMigration
     old_articles = self.connection.query("
       SELECT *
       FROM static_pages
-      WHERE page_type IN(1,4)
     ")
 
     article_type = ArticleType.find_by(name: "static")
