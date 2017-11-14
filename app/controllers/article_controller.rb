@@ -2,7 +2,7 @@
 
 class ArticleController < ApplicationController
   def index
-    @article = Article.find(params[:id])
+    @article = Article.friendly.find(params[:id])
 
     expires_in 1.hour, public: true
     if stale? @article, public: true

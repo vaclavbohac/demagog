@@ -7,10 +7,10 @@ Rails.application.routes.draw do
     get "(page/:page)", action: :index, on: :collection, as: ""
   end
 
-  get "statement/:id" => "statement#show", as: "statement"
-  get "article/:id" => "article#index", as: "article"
-  get "speaker/:id" => "speaker#show", as: "speaker", concerns: :paginatable
-  get "archive" => "archive#index", as: "archive", concerns: :paginatable
+  get "vyrok/:id" => "statement#show", as: "statement"
+  get "diskuze/:id" => "article#index", as: "article"
+  get "politici/:id" => "speaker#show", as: "speaker", concerns: :paginatable
+  get "archiv" => "archive#index", as: "archive", concerns: :paginatable
 
   root to: "homepage#index"
 

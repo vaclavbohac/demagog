@@ -1,11 +1,11 @@
 <% if local_assigns[:type] == "column" %>
     <article class="row preview">
         <div class="large-8 columns">
-            <h1><a class="title" href="<%= article_path(article.id) %>">Komentář: <%= article.title %></a></h1>
+            <h1><a class="title" href="<%= article_path(article) %>">Komentář: <%= article.title %></a></h1>
 
             <p class="clickthrough">
                 <span class="label editorial">Komentář</span> <i><%= raw(l(article.published_at, format: :long)) %></i> &mdash; <%= article.perex %>
-                <a href="<%= article_path(article.id) %>">
+                <a href="<%= article_path(article) %>">
                     <span>Číst&nbsp;dál&nbsp;&rarr;</span>
                 </a>
             </p>
@@ -13,7 +13,7 @@
 
         <div class="large-4 columns">
             <div class="show-for-medium-up">
-                <a title="<%= article.title %>" href="<%= article_path(article.id) %>">
+                <a title="<%= article.title %>" href="<%= article_path(article) %>">
                   <img class="lazy-load" data-src="<%= article_illustration(article.illustration, article.article_type.name) %>">
                 </a>
             </div>
@@ -23,7 +23,7 @@
     <article class="row preview">
         <div class="large-4 medium-3 columns">
             <div class="show-for-medium-up">
-                <a title="<%= article.title %>" href="<%= article_path(article.id) %>">
+                <a title="<%= article.title %>" href="<%= article_path(article) %>">
                     <% if article.illustration.file != "" %>
                       <img class="lazy-load" data-src="<%= article_illustration(article.illustration, article.article_type.name) %>">
                     <% end %>
@@ -42,7 +42,7 @@
                 <% end %>
             </div>
 
-            <h1><%= link_to(article.title, article_path(article.id), class: "title") %></h1>
+            <h1><%= link_to(article.title, article_path(article), class: "title") %></h1>
 
             <p class="clickthrough">
                 <span class="label <%= article.article_type.name %>">
@@ -64,7 +64,7 @@
 
                 <%= strip_tags(article.perex).truncate(230) %>
 
-                <a href="<%= article_path(article.id) %>">
+                <a href="<%= article_path(article) %>">
                     <span>Číst&nbsp;dál&nbsp;&rarr;</span>
                 </a>
             </p>

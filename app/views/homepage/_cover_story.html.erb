@@ -4,7 +4,7 @@
       <div class="row">
         <div class="columns">
           <h1>
-            <%= link_to(@cover_story.title, article_path(@cover_story.id)) %>
+            <%= link_to(@cover_story.title, article_path(@cover_story)) %>
           </h1>
         </div>
         <div class="perex large-5 columns">
@@ -39,7 +39,7 @@
       <div class="row">
         <div class="columns">
           <h1>
-              <%= link_to(@cover_story.title, article_path(@cover_story.id)) %>
+              <%= link_to(@cover_story.title, article_path(@cover_story)) %>
           </h1>
         </div>
         <div class="perex large-8 columns">
@@ -51,7 +51,7 @@
 
           <p>
             <%= strip_tags(@cover_story.perex) %>
-            <a href="<%= article_path(@cover_story.id) %>">
+            <a href="<%= article_path(@cover_story) %>">
                 Prohlédnout&nbsp;diskusi
             </a>
           </p>

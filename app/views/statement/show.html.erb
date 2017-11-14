@@ -32,7 +32,7 @@
     <h2>Zmíněno</h2>
     <ul>
     <% @statement.articles.each do |article| %>
-      <li><%= link_to(article.title, article_path(article.id)) %></li>
+      <li><%= link_to(article.title, article_path(article)) %></li>
     <% end %>
     </ul>
   </div>
