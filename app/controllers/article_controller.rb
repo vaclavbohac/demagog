@@ -4,6 +4,8 @@ class ArticleController < ApplicationController
   def index
     @article = Article.friendly.find(params[:id])
 
+    return unless Rails.env.production?
+
     expires_in 1.hour, public: true
     if stale? @article, public: true
       respond_to do |format|
