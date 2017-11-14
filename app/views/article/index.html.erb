@@ -1,3 +1,5 @@
+<% content_for(:title, @article.title) %>
+
 <article class="full-text">
    <% if @article.article_type.name == "default" %>
        <%= render("factcheck") %>
