@@ -15,9 +15,9 @@ class Statement < ApplicationRecord
 
   def self.interesting_statements
     limit(4)
+      .published
       .includes(:speaker, :attachments)
       .where(important: true)
-      .order(excerpted_at: :desc)
   end
 
   def correct_assessment
