@@ -68,7 +68,9 @@ class ArticleMigration
       end
     end
 
-    Article.find_each(&:save)
+    # Necessary to generate slugs
+    # TODO: Replace by something more performant
+    Article.find_each(&:save!)
   end
 
   def migrate_static_pages
