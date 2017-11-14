@@ -210,7 +210,7 @@ cs:
     am: am
     formats:
       default: "%a %d. %B %Y %H:%M %z"
-      long: "%A %d. %B %Y %H:%M"
+      long: "%-d.&nbsp;%-B.&nbsp;%Y"
       short: "%d. %m. %H:%M"
     pm: pm
   views:
