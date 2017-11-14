@@ -25,6 +25,7 @@ class Article < ApplicationRecord
   end
 
   def self.cover_story
-    find_by({ published: true }, { published_at: :desc })
+    order(published_at: :desc)
+      .find_by(published: true)
   end
 end
