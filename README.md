@@ -1,24 +1,57 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Political fact checking website. For more information see http://demagog.cz/o-nas (in czech).
 
-Things you may want to cover:
+### Ruby version
 
-* Ruby version
+2.4.1
 
-* System dependencies
+## Configuration
 
-* Configuration
+Site configuration is done via .env file (see dotenv project).
 
-* Database creation
+```
+// .env
+DEMAGOG_IMAGE_SERVICE_URL=https://pacific-meadow-53023.herokuapp.com
+```
 
-* Database initialization
+### Services (job queues, cache servers, search engines, etc.)
 
-* How to run the test suite
+#### Server for requesting static assets from legacy server
 
-* Services (job queues, cache servers, search engines, etc.)
+HTTP server that upon request downloads an image from the legacy server and caches it locally.
 
-* Deployment instructions
+For more information see https://github.com/vaclavbohac/demagog-image-service
 
-* ...
+### Migration from legacy DB
+
+```sh
+rake db:drop db:create db:migrate migration:run
+```
+
+### Deployment instructions
+
+Deploy to production:
+```sh
+cap production deploy
+```
+
+Stop production unicorn:
+```sh
+cap production rvm:hook unicorn:reload
+```
+
+Reload production unicorn:
+```sh
+cap production rvm:hook unicorn:reload
+```
+
+Stop production unicorn:
+```sh
+cap production rvm:hook unicorn:stop
+```
+
+Start production unicorn:
+```sh
+cap production rvm:hook unicorn:start
+```
