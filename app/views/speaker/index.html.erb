@@ -8,7 +8,7 @@
 
       <div class="row">
         <% @party.current_members.each do |speaker| %>
-            <%# include "DemagogWebBundle:Web:Speaker/_listed-speaker.html.twig" with {'speaker': speaker } %>
+          <%= render(partial: 'speaker/listed', object: speaker, as: :speaker) %>
         <% end %>
       </div>
     <% else %>
@@ -17,7 +17,7 @@
       <div class="row">
         <% @speakers.each do |speaker| %>
           <figure class="speaker">
-            <a href="<%= speaker_path(speaker.id) %>">
+            <a href="<%= speaker_path(speaker) %>">
               <% if speaker.portrait %>
                 <div class="photo-wrapper">
                   <%= image_tag(speaker_portrait(speaker.portrait), alt: speaker.full_name) %>

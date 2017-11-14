@@ -1,15 +1,17 @@
 <h2>Výpisy řečníků</h2>
 
 <p>
-  <%= link_to("Řečníci s nejvíce výroky", speaker_index_path()) %>
+  <%= link_to("Řečníci s nejvíce výroky", speakers_path()) %>
 </p>
 
 <h3>Politické strany</h3>
 <ul>
   <% @parties.each do |party| %>
     <li>
-      <%= link_to(party.name, speaker_index_path(party.id)) %>
+      <%= link_to(party.name, speakers_path(party.id)) %>
     </li>
   <% end %>
+  <%#
   <li><a href="">Ostatní strany</a></li>
+  %>
 </ul>

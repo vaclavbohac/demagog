@@ -4,6 +4,8 @@ class SpeakerController < ApplicationController
   def index
     @speakers = Speaker.top_speakers
     @parties = Party.min_members(3)
+
+    @party = Party.find(params[:id]) if params[:id]
   end
 
   def show
