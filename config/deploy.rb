@@ -39,6 +39,8 @@ set :unicorn_config_path, "/etc/unicorn.conf"
 set :linked_files, %w{config/database.yml config/unicorn/production.rb .env}
 # set :linked_dirs,  %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
 
+set :linked_dirs,  %w{tmp/pids}
+
 namespace :deploy do
   desc "Make sure local git is in sync with remote."
   task :check_revision do
