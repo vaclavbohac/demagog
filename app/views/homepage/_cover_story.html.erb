@@ -30,7 +30,7 @@
         <% if @cover_story.illustration %>
           <div class="perex large-7 columns">
             <p>
-              <%= image_tag(article_illustration(@cover_story.illustration)) %>
+              <%= image_tag(article_illustration(@cover_story.illustration, @cover_story.article_type.name)) %>
             </p>
           </div>
         <% end %>
@@ -45,7 +45,7 @@
         <div class="perex large-8 columns">
           <% if @cover_story.illustration %>
             <p>
-              <%= image_tag(article_illustration(@cover_story.illustration)) %>
+              <%= image_tag(article_illustration(@cover_story.illustration, @cover_story.article_type.name)) %>
             </p>
           <% end %>
 
