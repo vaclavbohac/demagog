@@ -47,6 +47,9 @@ gem "jbuilder", "~> 2.5"
 # Use friendly to generate slugs
 gem "friendly_id", "~> 5.1.0"
 
+# Add skylight profiler
+gem "skylight"
+
 # Use Capistrano for deployment
 group :development do
   gem "capistrano", require: false
