@@ -15,7 +15,7 @@ article {
     display: inline;
     border: 1px solid #ccc;
     padding: 10px;
-    background: 97% 50% no-repeat url('../images/select.png') white;
+    background: 97% 50% no-repeat image-url('select.png') white;
     -webkit-appearance: none;
     border-radius: 0;
     width: 25%;
@@ -46,8 +46,8 @@ article.preview {
     margin: -9px 0 10px;
     text-align: left;
   }
-  .speakers { 
-    overflow: hidden; padding: 3px 13px 13px 3px; 
+  .speakers {
+    overflow: hidden; padding: 3px 13px 13px 3px;
     float: right;
     max-width: 45%;
     margin-bottom: -1rem;
