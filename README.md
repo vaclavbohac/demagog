@@ -13,6 +13,7 @@ Site configuration is done via .env file (see dotenv project).
 ```
 // .env
 DEMAGOG_IMAGE_SERVICE_URL=https://pacific-meadow-53023.herokuapp.com
+MIGRATION_DATABASE_URL=mysql2://username:password@server/database
 ```
 
 ### Services (job queues, cache servers, search engines, etc.)
@@ -26,7 +27,7 @@ For more information see https://github.com/vaclavbohac/demagog-image-service
 ### Migration from legacy DB
 
 ```sh
-rake db:drop db:create db:migrate migration:run
+RAILS_ENV=migration bin/rails db:drop db:create db:migrate migration:run
 ```
 
 ### Deployment instructions

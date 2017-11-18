@@ -74,8 +74,6 @@ class ArticleMigration
   end
 
   def migrate_static_pages
-    ActiveRecord::Base.connection.reset_pk_sequence!("articles")
-
     old_articles = self.connection.query("
       SELECT *
       FROM static_pages
