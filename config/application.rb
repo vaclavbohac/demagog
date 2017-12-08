@@ -16,5 +16,13 @@ module Demagog
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
+
+    # Enable CORS to /graphql resource from anywhere
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins '*'
+        resource '/graphql', :headers => :any, :methods => [:get, :post, :options]
+      end
+    end
   end
 end

@@ -34,6 +34,8 @@ gem "kaminari"
 gem "webpacker", "~> 3.0"
 # Add graphql support
 gem "graphql"
+# Allow CORS setup
+gem 'rack-cors', :require => 'rack/cors'
 
 # Use CoffeeScript for .coffee assets and views
 gem "coffee-rails", "~> 4.2"
