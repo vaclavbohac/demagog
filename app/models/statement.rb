@@ -10,6 +10,7 @@ class Statement < ApplicationRecord
   has_many :article_has_segments, through: :segments
   has_many :articles, through: :article_has_segments
   has_many :assessments
+  has_many :veracities, through: :assessments
 
   scope :published, -> { where(published: true).order(excerpted_at: :desc) }
 

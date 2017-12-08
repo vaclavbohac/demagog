@@ -16,6 +16,10 @@ class Speaker < ApplicationRecord
       .limit(5)
   end
 
+  def published_statements
+    statements.published
+  end
+
   def portrait
     attachment
   end
