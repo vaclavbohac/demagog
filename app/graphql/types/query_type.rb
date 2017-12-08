@@ -80,4 +80,28 @@ Types::QueryType = GraphQL::ObjectType.define do
       Veracity.all
     }
   end
+
+  field :article, Types::ArticleType do
+    argument :slug, !types.String
+
+    resolve -> (obj, args, ctx) {
+      Article.where(published: true).friendly.find(args[:slug])
+    }
+  end
+
+  field :articles, types[Types::ArticleType] do
+    argument :offset, types.Int, default_value: 0
+    argument :limit, types.Int, default_value: 10
+    argument :article_type, types.String, default_value: "default"
+    argument :order, types.String, default_value: "desc"
+
+    resolve -> (obj, args, ctx) {
+      Article
+        .joins(:article_type)
+        .where(published: true, article_types: { name: args[:article_type] })
+        .offset(args[:offset])
+        .limit(args[:limit])
+        .order(published_at: args[:order])
+    }
+  end
 end
