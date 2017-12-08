@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Types::VeracityKeyType = GraphQL::ScalarType.define do
   name "VeracityKey"
   description "Assessment veracity – can be either true, untrue, misleading or unverifiable"

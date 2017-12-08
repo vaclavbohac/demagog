@@ -35,7 +35,7 @@ gem "webpacker", "~> 3.0"
 # Add graphql support
 gem "graphql"
 # Allow CORS setup
-gem 'rack-cors', :require => 'rack/cors'
+gem "rack-cors", require: "rack/cors"
 
 # Use CoffeeScript for .coffee assets and views
 gem "coffee-rails", "~> 4.2"
@@ -89,4 +89,4 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-gem 'graphiql-rails', '1.4.4'
+gem "graphiql-rails", "1.4.4"

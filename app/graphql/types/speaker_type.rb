@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Types::SpeakerType = GraphQL::ObjectType.define do
   name "Speaker"
 
@@ -24,14 +26,14 @@ Types::SpeakerType = GraphQL::ObjectType.define do
       if args[:veracity]
         statements
           .joins(:assessments, :veracities)
-          .where({
-              assessments: {
-                evaluation_status: Assessment::STATUS_CORRECT
-              },
-              veracities: {
-                key: args[:veracity]
-              }
-          })
+          .where(
+            assessments: {
+              evaluation_status: Assessment::STATUS_CORRECT
+            },
+            veracities: {
+              key: args[:veracity]
+            }
+          )
       else
         statements
       end

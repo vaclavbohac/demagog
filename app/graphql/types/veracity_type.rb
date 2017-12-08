@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Types::VeracityType = GraphQL::ObjectType.define do
   name "Veracity"
 

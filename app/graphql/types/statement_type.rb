@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Types::StatementType = GraphQL::ObjectType.define do
   name "Statement"
 

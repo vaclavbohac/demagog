@@ -53,7 +53,7 @@ class MediumMigration
     end
 
     def migrate_sources
-      old_sources = self.connection.query("SELECT * FROM diskusia");
+      old_sources = self.connection.query("SELECT * FROM diskusia")
       old_sources.each do |old_source|
         Source.create!(
           id: old_source["id"],

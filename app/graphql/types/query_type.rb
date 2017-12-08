@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Types::QueryType = GraphQL::ObjectType.define do
   name "Query"
   # Add root-level fields here.
@@ -44,15 +46,15 @@ Types::QueryType = GraphQL::ObjectType.define do
     argument :limit, types.Int, default_value: 10
     argument :offset, types.Int, default_value: 0
     argument :speaker, types.Int
+    argument :veracity, Types::VeracityKeyType
 
     resolve -> (obj, args, ctx) {
       statements = Statement.offset(args[:offset]).limit(args[:limit])
 
-      if args[:speaker]
-        statements.where(speaker: args[:speaker])
-      else
-        statements
-      end
+      statements = statements.where(speaker: args[:speaker]) if args[:speaker]
+      statements = statements.joins(:veracities).where(veracities: { key: args[:veracity] }) if args[:veracity]
+
+      statements
     }
   end
 
