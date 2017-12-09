@@ -8,6 +8,8 @@ require_relative "./party_migration"
 require_relative "./speaker_migration"
 require_relative "./statement_migration"
 require_relative "./veracity_migration"
+require_relative "./user_migration"
+require_relative "./user_role_migration"
 
 class MigrationManager
   attr_accessor :connection
@@ -25,7 +27,9 @@ class MigrationManager
       SpeakerMigration,
       StatementMigration,
       MembershipMigration,
-      MediumMigration
+      MediumMigration,
+      UserRoleMigration,
+      UserMigration
     ]
 
     tasks.each { |task| task.new(connection).perform }
