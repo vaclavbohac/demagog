@@ -25,7 +25,10 @@
                 </div>
               <% end %>
               <p class="name"><%= speaker.full_name %></p>
-              <p><%= speaker.statements.where("excerpted_at >= ?", 6.months.ago).count %> výroků</p>
+              <p>
+                <%= speaker.published_statements.where("excerpted_at >= ?", 6.months.ago).count %> výroků
+                (<%= speaker.published_statements.count %>&nbsp;výroků&nbsp;celkem)
+              </p>
             </a>
           </figure>
         <% end %>

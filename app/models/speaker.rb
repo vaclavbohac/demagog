@@ -11,6 +11,7 @@ class Speaker < ApplicationRecord
     joins(:statements)
       .select("speakers.*, COUNT(statements.id) as statements_count")
       .where("statements.excerpted_at >= ?", 6.months.ago)
+      .where("statements.published = ?", true)
       .group("speakers.id")
       .order("statements_count DESC")
       .limit(5)
