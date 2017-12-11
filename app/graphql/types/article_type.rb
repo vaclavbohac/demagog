@@ -7,6 +7,8 @@ Types::ArticleType = GraphQL::ObjectType.define do
   field :title, !types.String
   field :slug, !types.String
   field :perex, types.String
+  field :published_at, !types.String
+  field :source, Types::SourceType
 
   field :article_type, !types.String do
     resolve ->(obj, args, ctx) {
