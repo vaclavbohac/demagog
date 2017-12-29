@@ -28,13 +28,13 @@
 
   <% @users.each do |user| %>
     <div class="row" style="margin-bottom: 50px; clear: both;">
-      <div class="large-3 pull-3 columns">
+      <div class="large-2 medium-2 columns">
         <div class="photo-wrapper">
           <%= image_tag(user_portrait(user.portrait), class: 'vyrok_fotografia') %>
         </div>
       </div>
 
-      <div class="large-9 pull-3 columns">
+      <div class="large-8 medium-8 pull-2 columns">
         <h3 style="text-align: left; margin-bottom: 0;"><%= user.full_name %></h3>
         <p style="margin: 0; font-style: italic"><%= user.position_description %></p>
 
