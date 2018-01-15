@@ -23,7 +23,7 @@ p, li, blockquote, div {
 }
 
 blockquote {
-  letter-spacing: 0.05em; 
+  letter-spacing: 0.05em;
 }
 
 a {
@@ -59,7 +59,7 @@ nav.top-bar {
   .has-dropdown a:hover {
     background-color: $orange !important;
   }
-  
+
 
   @media (max-width: $medium-breakpoint) {
     margin: 0 0 2em;
@@ -78,7 +78,7 @@ nav.top-bar {
 .fixed nav.top-bar {
   margin: 0;
   box-shadow: 0 0 5px rgba(0, 0, 0, .3);
-  .name { visibility: visible; 
+  .name { visibility: visible;
     img { height: 32px; }
   }
 }
@@ -91,12 +91,13 @@ nav.top-bar {
 footer {
   margin-top: 40px;
   padding: 40px 0;
-  
+
   h2 { margin: 0; }
-  
+
   p, .partners { margin: 40px 0; }
 
   .partners img {
+    max-width: 188px;
     max-height: 100px;
     margin: 0px 30px 50px 0;
   }
@@ -163,12 +164,12 @@ footer {
   text-transform: uppercase;
   font-weight: bold;
   border-radius: 3px;
-  
+
   vertical-align: text-top;
   padding: 0.25rem 0.5rem 0.15rem;
-  
+
   &.factcheck { background-color: $true; }
-  &.editorial { background-color: $orange; } 
+  &.editorial { background-color: $orange; }
 }
 
 input[type="text"] {
