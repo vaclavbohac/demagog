@@ -8,7 +8,7 @@ lock "~> 3.10.0"
 
 server "188.226.140.217", port: 22, roles: [:web, :app, :db], primary: true
 
-set :repo_url,        "git@github.com:vaclavbohac/demagog.git"
+set :repo_url,        "git@github.com:Demagog2/demagog.git"
 set :application,     "demagog"
 set :user,            "rails"
 set :puma_threads,    [4, 16]
