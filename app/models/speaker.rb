@@ -5,7 +5,9 @@ class Speaker < ApplicationRecord
   has_many :bodies, through: :memberships
   has_many :statements
   has_many :assessments, through: :statements
-  belongs_to :attachment
+  belongs_to :attachment, optional: true
+
+  has_one_attached :avatar
 
   def self.top_speakers
     joins(:statements)
@@ -15,6 +17,15 @@ class Speaker < ApplicationRecord
       .group("speakers.id")
       .order("statements_count DESC")
       .limit(5)
+  end
+
+  def self.active_members_of_body(body_id)
+    joins(:memberships)
+      .where(memberships: { body_id: body_id, until: nil })
+  end
+
+  def self.matching_name(name)
+    where("first_name LIKE ? OR last_name LIKE ?", "%#{name}%", "%#{name}%")
   end
 
   def published_statements

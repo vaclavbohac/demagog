@@ -11,6 +11,14 @@ Types::SpeakerType = GraphQL::ObjectType.define do
   field :bio, !types.String
   field :website_url, !types.String
 
+  field :avatar, types.String do
+    resolve -> (obj, args, ctx) do
+      return nil unless obj.avatar.attached?
+
+      Rails.application.routes.url_helpers.rails_blob_path(obj.avatar, only_path: true)
+    end
+  end
+
   field :portrait, types.String do
     resolve -> (obj, args, ctx) do
       return nil if obj.portrait.file.empty?

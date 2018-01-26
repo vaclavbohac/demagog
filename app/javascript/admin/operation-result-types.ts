@@ -1,0 +1,160 @@
+/* tslint:disable */
+//  This file was automatically generated and should not be edited.
+
+export interface BodyInputType {
+  name: string,
+  is_party: boolean,
+  is_inactive: boolean,
+  short_name?: string | null,
+  link?: string | null,
+  founded_at?: string | null,
+  terminated_at?: string | null,
+};
+
+export interface SpeakerInputType {
+  first_name: string,
+  last_name: string,
+  website_url?: string | null,
+  memberships: Array< MembershipInputType | null >,
+};
+
+export interface MembershipInputType {
+  body: number,
+  since?: string | null,
+  until?: string | null,
+};
+
+export interface createBodyMutationVariables {
+  bodyInput: BodyInputType,
+};
+
+export interface createBodyMutation {
+  // Add new body
+  createBody:  {
+    id: string,
+    logo: string | null,
+    name: string,
+    is_party: boolean,
+    short_name: string | null,
+    description: string | null,
+  },
+};
+
+export interface UpdateBodyMutationVariables {
+  id: number,
+  bodyInput: BodyInputType,
+};
+
+export interface UpdateBodyMutation {
+  // Update existing body
+  updateBody:  {
+    id: string,
+  } | null,
+};
+
+export interface CreateSpeakerMutationVariables {
+  speakerInput: SpeakerInputType,
+};
+
+export interface CreateSpeakerMutation {
+  // Add new speaker
+  createSpeaker:  {
+    id: string,
+    first_name: string,
+    last_name: string,
+    party:  {
+      short_name: string | null,
+    } | null,
+  } | null,
+};
+
+export interface UpdateSpeakerMutationVariables {
+  id: number,
+  speakerInput: SpeakerInputType,
+};
+
+export interface UpdateSpeakerMutation {
+  // Update existing speaker
+  updateSpeaker:  {
+    id: string,
+    first_name: string,
+    last_name: string,
+    party:  {
+      short_name: string | null,
+    } | null,
+  } | null,
+};
+
+export interface GetBodiesQueryVariables {
+  name?: string | null,
+};
+
+export interface GetBodiesQuery {
+  bodies:  Array< {
+    id: string,
+    logo: string | null,
+    name: string,
+    is_party: boolean,
+    short_name: string | null,
+    description: string | null,
+  } >,
+};
+
+export interface GetBodyQueryVariables {
+  id: number,
+};
+
+export interface GetBodyQuery {
+  body:  {
+    id: string,
+    logo: string | null,
+    link: string | null,
+    name: string,
+    is_party: boolean,
+    is_inactive: boolean,
+    short_name: string | null,
+    description: string | null,
+    founded_at: string | null,
+    terminated_at: string | null,
+  },
+};
+
+export interface GetSpeakerBodiesQuery {
+  bodies:  Array< {
+    id: string,
+    name: string,
+  } >,
+};
+
+export interface GetSpeakerQueryVariables {
+  id: number,
+};
+
+export interface GetSpeakerQuery {
+  speaker:  {
+    id: string,
+    first_name: string,
+    last_name: string,
+    website_url: string,
+    party:  {
+      id: string,
+      name: string,
+    } | null,
+  },
+};
+
+export interface GetSpeakersQueryVariables {
+  name?: string | null,
+};
+
+export interface GetSpeakersQuery {
+  speakers:  Array< {
+    id: string,
+    first_name: string,
+    last_name: string,
+    avatar: string | null,
+    party:  {
+      short_name: string | null,
+    } | null,
+  } | null > | null,
+};

@@ -1,0 +1,154 @@
+/* eslint jsx-a11y/anchor-has-content: 0, jsx-a11y/anchor-is-valid: 0 */
+
+import * as React from 'react';
+
+import { debounce } from 'lodash';
+import { Query } from 'react-apollo';
+import { Link } from 'react-router-dom';
+
+import { GetSpeakers } from '../queries/queries';
+import Loading from './Loading';
+import { ImageUploadModal } from './modals/ImageUploadModal';
+
+// TODO: Replace by generated interface
+interface ISpeaker {
+  id: number;
+  first_name: string;
+  last_name: string;
+  website_url: string;
+  avatar: string;
+  party: {
+    short_name: string;
+  };
+}
+
+interface ISpeakersState {
+  name: string | null;
+  isProfilePictureModalOpen: boolean;
+  speakerId: number;
+}
+
+export default class Bodies extends React.Component<{}, ISpeakersState> {
+  constructor(props: {}) {
+    super(props);
+
+    this.state = {
+      name: null,
+      speakerId: -1,
+      isProfilePictureModalOpen: false,
+    };
+  }
+
+  private updateName = debounce((name: string) => this.setState({ name }), 500);
+
+  private openProfilePictureModal = (speakerId: number) => (
+    evt: React.MouseEvent<HTMLAnchorElement>,
+  ) => {
+    this.setState({
+      isProfilePictureModalOpen: true,
+      speakerId,
+    });
+
+    evt.preventDefault();
+  };
+
+  private closeProfilePictureModal = () => {
+    this.setState({ isProfilePictureModalOpen: false });
+  };
+
+  // tslint:disable-next-line:member-ordering
+  public render() {
+    return (
+      <React.Fragment>
+        {this.state.isProfilePictureModalOpen && (
+          <ImageUploadModal
+            speakerId={this.state.speakerId}
+            onClose={this.closeProfilePictureModal}
+          />
+        )}
+
+        <div>
+          <h1>Lidé</h1>
+
+          <Link style={{ marginBottom: 20 }} className="btn btn-primary" to="/admin/speakers/new">
+            Přidat novou osobu
+          </Link>
+
+          <input
+            style={{ marginBottom: 20 }}
+            className="form-control"
+            type="search"
+            placeholder="Vyhledat politickou osobu"
+            onChange={(evt) => this.updateName(evt.target.value)}
+          />
+
+          <Query query={GetSpeakers} variables={{ name: this.state.name }}>
+            {(props) => {
+              if (props.loading) {
+                return <Loading />;
+              }
+
+              if (props.error) {
+                return <h1>{props.error}</h1>;
+              }
+
+              return (
+                <div>
+                  {props.data.speakers.map((speaker: ISpeaker) => (
+                    <div className="card" key={speaker.id} style={{ marginBottom: '1rem' }}>
+                      <Link
+                        to={`/admin/speakers/edit/${speaker.id}`}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          height: '100%',
+                          width: '100%',
+                        }}
+                      />
+
+                      <div className="card-body">
+                        <div className="profile-picture">
+                          {speaker.avatar ? (
+                            <img
+                              src={speaker.avatar}
+                              alt={speaker.last_name}
+                              className="img-thumbnail"
+                            />
+                          ) : (
+                            <img
+                              src="http://legacy.demagog.cz/data/users/default.png"
+                              alt="TODO"
+                              className="img-thumbnail"
+                            />
+                          )}
+                          <a onClick={this.openProfilePictureModal(speaker.id)} href="">
+                            Upravit
+                          </a>
+                        </div>
+
+                        <div
+                          style={{ height: 106, display: 'inline-block', marginLeft: 15, top: 0 }}
+                        >
+                          <h5>
+                            {speaker.first_name} {speaker.last_name}
+                          </h5>
+
+                          <h6>{speaker.party ? speaker.party.short_name : 'Nestraník'}</h6>
+                        </div>
+
+                        {speaker.website_url && (
+                          <a href={speaker.website_url}>{speaker.website_url}</a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            }}
+          </Query>
+        </div>
+      </React.Fragment>
+    );
+  }
+}
