@@ -19,6 +19,9 @@ Rails.application.routes.draw do
 
   root to: "homepage#index"
 
+  # Shortcut redirect
+  get "workshopy", to: redirect("/diskuze/workshopy-demagogcz")
+
   # Redirects from legacy web server
   get "diskusie/:id/:slug" => "redirect#index", as: "redirect_discussion"
   get ":slug" => "redirect#index", as: "redirect_static"
