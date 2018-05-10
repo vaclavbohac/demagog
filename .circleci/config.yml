@@ -18,7 +18,7 @@ jobs:
       # - image: circleci/postgres:9.4
 
       - image: circleci/mysql:5.7.18
-        env:
+        environment:
          - MYSQL_ALLOW_EMPTY_PASSWORD=true
          - MYSQL_HOST=127.0.0.1
          - MYSQL_ROOT_HOST=%
@@ -67,11 +67,26 @@ jobs:
           name: Run rubocop
           command: bundle exec rubocop
 
+      # run eslint
+      - run:
+          name: Run eslint
+          command: yarn lint
+
+      - run:
+          name: Run TypeScript compiler
+          command: yarn run tsc --noEmit
+
       # run tests!
       - run:
           name: run tests
           command: |
             bundle exec rake test
+
+      # run more tests!
+      - run:
+          name: run jest
+          command: |
+            yarn run jest
 
       # collect reports
       # - store_test_results:

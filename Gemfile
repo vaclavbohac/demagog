@@ -55,11 +55,23 @@ gem "meta-tags"
 # Enables env. specific configuration
 gem "config"
 
+# Authentication
+gem "devise"
+
+# Enables devise & omniauth to authenticate against Google OAuth 2
+gem "omniauth-google-oauth2"
+
 # Use redis for store layer
 gem "redis", "~> 4.0", ">= 4.0.1"
 
+# Use Amazon S3 for active storage for production environment
+gem "aws-sdk-s3", require: false
+
 # Patches security vulnerability CVE-2018-8048
 gem "loofah", "~> 2.2.1"
+
+# Enable image processing for active storage
+gem "image_processing", "~> 1.2"
 
 # Add skylight profiler
 # gem "skylight"
