@@ -20,9 +20,6 @@ set :deploy_via,      :remote_cache
 set :deploy_to,       "/home/#{fetch(:user)}/apps/#{fetch(:application)}"
 set :ssh_options,     forward_agent: true, user: fetch(:user), keys: %w(~/.ssh/id_rsa.pub)
 
-# Install both dependencies and dev dependencies
-set :yarn_flags, '--silent --no-progress'
-
 set :unicorn_config_path, "/etc/unicorn.conf"
 
 ## Defaults:
