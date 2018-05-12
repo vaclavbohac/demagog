@@ -5,6 +5,8 @@ class Admin::FileUploadController < ApplicationController
 
   skip_before_action :verify_authenticity_token
 
+  before_action :authenticate_user!
+
   # https://pqina.nl/filepond/docs/patterns/api/server/
   def upload_profile_picture
     params.permit!
