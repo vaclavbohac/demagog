@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 class Admin::FileUploadController < ApplicationController
-  layout false
-
   skip_before_action :verify_authenticity_token
 
   before_action :authenticate_user!
 
-  # https://pqina.nl/filepond/docs/patterns/api/server/
   def upload_profile_picture
     params.permit!
 
@@ -20,10 +17,17 @@ class Admin::FileUploadController < ApplicationController
     )
 
     speaker.save!
+
+    head :ok
   end
 
   def delete_profile_picture
-    # remove the temporary image for speaker with params[:id]
-    Speaker.find(params["id"])
+    begin
+      speaker = Speaker.find(params[:id])
+
+      speaker.avatar.purge
+    rescue ActiveRecord::RecordNotFound
+      head :not_found
+    end
   end
 end
