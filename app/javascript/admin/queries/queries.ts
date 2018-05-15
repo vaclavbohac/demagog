@@ -35,6 +35,9 @@ export const GetSpeakersBodies = gql`
     bodies(limit: 1000) {
       id
       name
+      short_name
+      is_inactive
+      terminated_at
     }
   }
 `;
@@ -46,9 +49,13 @@ export const GetSpeaker = gql`
       first_name
       last_name
       website_url
-      party {
+      memberships {
         id
-        name
+        body {
+          id
+        }
+        since
+        until
       }
     }
   }
@@ -61,7 +68,7 @@ export const GetSpeakers = gql`
       first_name
       last_name
       avatar
-      party {
+      body {
         short_name
       }
     }

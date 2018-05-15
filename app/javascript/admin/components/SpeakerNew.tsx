@@ -24,9 +24,10 @@ interface ISpeakerNewProps extends RouteComponentProps<{}> {
 class SpeakerNewMutation extends Mutation<CreateSpeakerMutation, CreateSpeakerMutationVariables> {}
 
 class SpeakerNew extends React.Component<ISpeakerNewProps> {
-  private onCompleted = () => {
+  private onCompleted = (data: CreateSpeakerMutation) => {
     this.props.addFlashMessage('Osoba byla úspěšně uložena.');
     this.props.history.push('/admin/speakers');
+    this.props.history.push(`/admin/speakers/edit/${data.createSpeaker.id}`);
   };
 
   private onError = (error: ApolloError) => {
@@ -75,9 +76,10 @@ class SpeakerNew extends React.Component<ISpeakerNewProps> {
             }
           }}
         >
-          {(createSpeaker) => (
+          {(createSpeaker, { loading }) => (
             <SpeakerForm
               onSubmit={(speakerInput) => createSpeaker({ variables: { speakerInput } })}
+              submitting={loading}
             />
           )}
         </SpeakerNewMutation>

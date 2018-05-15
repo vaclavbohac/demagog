@@ -7,8 +7,8 @@ import { withRouter } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import {
-  createBodyMutation,
-  createBodyMutationVariables,
+  CreateBodyMutation,
+  CreateBodyMutationVariables,
   GetBodiesQuery,
 } from '../operation-result-types';
 import { CreateBody } from '../queries/mutations';
@@ -19,7 +19,7 @@ interface IBodyNewProps extends RouteComponentProps<{}> {
   addFlashMessage: (msg: string) => void;
 }
 
-class BodyNewMutation extends Mutation<createBodyMutation, createBodyMutationVariables> {}
+class BodyNewMutation extends Mutation<CreateBodyMutation, CreateBodyMutationVariables> {}
 
 // tslint:disable-next-line:max-classes-per-file
 class BodyNew extends React.Component<IBodyNewProps> {
@@ -52,17 +52,20 @@ class BodyNew extends React.Component<IBodyNewProps> {
           onCompleted={this.onCompleted}
           onError={this.onError}
         >
-          {(createBody) => (
-            <BodyForm onSubmit={(bodyInput) => createBody({ variables: { bodyInput } })} />
+          {(createBody, { loading }) => (
+            <BodyForm
+              onSubmit={(bodyInput) => createBody({ variables: { bodyInput } })}
+              submitting={loading}
+            />
           )}
         </BodyNewMutation>
       </div>
     );
   }
 
-  private onCompleted = () => {
+  private onCompleted = (data: CreateBodyMutation) => {
     this.props.addFlashMessage('Strana / skupina byla úspěšně uložena.');
-    this.props.history.push('/admin/bodies');
+    this.props.history.push(`/admin/bodies/edit/${data.createBody.id}`);
   };
 
   private onError = (error) => {

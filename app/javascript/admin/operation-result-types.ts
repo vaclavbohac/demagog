@@ -19,16 +19,17 @@ export interface SpeakerInputType {
 };
 
 export interface MembershipInputType {
-  body: number,
-  since?: string | null,
-  until?: string | null,
+  id: number | null,
+  body_id: number,
+  since: string | null,
+  until: string | null,
 };
 
-export interface createBodyMutationVariables {
+export interface CreateBodyMutationVariables {
   bodyInput: BodyInputType,
 };
 
-export interface createBodyMutation {
+export interface CreateBodyMutation {
   // Add new body
   createBody:  {
     id: string,
@@ -58,14 +59,14 @@ export interface CreateSpeakerMutationVariables {
 
 export interface CreateSpeakerMutation {
   // Add new speaker
-  createSpeaker:  {
+  createSpeaker: {
     id: string,
     first_name: string,
     last_name: string,
-    party:  {
+    body:  {
       short_name: string | null,
     } | null,
-  } | null,
+  },
 };
 
 export interface UpdateSpeakerMutationVariables {
@@ -79,9 +80,15 @@ export interface UpdateSpeakerMutation {
     id: string,
     first_name: string,
     last_name: string,
-    party:  {
-      short_name: string | null,
-    } | null,
+    website_url: string,
+    memberships: Array< {
+      id: string,
+      body: {
+        id: string
+      },
+      since: string | null,
+      until: string | null
+    } >
   } | null,
 };
 
@@ -123,6 +130,9 @@ export interface GetSpeakerBodiesQuery {
   bodies:  Array< {
     id: string,
     name: string,
+    short_name: string,
+    is_inactive: boolean,
+    terminated_at: string | null
   } >,
 };
 
@@ -136,10 +146,14 @@ export interface GetSpeakerQuery {
     first_name: string,
     last_name: string,
     website_url: string,
-    party:  {
+    memberships: Array< {
       id: string,
-      name: string,
-    } | null,
+      body: {
+        id: string
+      },
+      since: string | null,
+      until: string | null
+    } >
   },
 };
 
@@ -153,7 +167,7 @@ export interface GetSpeakersQuery {
     first_name: string,
     last_name: string,
     avatar: string | null,
-    party:  {
+    body: {
       short_name: string | null,
     } | null,
   } | null > | null,

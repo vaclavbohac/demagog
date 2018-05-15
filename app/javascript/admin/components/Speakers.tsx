@@ -17,7 +17,7 @@ interface ISpeaker {
   last_name: string;
   website_url: string;
   avatar: string;
-  party: {
+  body: {
     short_name: string;
   };
 }
@@ -134,7 +134,7 @@ export default class Bodies extends React.Component<{}, ISpeakersState> {
                             {speaker.first_name} {speaker.last_name}
                           </h5>
 
-                          <h6>{speaker.party ? speaker.party.short_name : 'Nestraník'}</h6>
+                          <h6>{speaker.body ? speaker.body.short_name : 'Nestraník'}</h6>
                         </div>
 
                         {speaker.website_url && (

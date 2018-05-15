@@ -56,6 +56,17 @@ Types::SpeakerType = GraphQL::ObjectType.define do
     }
   end
 
+  field :memberships, !types[!Types::MembershipType] do
+    argument :limit, types.Int, default_value: 10
+    argument :offset, types.Int, default_value: 0
+
+    resolve -> (obj, args, ctx) {
+      obj.memberships
+        .offset(args[:offset])
+        .limit(args[:limit])
+    }
+  end
+
   field :body, Types::BodyType
 
   field :party, Types::PartyType do

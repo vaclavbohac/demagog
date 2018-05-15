@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_04_18_202647) do
+ActiveRecord::Schema.define(version: 2018_05_14_230300) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
@@ -168,8 +168,8 @@ ActiveRecord::Schema.define(version: 2018_04_18_202647) do
   create_table "memberships", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "body_id"
     t.bigint "speaker_id"
-    t.datetime "since"
-    t.datetime "until"
+    t.date "since"
+    t.date "until"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["body_id"], name: "index_memberships_on_body_id"

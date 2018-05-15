@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Speaker < ApplicationRecord
-  has_many :memberships
+  has_many :memberships, dependent: :destroy
   has_many :bodies, through: :memberships
   has_many :statements
   has_many :assessments, through: :statements

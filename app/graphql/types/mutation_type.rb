@@ -46,7 +46,7 @@ Types::MutationType = GraphQL::ObjectType.define do
       speaker = args[:speaker_input].to_h
 
       speaker["memberships"] = speaker["memberships"].map do |mem|
-        Membership.new(body: Body.find(mem["body"]), since: mem["since"], until: mem["until"])
+        Membership.new(body: Body.find(mem["body_id"]), since: mem["since"], until: mem["until"])
       end
 
       Speaker.create!(speaker)
@@ -60,7 +60,27 @@ Types::MutationType = GraphQL::ObjectType.define do
     argument :speaker_input, !Types::SpeakerInputType
 
     resolve -> (obj, args, ctx) {
-      Speaker.update(args[:id], args[:speaker_input].to_h)
+      speaker = args[:speaker_input].to_h
+
+      speaker["memberships"] = speaker["memberships"].map do |mem|
+        membership = mem["id"] ? Membership.find(mem["id"]) : Membership.new()
+
+        membership.assign_attributes({
+          :body => Body.find(mem["body_id"]),
+          :since => mem["since"],
+          :until => mem["until"]
+        })
+
+        membership
+      end
+
+      Speaker.transaction do
+        speaker["memberships"].each do |mem|
+          mem.save
+        end
+
+        Speaker.update(args[:id], speaker)
+      end
     }
   end
 end

@@ -50,10 +50,11 @@ class SpeakerDetail extends React.Component<ISpeakerDetailProps> {
                 onError={this.onError}
                 onCompleted={this.onComplete}
               >
-                {(updateSpeaker) => (
+                {(updateSpeaker, { loading }) => (
                   <SpeakerForm
                     speakerQuery={data}
                     onSubmit={(speakerInput) => updateSpeaker({ variables: { id, speakerInput } })}
+                    submitting={loading}
                   />
                 )}
               </Mutation>

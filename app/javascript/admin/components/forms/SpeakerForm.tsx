@@ -1,15 +1,20 @@
 /* eslint camelcase: 0, react/sort-comp: 0 */
 
 import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { Query } from 'react-apollo';
 
 import { v4 as uuid } from 'uuid';
 
-import { GetSpeakerQuery, SpeakerInputType } from '../../operation-result-types';
-import { Membership } from './Membership';
+import Loading from '../Loading';
+import { GetSpeakerQuery, SpeakerInputType, GetSpeakerBodiesQuery } from '../../operation-result-types';
+import { GetSpeakersBodies } from '../../queries/queries';
+import { IMembership, MembershipForm } from './MembershipForm';
 
 interface ISpeakerFormProps {
   speakerQuery?: GetSpeakerQuery;
   onSubmit: (body: SpeakerInputType) => void;
+  submitting: boolean;
 }
 
 interface ISpeakerFields {
@@ -18,26 +23,19 @@ interface ISpeakerFields {
   website_url?: string;
 }
 
-interface IMembership {
-  key: string;
-  body: number;
-  since?: string;
-  until?: string;
-}
-
 interface ISpeakerFormState extends ISpeakerFields {
   isFormValidated: boolean;
 
   memberships: IMembership[];
 }
 
-// TODO: Replace default body id
-function createMembership(): IMembership {
+function createMembership(body_id: string): IMembership {
   return {
     key: uuid(),
-    body: 11,
-    since: undefined,
-    until: undefined,
+    id: null,
+    body_id,
+    since: null,
+    until: null,
   };
 }
 
@@ -73,7 +71,13 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
         last_name: props.speakerQuery.speaker.last_name,
         website_url: props.speakerQuery.speaker.website_url,
 
-        memberships: [],
+        memberships: props.speakerQuery.speaker.memberships.map((m) => ({
+          key: uuid(),
+          id: m.id,
+          body_id: m.body.id,
+          since: m.since,
+          until: m.until
+        })),
       };
     }
   }
@@ -105,14 +109,21 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
     return {
       first_name: first_name || '',
       last_name: last_name || '',
-      website_url,
-      memberships: memberships.map((m) => ({ body: m.body, since: m.since, until: m.until })),
+      website_url: website_url || '',
+      memberships: memberships.map((m) => ({
+        id: m.id ? parseInt(m.id, 10) : null,
+        body_id: m.body_id ? parseInt(m.body_id, 10) : 0,
+        since: m.since,
+        until: m.until
+      })),
     };
   }
 
-  private addMembership = (evt) => {
+  private addMembership = (bodiesQuery: GetSpeakerBodiesQuery) => (evt) => {
+    const defaultBody = bodiesQuery.bodies[0]
+
     this.setState({
-      memberships: [...this.state.memberships, createMembership()],
+      memberships: [...this.state.memberships, createMembership(defaultBody.id)],
     });
 
     evt.preventDefault();
@@ -145,7 +156,7 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
 
   // tslint:disable-next-line:member-ordering
   public render() {
-    const { speakerQuery } = this.props;
+    const { speakerQuery, submitting } = this.props;
 
     if (!speakerQuery) {
       return null;
@@ -187,7 +198,6 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
           <div className="form-group col-md-6">
             <label htmlFor="illustration">Respektovaný odkaz (wiki, nasipolitici):</label>
             <input
-              required
               className="form-control"
               id="website_url"
               placeholder="Zadejte odkaz"
@@ -197,27 +207,42 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
           </div>
         </div>
 
-        <div className="form-row">
-          {this.state.memberships.map((m) => (
-            <Membership
-              key={m.key}
-              body={m.body}
-              since={m.since}
-              until={m.until}
-              onRemove={this.removeMembership(m.key)}
-              onChange={this.updateMembership(m.key)}
-            />
-          ))}
+        <Query query={GetSpeakersBodies}>
+          {({ data, loading }) => {
+            if (loading) {
+              return <Loading />;
+            }
 
-          <button onClick={this.addMembership} className="btn btn-secondary">
-            Přidat příslušnost ke straně nebo skupině
-          </button>
-        </div>
+            if (!data) {
+              return null;
+            }
+
+            return (
+              <div className="form-row">
+                {this.state.memberships.map((m) => (
+                  <MembershipForm
+                    key={m.key}
+                    membership={m}
+                    bodies={data.bodies}
+                    onRemove={this.removeMembership(m.key)}
+                    onChange={this.updateMembership(m.key)}
+                  />
+                ))}
+                <button onClick={this.addMembership(data)} className="btn btn-secondary">
+                  Přidat příslušnost ke straně nebo skupině
+                </button>
+              </div>
+            );
+          }}
+        </Query>
 
         <div className="form-row" style={{ marginTop: 20 }}>
-          <button type="submit" className="btn btn-primary">
-            Uložit
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? 'Ukládám ...' : 'Uložit'}
           </button>
+          <Link to="/admin/speakers" className="btn">
+            Zpět na seznam
+          </Link>
         </div>
       </form>
     );

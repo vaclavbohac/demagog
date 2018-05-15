@@ -36,10 +36,11 @@ function BodyEdit(props: IBodyDetailProps) {
               mutation={UpdateBody}
               onCompleted={() => props.addFlashMessage('Strana / skupina byla úspěšně uložena.')}
             >
-              {(updateBody) => (
+              {(updateBody, { loading }) => (
                 <BodyForm
                   bodyQuery={data}
                   onSubmit={(bodyInput) => updateBody({ variables: { id, bodyInput } })}
+                  submitting={loading}
                 />
               )}
             </Mutation>
