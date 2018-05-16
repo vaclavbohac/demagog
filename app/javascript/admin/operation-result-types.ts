@@ -80,6 +80,7 @@ export interface UpdateSpeakerMutation {
     id: string,
     first_name: string,
     last_name: string,
+    avatar: string | null,
     website_url: string,
     memberships: Array< {
       id: string,
@@ -145,6 +146,7 @@ export interface GetSpeakerQuery {
     id: string,
     first_name: string,
     last_name: string,
+    avatar: string | null,
     website_url: string,
     memberships: Array< {
       id: string,

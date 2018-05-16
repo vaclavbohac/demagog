@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 
 import { GetSpeakers } from '../queries/queries';
 import Loading from './Loading';
-import { ImageUploadModal } from './modals/ImageUploadModal';
+import SpeakerAvatar from './SpeakerAvatar'
 
 // TODO: Replace by generated interface
 interface ISpeaker {
@@ -24,7 +24,6 @@ interface ISpeaker {
 
 interface ISpeakersState {
   name: string | null;
-  isProfilePictureModalOpen: boolean;
   speakerId: number;
 }
 
@@ -34,39 +33,16 @@ export default class Bodies extends React.Component<{}, ISpeakersState> {
 
     this.state = {
       name: null,
-      speakerId: -1,
-      isProfilePictureModalOpen: false,
+      speakerId: -1
     };
   }
 
   private updateName = debounce((name: string) => this.setState({ name }), 500);
 
-  private openProfilePictureModal = (speakerId: number) => (
-    evt: React.MouseEvent<HTMLAnchorElement>,
-  ) => {
-    this.setState({
-      isProfilePictureModalOpen: true,
-      speakerId,
-    });
-
-    evt.preventDefault();
-  };
-
-  private closeProfilePictureModal = () => {
-    this.setState({ isProfilePictureModalOpen: false });
-  };
-
   // tslint:disable-next-line:member-ordering
   public render() {
     return (
       <React.Fragment>
-        {this.state.isProfilePictureModalOpen && (
-          <ImageUploadModal
-            speakerId={this.state.speakerId}
-            onClose={this.closeProfilePictureModal}
-          />
-        )}
-
         <div>
           <h1>Lidé</h1>
 
@@ -108,24 +84,11 @@ export default class Bodies extends React.Component<{}, ISpeakersState> {
                       />
 
                       <div className="card-body">
-                        <div className="profile-picture">
-                          {speaker.avatar ? (
-                            <img
-                              src={speaker.avatar}
-                              alt={speaker.last_name}
-                              className="img-thumbnail"
-                            />
-                          ) : (
-                            <img
-                              src="http://legacy.demagog.cz/data/users/default.png"
-                              alt="TODO"
-                              className="img-thumbnail"
-                            />
-                          )}
-                          <a onClick={this.openProfilePictureModal(speaker.id)} href="">
-                            Upravit
-                          </a>
-                        </div>
+                        <SpeakerAvatar
+                          avatar={speaker.avatar}
+                          first_name={speaker.first_name}
+                          last_name={speaker.last_name}
+                        />
 
                         <div
                           style={{ height: 106, display: 'inline-block', marginLeft: 15, top: 0 }}

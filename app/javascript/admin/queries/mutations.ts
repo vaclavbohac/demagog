@@ -52,6 +52,7 @@ export const UpdateSpeaker = gql`
       id
       first_name
       last_name
+      avatar
       website_url
       body {
         short_name

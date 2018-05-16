@@ -49,6 +49,7 @@ export const GetSpeaker = gql`
       first_name
       last_name
       website_url
+      avatar
       memberships {
         id
         body {

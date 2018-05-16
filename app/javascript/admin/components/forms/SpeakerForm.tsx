@@ -7,19 +7,26 @@ import { Query } from 'react-apollo';
 import { v4 as uuid } from 'uuid';
 
 import Loading from '../Loading';
+import SpeakerAvatar from '../SpeakerAvatar'
 import { GetSpeakerQuery, SpeakerInputType, GetSpeakerBodiesQuery } from '../../operation-result-types';
 import { GetSpeakersBodies } from '../../queries/queries';
 import { IMembership, MembershipForm } from './MembershipForm';
+import ImageInput, { ImageValueType } from './controls/ImageInput'
+
+export interface ISpeakerFormData extends SpeakerInputType {
+  avatar: ImageValueType
+}
 
 interface ISpeakerFormProps {
   speakerQuery?: GetSpeakerQuery;
-  onSubmit: (body: SpeakerInputType) => void;
+  onSubmit: (body: ISpeakerFormData) => void;
   submitting: boolean;
 }
 
 interface ISpeakerFields {
   first_name?: string;
   last_name?: string;
+  avatar?: ImageValueType;
   website_url?: string;
 }
 
@@ -48,6 +55,7 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
 
         first_name: '',
         last_name: '',
+        avatar: null,
         website_url: '',
 
         party: {
@@ -69,6 +77,7 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
 
         first_name: props.speakerQuery.speaker.first_name,
         last_name: props.speakerQuery.speaker.last_name,
+        avatar: props.speakerQuery.speaker.avatar,
         website_url: props.speakerQuery.speaker.website_url,
 
         memberships: props.speakerQuery.speaker.memberships.map((m) => ({
@@ -103,12 +112,21 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
     this.setState(state);
   };
 
-  private getFormValues(): SpeakerInputType {
-    const { first_name, last_name, website_url, memberships } = this.state;
+  private onImageChange = (name: keyof ISpeakerFields) => (value: ImageValueType) => {
+    const state: { [P in keyof ISpeakerFields]: string } = {
+      [name]: value,
+    };
+
+    this.setState(state);
+  }
+
+  private getFormValues(): ISpeakerFormData {
+    const { first_name, last_name, avatar, website_url, memberships } = this.state;
 
     return {
       first_name: first_name || '',
       last_name: last_name || '',
+      avatar: avatar || null,
       website_url: website_url || '',
       memberships: memberships.map((m) => ({
         id: m.id ? parseInt(m.id, 10) : null,
@@ -157,8 +175,9 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
   // tslint:disable-next-line:member-ordering
   public render() {
     const { speakerQuery, submitting } = this.props;
+    const { avatar } = this.state
 
-    if (!speakerQuery) {
+    if (!speakerQuery || avatar === undefined) {
       return null;
     }
 
@@ -195,6 +214,18 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
         </div>
 
         <div className="form-row">
+          <div className="form-group col-md-12">
+            <ImageInput
+              label="Portrét"
+              name="avatar"
+              value={avatar}
+              onChange={this.onImageChange('avatar')}
+              renderImage={(src) => <SpeakerAvatar avatar={src} />}
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
           <div className="form-group col-md-6">
             <label htmlFor="illustration">Respektovaný odkaz (wiki, nasipolitici):</label>
             <input
@@ -218,7 +249,7 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
             }
 
             return (
-              <div className="form-row">
+              <React.Fragment>
                 {this.state.memberships.map((m) => (
                   <MembershipForm
                     key={m.key}
@@ -231,12 +262,12 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
                 <button onClick={this.addMembership(data)} className="btn btn-secondary">
                   Přidat příslušnost ke straně nebo skupině
                 </button>
-              </div>
+              </React.Fragment>
             );
           }}
         </Query>
 
-        <div className="form-row" style={{ marginTop: 20 }}>
+        <div style={{ marginTop: 20 }}>
           <button type="submit" className="btn btn-primary" disabled={submitting}>
             {submitting ? 'Ukládám ...' : 'Uložit'}
           </button>

@@ -1,33 +1,81 @@
 import * as React from 'react';
-import { Mutation, Query } from 'react-apollo';
+
+import { Mutation, MutationFn, Query } from 'react-apollo';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import Error from './Error';
 import Loading from './Loading';
+import { uploadSpeakerAvatar, deleteSpeakerAvatar } from '../api'
 
-import { SpeakerForm } from './forms/SpeakerForm';
+import { SpeakerForm, ISpeakerFormData } from './forms/SpeakerForm';
 
 import { UpdateSpeaker } from '../queries/mutations';
+import {
+  UpdateSpeakerMutation,
+  UpdateSpeakerMutationVariables,
+  GetSpeakerQuery
+} from '../operation-result-types';
 import { GetSpeaker } from '../queries/queries';
 
-interface ISpeakerDetailProps extends RouteComponentProps<{ id: string }> {
+class UpdateSpeakerMutationComponent extends Mutation<UpdateSpeakerMutation, UpdateSpeakerMutationVariables> {}
+interface UpdateSpeakerMutationFn extends MutationFn<UpdateSpeakerMutation, UpdateSpeakerMutationVariables> {}
+
+interface ISpeakerEditProps extends RouteComponentProps<{ id: string }> {
   id: number;
   addFlashMessage: (message: string) => void;
 }
 
-class SpeakerDetail extends React.Component<ISpeakerDetailProps> {
-  private onComplete = () => {
-    this.props.addFlashMessage('Uložení problěhlo v pořádku');
+interface ISpeakerEditState {
+  submitting: boolean;
+}
+
+class SpeakerEdit extends React.Component<ISpeakerEditProps, ISpeakerEditState> {
+  state = {
+    submitting: false
   };
 
-  private onError = () => {
-    this.props.addFlashMessage('Doško k chybě při uložení');
+  private onFormSubmit = (id: number, updateSpeaker: UpdateSpeakerMutationFn, previousData: GetSpeakerQuery) => (speakerFormData: ISpeakerFormData) => {
+    const { avatar, ...speakerInput } = speakerFormData;
+
+    this.setState({ submitting: true })
+
+    // We want to first update the avatar and then run mutation so the avatar
+    // gets automatically refresh in Apollo's cache from the mutation result data
+    let avatarPromise: Promise<any> = Promise.resolve()
+    if (avatar instanceof File) {
+      avatarPromise = uploadSpeakerAvatar(id, avatar);
+    } else if (avatar === null && previousData.speaker.avatar !== null) {
+      avatarPromise = deleteSpeakerAvatar(id)
+    }
+
+    avatarPromise
+      .then(() => updateSpeaker({ variables: { id, speakerInput } }))
+      .then(() => {
+        this.setState({ submitting: false })
+        this.onCompleted()
+      })
+      .catch(error => {
+        this.setState({ submitting: false })
+        this.onError(error)
+      })
+  };
+
+  private onCompleted = () => {
+    this.props.addFlashMessage('Uložení proběhlo v pořádku');
+  };
+
+  private onError = (error: any) => {
+    this.props.addFlashMessage('Doško k chybě při uložení dat');
+    
+    console.error(error); // tslint:disable-line:no-console
   };
 
   // tslint:disable-next-line:member-ordering
   public render() {
+    const { submitting } = this.state;
+
     const id = parseInt(this.props.match.params.id, 10);
 
     return (
@@ -45,19 +93,15 @@ class SpeakerDetail extends React.Component<ISpeakerDetailProps> {
             }
 
             return (
-              <Mutation
-                mutation={UpdateSpeaker}
-                onError={this.onError}
-                onCompleted={this.onComplete}
-              >
-                {(updateSpeaker, { loading }) => (
+              <UpdateSpeakerMutationComponent mutation={UpdateSpeaker}>
+                {(updateSpeaker) => (
                   <SpeakerForm
                     speakerQuery={data}
-                    onSubmit={(speakerInput) => updateSpeaker({ variables: { id, speakerInput } })}
-                    submitting={loading}
+                    onSubmit={this.onFormSubmit(id, updateSpeaker, data)}
+                    submitting={submitting}
                   />
                 )}
-              </Mutation>
+              </UpdateSpeakerMutationComponent>
             );
           }}
         </Query>
@@ -74,4 +118,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(null, mapDispatchToProps)(SpeakerDetail);
+export default connect(null, mapDispatchToProps)(SpeakerEdit);
