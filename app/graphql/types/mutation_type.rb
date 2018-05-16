@@ -65,11 +65,11 @@ Types::MutationType = GraphQL::ObjectType.define do
       speaker["memberships"] = speaker["memberships"].map do |mem|
         membership = mem["id"] ? Membership.find(mem["id"]) : Membership.new()
 
-        membership.assign_attributes({
-          :body => Body.find(mem["body_id"]),
-          :since => mem["since"],
-          :until => mem["until"]
-        })
+        membership.assign_attributes(
+          body: Body.find(mem["body_id"]),
+          since: mem["since"],
+          until: mem["until"]
+        )
 
         membership
       end
