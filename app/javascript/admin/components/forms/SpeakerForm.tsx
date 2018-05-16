@@ -1,28 +1,37 @@
 /* eslint camelcase: 0, react/sort-comp: 0 */
 
 import * as React from 'react';
+import { Query } from 'react-apollo';
+import { Link } from 'react-router-dom';
 
 import { v4 as uuid } from 'uuid';
 
-import { GetSpeakerQuery, SpeakerInputType } from '../../operation-result-types';
-import { Membership } from './Membership';
+import {
+  GetSpeakerBodiesQuery,
+  GetSpeakerQuery,
+  SpeakerInputType,
+} from '../../operation-result-types';
+import { GetSpeakersBodies } from '../../queries/queries';
+import Loading from '../Loading';
+import SpeakerAvatar from '../SpeakerAvatar';
+import ImageInput, { ImageValueType } from './controls/ImageInput';
+import { IMembership, MembershipForm } from './MembershipForm';
+
+export interface ISpeakerFormData extends SpeakerInputType {
+  avatar: ImageValueType;
+}
 
 interface ISpeakerFormProps {
   speakerQuery?: GetSpeakerQuery;
-  onSubmit: (body: SpeakerInputType) => void;
+  onSubmit: (body: ISpeakerFormData) => void;
+  submitting: boolean;
 }
 
 interface ISpeakerFields {
   first_name?: string;
   last_name?: string;
+  avatar?: ImageValueType;
   website_url?: string;
-}
-
-interface IMembership {
-  key: string;
-  body: number;
-  since?: string;
-  until?: string;
 }
 
 interface ISpeakerFormState extends ISpeakerFields {
@@ -31,13 +40,13 @@ interface ISpeakerFormState extends ISpeakerFields {
   memberships: IMembership[];
 }
 
-// TODO: Replace default body id
-function createMembership(): IMembership {
+function createMembership(bodyId: string): IMembership {
   return {
     key: uuid(),
-    body: 11,
-    since: undefined,
-    until: undefined,
+    id: null,
+    body_id: bodyId,
+    since: null,
+    until: null,
   };
 }
 
@@ -50,6 +59,7 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
 
         first_name: '',
         last_name: '',
+        avatar: null,
         website_url: '',
 
         party: {
@@ -71,9 +81,16 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
 
         first_name: props.speakerQuery.speaker.first_name,
         last_name: props.speakerQuery.speaker.last_name,
+        avatar: props.speakerQuery.speaker.avatar,
         website_url: props.speakerQuery.speaker.website_url,
 
-        memberships: [],
+        memberships: props.speakerQuery.speaker.memberships.map((m) => ({
+          key: uuid(),
+          id: m.id,
+          body_id: m.body.id,
+          since: m.since,
+          until: m.until,
+        })),
       };
     }
   }
@@ -99,20 +116,36 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
     this.setState(state);
   };
 
-  private getFormValues(): SpeakerInputType {
-    const { first_name, last_name, website_url, memberships } = this.state;
+  private onImageChange = (name: keyof ISpeakerFields) => (value: ImageValueType) => {
+    const state: { [P in keyof ISpeakerFields]: string } = {
+      [name]: value,
+    };
+
+    this.setState(state);
+  };
+
+  private getFormValues(): ISpeakerFormData {
+    const { first_name, last_name, avatar, website_url, memberships } = this.state;
 
     return {
       first_name: first_name || '',
       last_name: last_name || '',
-      website_url,
-      memberships: memberships.map((m) => ({ body: m.body, since: m.since, until: m.until })),
+      avatar: avatar || null,
+      website_url: website_url || '',
+      memberships: memberships.map((m) => ({
+        id: m.id ? parseInt(m.id, 10) : null,
+        body_id: m.body_id ? parseInt(m.body_id, 10) : 0,
+        since: m.since,
+        until: m.until,
+      })),
     };
   }
 
-  private addMembership = (evt) => {
+  private addMembership = (bodiesQuery: GetSpeakerBodiesQuery) => (evt) => {
+    const defaultBody = bodiesQuery.bodies[0];
+
     this.setState({
-      memberships: [...this.state.memberships, createMembership()],
+      memberships: [...this.state.memberships, createMembership(defaultBody.id)],
     });
 
     evt.preventDefault();
@@ -145,9 +178,10 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
 
   // tslint:disable-next-line:member-ordering
   public render() {
-    const { speakerQuery } = this.props;
+    const { speakerQuery, submitting } = this.props;
+    const { avatar } = this.state;
 
-    if (!speakerQuery) {
+    if (!speakerQuery || avatar === undefined) {
       return null;
     }
 
@@ -184,10 +218,21 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
         </div>
 
         <div className="form-row">
+          <div className="form-group col-md-12">
+            <ImageInput
+              label="Portrét"
+              name="avatar"
+              value={avatar}
+              onChange={this.onImageChange('avatar')}
+              renderImage={(src) => <SpeakerAvatar avatar={src} />}
+            />
+          </div>
+        </div>
+
+        <div className="form-row">
           <div className="form-group col-md-6">
             <label htmlFor="illustration">Respektovaný odkaz (wiki, nasipolitici):</label>
             <input
-              required
               className="form-control"
               id="website_url"
               placeholder="Zadejte odkaz"
@@ -197,27 +242,42 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
           </div>
         </div>
 
-        <div className="form-row">
-          {this.state.memberships.map((m) => (
-            <Membership
-              key={m.key}
-              body={m.body}
-              since={m.since}
-              until={m.until}
-              onRemove={this.removeMembership(m.key)}
-              onChange={this.updateMembership(m.key)}
-            />
-          ))}
+        <Query query={GetSpeakersBodies}>
+          {({ data, loading }) => {
+            if (loading) {
+              return <Loading />;
+            }
 
-          <button onClick={this.addMembership} className="btn btn-secondary">
-            Přidat příslušnost ke straně nebo skupině
-          </button>
-        </div>
+            if (!data) {
+              return null;
+            }
 
-        <div className="form-row" style={{ marginTop: 20 }}>
-          <button type="submit" className="btn btn-primary">
-            Uložit
+            return (
+              <React.Fragment>
+                {this.state.memberships.map((m) => (
+                  <MembershipForm
+                    key={m.key}
+                    membership={m}
+                    bodies={data.bodies}
+                    onRemove={this.removeMembership(m.key)}
+                    onChange={this.updateMembership(m.key)}
+                  />
+                ))}
+                <button onClick={this.addMembership(data)} className="btn btn-secondary">
+                  Přidat příslušnost ke straně nebo skupině
+                </button>
+              </React.Fragment>
+            );
+          }}
+        </Query>
+
+        <div style={{ marginTop: 20 }}>
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
+            {submitting ? 'Ukládám ...' : 'Uložit'}
           </button>
+          <Link to="/admin/speakers" className="btn">
+            Zpět na seznam
+          </Link>
         </div>
       </form>
     );

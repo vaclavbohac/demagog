@@ -29,50 +29,26 @@ body {
   }
 }
 
-.profile-picture {
-  position: relative;
+.speaker-avatar {
   display: inline-block;
 
   img {
     max-width: 100px;
   }
-
-  a {
-    position: absolute;
-    left: 0;
-    text-align: center;
-    bottom: 5px;
-    width: 106px;
-  }
 }
 
-.image-upload {
-  .modal-body {
-    display: flex;
-    justify-content: center;
-    align-content: center;
+.image-input-control {
+  display: flex;
+
+  .preview {
+    margin-right: 10px;
   }
 
-  .avatar-form-dropzone {
-    border: 1px dashed #6c757d;
-    border-radius: 5px;
-    width: 200px;
-    height: 200px;
-
-    &:hover {
-      border: 1px dashed #6c757d;
-    }
-
-    p {
-      text-align: center;
-      line-height: 200px;
+  .actions {
+    button {
+      margin-bottom: 10px;
     }
   }
-}
-
-.avatar-preview {
-  max-width: 198px;
-  max-height: 198px;
 }
 
 /*

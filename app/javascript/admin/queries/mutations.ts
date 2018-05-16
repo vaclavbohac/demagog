@@ -7,8 +7,11 @@ export const CreateBody = gql`
       logo
       name
       is_party
+      is_inactive
       short_name
-      description
+      link
+      founded_at
+      terminated_at
     }
   }
 `;
@@ -17,6 +20,14 @@ export const UpdateBody = gql`
   mutation UpdateBody($id: Int!, $bodyInput: BodyInputType!) {
     updateBody(id: $id, body_input: $bodyInput) {
       id
+      logo
+      name
+      is_party
+      is_inactive
+      short_name
+      link
+      founded_at
+      terminated_at
     }
   }
 `;
@@ -27,7 +38,8 @@ export const CreateSpeaker = gql`
       id
       first_name
       last_name
-      party {
+      website_url
+      body {
         short_name
       }
     }
@@ -40,8 +52,18 @@ export const UpdateSpeaker = gql`
       id
       first_name
       last_name
-      party {
+      avatar
+      website_url
+      body {
         short_name
+      }
+      memberships {
+        id
+        body {
+          id
+        }
+        since
+        until
       }
     }
   }

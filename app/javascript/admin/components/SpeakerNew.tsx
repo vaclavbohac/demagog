@@ -1,36 +1,75 @@
 import * as React from 'react';
 
-import { ApolloError } from 'apollo-client';
-import { Mutation } from 'react-apollo';
+import { Mutation, MutationFn } from 'react-apollo';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router-dom';
+
 import { addFlashMessage } from '../actions/flashMessages';
+import { uploadSpeakerAvatar } from '../api';
 
-import { SpeakerForm } from './forms/SpeakerForm';
+import { ISpeakerFormData, SpeakerForm } from './forms/SpeakerForm';
 
-import {
-  CreateSpeakerMutation,
-  CreateSpeakerMutationVariables,
-  GetSpeakersQuery,
-} from '../operation-result-types';
+import { CreateSpeakerMutation, CreateSpeakerMutationVariables } from '../operation-result-types';
 import { CreateSpeaker } from '../queries/mutations';
-import { GetSpeakers } from '../queries/queries';
+
+class CreateSpeakerMutationComponent extends Mutation<
+  CreateSpeakerMutation,
+  CreateSpeakerMutationVariables
+> {}
+interface ICreateSpeakerMutationFn
+  extends MutationFn<CreateSpeakerMutation, CreateSpeakerMutationVariables> {}
 
 interface ISpeakerNewProps extends RouteComponentProps<{}> {
   addFlashMessage: (msg: string) => void;
 }
 
-class SpeakerNewMutation extends Mutation<CreateSpeakerMutation, CreateSpeakerMutationVariables> {}
+interface ISpeakerNewState {
+  submitting: boolean;
+}
 
-class SpeakerNew extends React.Component<ISpeakerNewProps> {
-  private onCompleted = () => {
-    this.props.addFlashMessage('Osoba byla úspěšně uložena.');
-    this.props.history.push('/admin/speakers');
+class SpeakerNew extends React.Component<ISpeakerNewProps, ISpeakerNewState> {
+  public state = {
+    submitting: false,
   };
 
-  private onError = (error: ApolloError) => {
-    // TODO: Show as an error message
+  private onFormSubmit = (createSpeaker: ICreateSpeakerMutationFn) => (
+    speakerFormData: ISpeakerFormData,
+  ) => {
+    const { avatar, ...speakerInput } = speakerFormData;
+
+    this.setState({ submitting: true });
+
+    createSpeaker({ variables: { speakerInput } })
+      .then((mutationResult) => {
+        if (!mutationResult || !mutationResult.data) {
+          return;
+        }
+
+        const speakerId: number = parseInt(mutationResult.data.createSpeaker.id, 10);
+
+        let uploadPromise: Promise<any> = Promise.resolve();
+        if (avatar instanceof File) {
+          uploadPromise = uploadSpeakerAvatar(speakerId, avatar);
+        }
+
+        uploadPromise.then(() => {
+          this.setState({ submitting: false });
+          this.onCompleted(speakerId);
+        });
+      })
+      .catch((error) => {
+        this.setState({ submitting: false });
+        this.onError(error);
+      });
+  };
+
+  private onCompleted = (speakerId: number) => {
+    this.props.addFlashMessage('Osoba byla úspěšně uložena.');
+    this.props.history.push(`/admin/speakers/edit/${speakerId}`);
+  };
+
+  private onError = (error: any) => {
     this.props.addFlashMessage('Při ukládání došlo k chybě.');
 
     console.error(error); // tslint:disable-line:no-console
@@ -38,49 +77,17 @@ class SpeakerNew extends React.Component<ISpeakerNewProps> {
 
   // tslint:disable-next-line:member-ordering
   public render() {
+    const { submitting } = this.state;
+
     return (
       <div role="main">
         <h1>Přidat novou osobu</h1>
 
-        <SpeakerNewMutation
-          mutation={CreateSpeaker}
-          onCompleted={this.onCompleted}
-          onError={this.onError}
-          update={(cache, { data }) => {
-            if (!data) {
-              return null;
-            }
-
-            const { createSpeaker } = data;
-
-            if (!createSpeaker) {
-              return null;
-            }
-
-            const speakerWithoutAvatar = {
-              ...createSpeaker,
-              avatar: null,
-            };
-
-            const cacheRecord = cache.readQuery<GetSpeakersQuery>({
-              query: GetSpeakers,
-              variables: { name: null },
-            });
-            if (cacheRecord && cacheRecord.speakers) {
-              cache.writeQuery({
-                data: { speakers: cacheRecord.speakers.concat([speakerWithoutAvatar]) },
-                query: GetSpeakers,
-                variables: { name: null },
-              });
-            }
-          }}
-        >
+        <CreateSpeakerMutationComponent mutation={CreateSpeaker}>
           {(createSpeaker) => (
-            <SpeakerForm
-              onSubmit={(speakerInput) => createSpeaker({ variables: { speakerInput } })}
-            />
+            <SpeakerForm onSubmit={this.onFormSubmit(createSpeaker)} submitting={submitting} />
           )}
-        </SpeakerNewMutation>
+        </CreateSpeakerMutationComponent>
       </div>
     );
   }

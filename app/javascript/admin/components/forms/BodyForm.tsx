@@ -1,6 +1,7 @@
 /* eslint camelcase: 0 */
 
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 
 import { BodyInputType, GetBodyQuery } from '../../operation-result-types';
 import DateInput from './controls/DateInput';
@@ -8,6 +9,7 @@ import DateInput from './controls/DateInput';
 interface IBodyProps {
   bodyQuery?: GetBodyQuery;
   onSubmit: (body: BodyInputType) => void;
+  submitting: boolean;
 }
 
 interface IBodyFields {
@@ -60,7 +62,7 @@ export class BodyForm extends React.Component<IBodyProps, IBodyState> {
   }
 
   public render() {
-    const { bodyQuery } = this.props;
+    const { bodyQuery, submitting } = this.props;
 
     if (!bodyQuery) {
       return null;
@@ -120,11 +122,62 @@ export class BodyForm extends React.Component<IBodyProps, IBodyState> {
           </div>
         </div>
 
-        {this.renderPartyRelatedFormFields()}
+        <div className="form-row">
+          <div className="form-group col-md-6">
+            <label htmlFor="short_name">Zkratka:</label>
+            <input
+              className="form-control s-short_name"
+              id="short_name"
+              placeholder="Zadejte zkratku"
+              onChange={this.onChange('short_name')}
+              defaultValue={bodyQuery.body.short_name || ''}
+            />
+          </div>
+        </div>
 
-        <button type="submit" className="btn btn-primary">
-          Uložit
+        <div className="form-group">
+          <label htmlFor="link">
+            Respekovaný odkaz obsahující popis (wikipedia, nasipolitici, atp.):
+          </label>
+          <input
+            className="form-control s-link"
+            id="link"
+            placeholder="Zadejte odkaz"
+            defaultValue={bodyQuery.body.link || ''}
+            onChange={this.onChange('link')}
+          />
+        </div>
+
+        <div className="form-row">
+          <div className="form-group col-md-6 s-founded_at">
+            <DateInput
+              label="Vznik"
+              name="founded_at"
+              placeholder="Zadejte datum vzniku"
+              onChange={this.onChange('founded_at')}
+              defaultValue={bodyQuery.body.founded_at || ''}
+            />
+          </div>
+
+          {this.state.is_inactive && (
+            <div className="form-group col-md-6 s-terminated_at">
+              <DateInput
+                label="Zánik"
+                name="terminated_at"
+                placeholder="Zadejte datum zániku"
+                onChange={this.onChange('terminated_at')}
+                defaultValue={bodyQuery.body.terminated_at || ''}
+              />
+            </div>
+          )}
+        </div>
+
+        <button type="submit" className="btn btn-primary" disabled={submitting}>
+          {submitting ? 'Ukládám ...' : 'Uložit'}
         </button>
+        <Link to="/admin/bodies" className="btn">
+          Zpět na seznam
+        </Link>
       </form>
     );
   }
@@ -172,69 +225,5 @@ export class BodyForm extends React.Component<IBodyProps, IBodyState> {
       short_name,
       terminated_at,
     };
-  }
-
-  private renderPartyRelatedFormFields(): JSX.Element | null {
-    const { bodyQuery } = this.props;
-
-    if (!this.state.is_party) {
-      return null;
-    }
-
-    if (!bodyQuery) {
-      return null;
-    }
-
-    return (
-      <React.Fragment>
-        <div className="form-row">
-          <div className="form-group col-md-6">
-            <label htmlFor="short_name">Zkratka:</label>
-            <input
-              className="form-control s-short_name"
-              id="short_name"
-              placeholder="Zadejte zkratku"
-              onChange={this.onChange('short_name')}
-              defaultValue={bodyQuery.body.short_name || ''}
-            />
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="link">
-            Respekovaný odkaz obsahující popis (wikipedia, nasipolitici, atp.):
-          </label>
-          <input
-            className="form-control s-link"
-            id="link"
-            placeholder="Zadejte odkaz"
-            defaultValue={bodyQuery.body.link || ''}
-            onChange={this.onChange('link')}
-          />
-        </div>
-
-        <div className="form-row">
-          <div className="form-group col-md-6 s-founded_at">
-            <DateInput
-              label="Vznik"
-              name="founded_at"
-              placeholder="Zadejte datum vzniku"
-              onChange={this.onChange('founded_at')}
-              defaultValue={bodyQuery.body.founded_at || ''}
-            />
-          </div>
-
-          <div className="form-group col-md-6 s-terminated_at">
-            <DateInput
-              label="Zánik"
-              name="terminated_at"
-              placeholder="Zadejte datum zániku"
-              onChange={this.onChange('terminated_at')}
-              defaultValue={bodyQuery.body.terminated_at || ''}
-            />
-          </div>
-        </div>
-      </React.Fragment>
-    );
   }
 }
