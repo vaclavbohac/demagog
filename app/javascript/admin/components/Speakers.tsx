@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 
 import { GetSpeakers } from '../queries/queries';
 import Loading from './Loading';
-import SpeakerAvatar from './SpeakerAvatar'
+import SpeakerAvatar from './SpeakerAvatar';
 
 // TODO: Replace by generated interface
 interface ISpeaker {
@@ -33,7 +33,7 @@ export default class Bodies extends React.Component<{}, ISpeakersState> {
 
     this.state = {
       name: null,
-      speakerId: -1
+      speakerId: -1,
     };
   }
 

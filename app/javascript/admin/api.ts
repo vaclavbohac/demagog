@@ -5,24 +5,23 @@ export function uploadSpeakerAvatar(speakerId: number, avatar: File): Promise<Re
   return callApi('/admin/profile-picture/' + speakerId, {
     method: 'POST',
     body: formData,
-    credentials: 'include'
-  })
+    credentials: 'include',
+  });
 }
 
 export function deleteSpeakerAvatar(speakerId: number): Promise<Response> {
   return callApi('/admin/profile-picture/' + speakerId, {
     method: 'DELETE',
-    credentials: 'include'
-  })
+    credentials: 'include',
+  });
 }
 
 function callApi(url, options) {
-  return fetch(url, options)
-    .then((response: Response) => {
-      if (response.status >= 200 && response.status < 300) {
-        return response
-      } else {
-        throw response
-      }
-    })
+  return fetch(url, options).then((response: Response) => {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    } else {
+      throw response;
+    }
+  });
 }

@@ -5,36 +5,36 @@ import Dropzone, { ImageFile } from 'react-dropzone';
 export type ImageValueType = string | ImageFile | null;
 
 interface IImageInputProps {
+  renderImage: (src: string | null) => React.ReactNode;
   label: string;
   name: string;
   value: ImageValueType;
   onChange(file: ImageValueType);
-  renderImage: (src: string | null) => React.ReactNode
 }
 
 export default class ImageInput extends React.Component<IImageInputProps> {
-  onDrop = (acceptedFiles) => {
+  public onDrop = (acceptedFiles) => {
     if (acceptedFiles.length === 1) {
-      this.props.onChange(acceptedFiles[0])
+      this.props.onChange(acceptedFiles[0]);
     }
-  }
+  };
 
-  onRemoveClick = () => {
-    this.props.onChange(null)
-  }
+  public onRemoveClick = () => {
+    this.props.onChange(null);
+  };
 
-  render() {
-    const { label, name, value } = this.props
+  public render() {
+    const { label, name, value } = this.props;
 
     return (
       <div>
         <label htmlFor={name}>{label}:</label>
         <div className="image-input-control">
-          {value !== null &&
+          {value !== null && (
             <div className="preview">
-              {this.props.renderImage(value instanceof File ? (value.preview || null) : value)}
+              {this.props.renderImage(value instanceof File ? value.preview || null : value)}
             </div>
-          }
+          )}
 
           <div className="actions">
             <Dropzone
@@ -48,11 +48,11 @@ export default class ImageInput extends React.Component<IImageInputProps> {
                 {value !== null ? 'Vybrat novou fotku' : 'Vybrat fotku'}
               </button>
             </Dropzone>
-            {value !== null &&
+            {value !== null && (
               <button className="btn btn-secondary" onClick={this.onRemoveClick}>
                 Odstranit tuto fotku
               </button>
-            }
+            )}
           </div>
         </div>
       </div>

@@ -6,36 +6,39 @@ import { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
-import { uploadSpeakerAvatar } from '../api'
+import { uploadSpeakerAvatar } from '../api';
 
-import { SpeakerForm, ISpeakerFormData } from './forms/SpeakerForm';
+import { ISpeakerFormData, SpeakerForm } from './forms/SpeakerForm';
 
-import {
-  CreateSpeakerMutation,
-  CreateSpeakerMutationVariables
-} from '../operation-result-types';
+import { CreateSpeakerMutation, CreateSpeakerMutationVariables } from '../operation-result-types';
 import { CreateSpeaker } from '../queries/mutations';
 
-class CreateSpeakerMutationComponent extends Mutation<CreateSpeakerMutation, CreateSpeakerMutationVariables> {}
-interface CreateSpeakerMutationFn extends MutationFn<CreateSpeakerMutation, CreateSpeakerMutationVariables> {}
+class CreateSpeakerMutationComponent extends Mutation<
+  CreateSpeakerMutation,
+  CreateSpeakerMutationVariables
+> {}
+interface ICreateSpeakerMutationFn
+  extends MutationFn<CreateSpeakerMutation, CreateSpeakerMutationVariables> {}
 
 interface ISpeakerNewProps extends RouteComponentProps<{}> {
   addFlashMessage: (msg: string) => void;
 }
 
 interface ISpeakerNewState {
-  submitting: boolean
+  submitting: boolean;
 }
 
 class SpeakerNew extends React.Component<ISpeakerNewProps, ISpeakerNewState> {
-  state = {
-    submitting: false
+  public state = {
+    submitting: false,
   };
 
-  private onFormSubmit = (createSpeaker: CreateSpeakerMutationFn) => (speakerFormData: ISpeakerFormData) => {
+  private onFormSubmit = (createSpeaker: ICreateSpeakerMutationFn) => (
+    speakerFormData: ISpeakerFormData,
+  ) => {
     const { avatar, ...speakerInput } = speakerFormData;
 
-    this.setState({ submitting: true })
+    this.setState({ submitting: true });
 
     createSpeaker({ variables: { speakerInput } })
       .then((mutationResult) => {
@@ -43,22 +46,22 @@ class SpeakerNew extends React.Component<ISpeakerNewProps, ISpeakerNewState> {
           return;
         }
 
-        const speakerId: number = parseInt(mutationResult.data.createSpeaker.id, 10)
+        const speakerId: number = parseInt(mutationResult.data.createSpeaker.id, 10);
 
-        let uploadPromise: Promise<any> = Promise.resolve()
+        let uploadPromise: Promise<any> = Promise.resolve();
         if (avatar instanceof File) {
-          uploadPromise = uploadSpeakerAvatar(speakerId, avatar)
+          uploadPromise = uploadSpeakerAvatar(speakerId, avatar);
         }
 
         uploadPromise.then(() => {
-          this.setState({ submitting: false })
-          this.onCompleted(speakerId)
-        })
+          this.setState({ submitting: false });
+          this.onCompleted(speakerId);
+        });
       })
-      .catch(error => {
-        this.setState({ submitting: false })
-        this.onError(error)
-      })
+      .catch((error) => {
+        this.setState({ submitting: false });
+        this.onError(error);
+      });
   };
 
   private onCompleted = (speakerId: number) => {
@@ -74,7 +77,7 @@ class SpeakerNew extends React.Component<ISpeakerNewProps, ISpeakerNewState> {
 
   // tslint:disable-next-line:member-ordering
   public render() {
-    const { submitting } = this.state
+    const { submitting } = this.state;
 
     return (
       <div role="main">
@@ -82,10 +85,7 @@ class SpeakerNew extends React.Component<ISpeakerNewProps, ISpeakerNewState> {
 
         <CreateSpeakerMutationComponent mutation={CreateSpeaker}>
           {(createSpeaker) => (
-            <SpeakerForm
-              onSubmit={this.onFormSubmit(createSpeaker)}
-              submitting={submitting}
-            />
+            <SpeakerForm onSubmit={this.onFormSubmit(createSpeaker)} submitting={submitting} />
           )}
         </CreateSpeakerMutationComponent>
       </div>

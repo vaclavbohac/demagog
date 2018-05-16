@@ -159,7 +159,7 @@ export class BodyForm extends React.Component<IBodyProps, IBodyState> {
             />
           </div>
 
-          {this.state.is_inactive &&
+          {this.state.is_inactive && (
             <div className="form-group col-md-6 s-terminated_at">
               <DateInput
                 label="Zánik"
@@ -169,12 +169,12 @@ export class BodyForm extends React.Component<IBodyProps, IBodyState> {
                 defaultValue={bodyQuery.body.terminated_at || ''}
               />
             </div>
-          }
+          )}
         </div>
 
         <button type="submit" className="btn btn-primary" disabled={submitting}>
-            {submitting ? 'Ukládám ...' : 'Uložit'}
-          </button>
+          {submitting ? 'Ukládám ...' : 'Uložit'}
+        </button>
         <Link to="/admin/bodies" className="btn">
           Zpět na seznam
         </Link>

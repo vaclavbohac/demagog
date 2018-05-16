@@ -1,6 +1,6 @@
 /* eslint-env browser */
 
-import 'whatwg-fetch'
+import 'whatwg-fetch';
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';

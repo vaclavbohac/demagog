@@ -1,20 +1,24 @@
 /* eslint camelcase: 0, react/sort-comp: 0 */
 
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { Query } from 'react-apollo';
+import { Link } from 'react-router-dom';
 
 import { v4 as uuid } from 'uuid';
 
-import Loading from '../Loading';
-import SpeakerAvatar from '../SpeakerAvatar'
-import { GetSpeakerQuery, SpeakerInputType, GetSpeakerBodiesQuery } from '../../operation-result-types';
+import {
+  GetSpeakerBodiesQuery,
+  GetSpeakerQuery,
+  SpeakerInputType,
+} from '../../operation-result-types';
 import { GetSpeakersBodies } from '../../queries/queries';
+import Loading from '../Loading';
+import SpeakerAvatar from '../SpeakerAvatar';
+import ImageInput, { ImageValueType } from './controls/ImageInput';
 import { IMembership, MembershipForm } from './MembershipForm';
-import ImageInput, { ImageValueType } from './controls/ImageInput'
 
 export interface ISpeakerFormData extends SpeakerInputType {
-  avatar: ImageValueType
+  avatar: ImageValueType;
 }
 
 interface ISpeakerFormProps {
@@ -36,11 +40,11 @@ interface ISpeakerFormState extends ISpeakerFields {
   memberships: IMembership[];
 }
 
-function createMembership(body_id: string): IMembership {
+function createMembership(bodyId: string): IMembership {
   return {
     key: uuid(),
     id: null,
-    body_id,
+    body_id: bodyId,
     since: null,
     until: null,
   };
@@ -85,7 +89,7 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
           id: m.id,
           body_id: m.body.id,
           since: m.since,
-          until: m.until
+          until: m.until,
         })),
       };
     }
@@ -118,7 +122,7 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
     };
 
     this.setState(state);
-  }
+  };
 
   private getFormValues(): ISpeakerFormData {
     const { first_name, last_name, avatar, website_url, memberships } = this.state;
@@ -132,13 +136,13 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
         id: m.id ? parseInt(m.id, 10) : null,
         body_id: m.body_id ? parseInt(m.body_id, 10) : 0,
         since: m.since,
-        until: m.until
+        until: m.until,
       })),
     };
   }
 
   private addMembership = (bodiesQuery: GetSpeakerBodiesQuery) => (evt) => {
-    const defaultBody = bodiesQuery.bodies[0]
+    const defaultBody = bodiesQuery.bodies[0];
 
     this.setState({
       memberships: [...this.state.memberships, createMembership(defaultBody.id)],
@@ -175,7 +179,7 @@ export class SpeakerForm extends React.Component<ISpeakerFormProps, ISpeakerForm
   // tslint:disable-next-line:member-ordering
   public render() {
     const { speakerQuery, submitting } = this.props;
-    const { avatar } = this.state
+    const { avatar } = this.state;
 
     if (!speakerQuery || avatar === undefined) {
       return null;

@@ -5,22 +5,26 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 
 import { addFlashMessage } from '../actions/flashMessages';
+import { deleteSpeakerAvatar, uploadSpeakerAvatar } from '../api';
 import Error from './Error';
 import Loading from './Loading';
-import { uploadSpeakerAvatar, deleteSpeakerAvatar } from '../api'
 
-import { SpeakerForm, ISpeakerFormData } from './forms/SpeakerForm';
+import { ISpeakerFormData, SpeakerForm } from './forms/SpeakerForm';
 
-import { UpdateSpeaker } from '../queries/mutations';
 import {
+  GetSpeakerQuery,
   UpdateSpeakerMutation,
   UpdateSpeakerMutationVariables,
-  GetSpeakerQuery
 } from '../operation-result-types';
+import { UpdateSpeaker } from '../queries/mutations';
 import { GetSpeaker } from '../queries/queries';
 
-class UpdateSpeakerMutationComponent extends Mutation<UpdateSpeakerMutation, UpdateSpeakerMutationVariables> {}
-interface UpdateSpeakerMutationFn extends MutationFn<UpdateSpeakerMutation, UpdateSpeakerMutationVariables> {}
+class UpdateSpeakerMutationComponent extends Mutation<
+  UpdateSpeakerMutation,
+  UpdateSpeakerMutationVariables
+> {}
+interface IUpdateSpeakerMutationFn
+  extends MutationFn<UpdateSpeakerMutation, UpdateSpeakerMutationVariables> {}
 
 interface ISpeakerEditProps extends RouteComponentProps<{ id: string }> {
   id: number;
@@ -32,34 +36,38 @@ interface ISpeakerEditState {
 }
 
 class SpeakerEdit extends React.Component<ISpeakerEditProps, ISpeakerEditState> {
-  state = {
-    submitting: false
+  public state = {
+    submitting: false,
   };
 
-  private onFormSubmit = (id: number, updateSpeaker: UpdateSpeakerMutationFn, previousData: GetSpeakerQuery) => (speakerFormData: ISpeakerFormData) => {
+  private onFormSubmit = (
+    id: number,
+    updateSpeaker: IUpdateSpeakerMutationFn,
+    previousData: GetSpeakerQuery,
+  ) => (speakerFormData: ISpeakerFormData) => {
     const { avatar, ...speakerInput } = speakerFormData;
 
-    this.setState({ submitting: true })
+    this.setState({ submitting: true });
 
     // We want to first update the avatar and then run mutation so the avatar
     // gets automatically refresh in Apollo's cache from the mutation result data
-    let avatarPromise: Promise<any> = Promise.resolve()
+    let avatarPromise: Promise<any> = Promise.resolve();
     if (avatar instanceof File) {
       avatarPromise = uploadSpeakerAvatar(id, avatar);
     } else if (avatar === null && previousData.speaker.avatar !== null) {
-      avatarPromise = deleteSpeakerAvatar(id)
+      avatarPromise = deleteSpeakerAvatar(id);
     }
 
     avatarPromise
       .then(() => updateSpeaker({ variables: { id, speakerInput } }))
       .then(() => {
-        this.setState({ submitting: false })
-        this.onCompleted()
+        this.setState({ submitting: false });
+        this.onCompleted();
       })
-      .catch(error => {
-        this.setState({ submitting: false })
-        this.onError(error)
-      })
+      .catch((error) => {
+        this.setState({ submitting: false });
+        this.onError(error);
+      });
   };
 
   private onCompleted = () => {
@@ -68,7 +76,7 @@ class SpeakerEdit extends React.Component<ISpeakerEditProps, ISpeakerEditState> 
 
   private onError = (error: any) => {
     this.props.addFlashMessage('Doško k chybě při uložení dat');
-    
+
     console.error(error); // tslint:disable-line:no-console
   };
 

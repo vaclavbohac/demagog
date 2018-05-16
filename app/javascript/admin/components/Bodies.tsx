@@ -80,7 +80,9 @@ export default class Bodies extends React.Component<{}, IBodiesState> {
 
                     <div className="card-body">
                       {/* <img src={body.logo} alt={body.short_name} /> */}
-                      <h5 className="card-title">{body.name} ({body.short_name})</h5>
+                      <h5 className="card-title">
+                        {body.name} ({body.short_name})
+                      </h5>
 
                       <div className="card-subtitle">
                         <Badge is_party={body.is_party} />

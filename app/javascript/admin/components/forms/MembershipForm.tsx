@@ -12,13 +12,13 @@ export interface IMembership {
 
 interface IMembershipFormProps {
   membership: IMembership;
-  bodies: Array< {
-    id: string,
-    name: string,
-    short_name: string,
-    is_inactive: boolean,
-    terminated_at: string | null
-  } >;
+  bodies: Array<{
+    id: string;
+    name: string;
+    short_name: string;
+    is_inactive: boolean;
+    terminated_at: string | null;
+  }>;
 
   onChange?(membership: IMembership): void;
   onRemove?(evt: React.MouseEvent<React.ReactSVGElement>): void;
@@ -55,17 +55,17 @@ export class MembershipForm extends React.Component<IMembershipFormProps, IMembe
   };
 
   private onBodyChange = (evt: React.ChangeEvent<HTMLSelectElement>) => {
-    const body_id = evt.target.value;
-    let until = this.state.until
+    const bodyId = evt.target.value;
+    let until = this.state.until;
 
     // If the selected body is inactive, prefill the end of membership to the
     // date of body termination
-    const body = this.props.bodies.find(body => body.id === body_id);
+    const body = this.props.bodies.find((b) => b.id === bodyId);
     if (body && body.is_inactive && body.terminated_at && !until) {
       until = body.terminated_at;
     }
 
-    this.onChange({ body_id, until });
+    this.onChange({ body_id: bodyId, until });
   };
 
   private onDateChange = (name: string) => (evt: React.ChangeEvent<HTMLInputElement>) => {
