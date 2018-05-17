@@ -62,7 +62,7 @@
     "webpack-dev-server": "2.11.2"
   },
   "jest": {
-    "setupTestFrameworkScriptFile": "<rootDir>/jest.setup.js",
+    "setupTestFrameworkScriptFile": "<rootDir>/config/jest/jest.setup.js",
     "transform": {
       ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
@@ -79,6 +79,11 @@
       "ts",
       "tsx",
       "js"
-    ]
+    ],
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$":
+        "<rootDir>/config/jest//fileMock.js",
+      "\\.(css|less)$": "<rootDir>/config/jest//styleMock.js"
+    }
   }
 }
