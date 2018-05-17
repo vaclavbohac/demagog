@@ -30,4 +30,30 @@ class Admin::FileUploadController < ApplicationController
       head :not_found
     end
   end
+
+  def upload_body_logo
+    params.permit!
+
+    body = Body.find(params[:id])
+
+    body.logo.attach(
+      io: params[:file].to_io,
+      filename: params[:file].original_filename,
+      content_type: params[:file].content_type
+    )
+
+    body.save!
+
+    head :ok
+  end
+
+  def delete_body_logo
+    begin
+      body = Body.find(params[:id])
+
+      body.logo.purge
+    rescue ActiveRecord::RecordNotFound
+      head :not_found
+    end
+  end
 end

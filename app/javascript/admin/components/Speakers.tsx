@@ -83,16 +83,16 @@ export default class Bodies extends React.Component<{}, ISpeakersState> {
                         }}
                       />
 
-                      <div className="card-body">
-                        <SpeakerAvatar
-                          avatar={speaker.avatar}
-                          first_name={speaker.first_name}
-                          last_name={speaker.last_name}
-                        />
+                      <div className="card-body" style={{ display: 'flex' }}>
+                        <div style={{ flex: '0 0 106px' }}>
+                          <SpeakerAvatar
+                            avatar={speaker.avatar}
+                            first_name={speaker.first_name}
+                            last_name={speaker.last_name}
+                          />
+                        </div>
 
-                        <div
-                          style={{ height: 106, display: 'inline-block', marginLeft: 15, top: 0 }}
-                        >
+                        <div style={{ marginLeft: 15 }}>
                           <h5>
                             {speaker.first_name} {speaker.last_name}
                           </h5>

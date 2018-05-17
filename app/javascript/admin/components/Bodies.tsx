@@ -7,6 +7,7 @@ import { Query } from 'react-apollo';
 import { Link } from 'react-router-dom';
 
 import { GetBodies } from '../queries/queries';
+import BodyLogo from './BodyLogo';
 import Loading from './Loading';
 
 interface IBadgeProps {
@@ -78,17 +79,22 @@ export default class Bodies extends React.Component<{}, IBodiesState> {
                       }}
                     />
 
-                    <div className="card-body">
-                      {/* <img src={body.logo} alt={body.short_name} /> */}
-                      <h5 className="card-title">
-                        {body.name} ({body.short_name})
-                      </h5>
-
-                      <div className="card-subtitle">
-                        <Badge is_party={body.is_party} />
+                    <div className="card-body" style={{ display: 'flex' }}>
+                      <div style={{ flex: '0 0 106px' }}>
+                        <BodyLogo logo={body.logo} name={body.name} />
                       </div>
 
-                      <p className="card-text">{truncate(body.description, { length: 180 })}</p>
+                      <div style={{ marginLeft: 15 }}>
+                        <h5 className="card-title">
+                          {body.name} ({body.short_name})
+                        </h5>
+
+                        <div className="card-subtitle">
+                          <Badge is_party={body.is_party} />
+                        </div>
+
+                        <p className="card-text">{truncate(body.description, { length: 180 })}</p>
+                      </div>
                     </div>
                   </div>
                 ))}
