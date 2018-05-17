@@ -7,13 +7,8 @@ import { withRouter } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import { uploadBodyLogo } from '../api';
-import {
-  CreateBodyMutation,
-  CreateBodyMutationVariables,
-  GetBodiesQuery,
-} from '../operation-result-types';
+import { CreateBodyMutation, CreateBodyMutationVariables } from '../operation-result-types';
 import { CreateBody } from '../queries/mutations';
-import { GetBodies } from '../queries/queries';
 import { BodyForm, IBodyFormData } from './forms/BodyForm';
 
 class BodyNewMutation extends Mutation<CreateBodyMutation, CreateBodyMutationVariables> {}
