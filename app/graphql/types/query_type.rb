@@ -8,12 +8,11 @@ Types::QueryType = GraphQL::ObjectType.define do
   # They will be entry points for queries on your schema.
 
   field :bootstrap, !Types::BootstrapType do
-    resolve(Utils::Authorization.protect -> (obj, args, ctx) {
-      # TODO: Use real check for unauthorized
-      # raise "Unauthorized" unless ctx.current_user?
+    resolve -> (obj, args, ctx) {
+      raise Errors::AuthenticationNeededError.new unless ctx[:current_user]
 
       Bootstrap.new(ENV["DEMAGOG_IMAGE_SERVICE_URL"] || "")
-    })
+    }
   end
 
   field :speaker, !Types::SpeakerType do

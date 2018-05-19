@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const CreateBody = gql`
-  mutation createBody($bodyInput: BodyInputType!) {
+  mutation CreateBody($bodyInput: BodyInputType!) {
     createBody(body_input: $bodyInput) {
       id
       logo
