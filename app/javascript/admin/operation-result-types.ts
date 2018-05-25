@@ -76,6 +76,15 @@ export interface UpdateBodyMutation {
   } | null,
 };
 
+export interface DeleteBodyMutationVariables {
+  id: string,
+};
+
+export interface DeleteBodyMutation {
+  // Delete existing body
+  deleteBody: string,
+};
+
 export interface CreateSpeakerMutationVariables {
   speakerInput: SpeakerInputType,
 };
@@ -86,10 +95,20 @@ export interface CreateSpeakerMutation {
     id: string,
     first_name: string,
     last_name: string,
+    avatar: string | null,
     website_url: string,
     body:  {
       short_name: string | null,
     } | null,
+    memberships:  Array< {
+      id: string,
+      body:  {
+        id: string,
+        short_name: string | null,
+      },
+      since: string | null,
+      until: string | null,
+    } >,
   } | null,
 };
 
@@ -113,11 +132,21 @@ export interface UpdateSpeakerMutation {
       id: string,
       body:  {
         id: string,
+        short_name: string | null,
       },
       since: string | null,
       until: string | null,
     } >,
   } | null,
+};
+
+export interface DeleteSpeakerMutationVariables {
+  id: string,
+};
+
+export interface DeleteSpeakerMutation {
+  // Delete existing speaker
+  deleteSpeaker: string,
 };
 
 export interface CreateUserMutationVariables {
@@ -191,10 +220,14 @@ export interface GetBodiesQuery {
   bodies:  Array< {
     id: string,
     logo: string | null,
+    link: string | null,
     name: string,
     is_party: boolean,
+    is_inactive: boolean,
     short_name: string | null,
     description: string | null,
+    founded_at: string | null,
+    terminated_at: string | null,
   } >,
 };
 
@@ -242,6 +275,7 @@ export interface GetSpeakerQuery {
       id: string,
       body:  {
         id: string,
+        short_name: string | null,
       },
       since: string | null,
       until: string | null,
@@ -259,8 +293,18 @@ export interface GetSpeakersQuery {
     first_name: string,
     last_name: string,
     avatar: string | null,
+    website_url: string,
     body:  {
       short_name: string | null,
     } | null,
-  } | null > | null,
+    memberships:  Array< {
+      id: string,
+      body:  {
+        id: string,
+        short_name: string | null,
+      },
+      since: string | null,
+      until: string | null,
+    } >,
+  } >,
 };

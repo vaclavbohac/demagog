@@ -27,7 +27,7 @@ Types::QueryType = GraphQL::ObjectType.define do
     }
   end
 
-  field :speakers, types[Types::SpeakerType] do
+  field :speakers, !types[!Types::SpeakerType] do
     argument :limit, types.Int, default_value: 10
     argument :offset, types.Int, default_value: 0
     argument :party, types.Int
