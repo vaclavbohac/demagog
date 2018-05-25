@@ -176,7 +176,7 @@ Types::QueryType = GraphQL::ObjectType.define do
 
       users = User.limit(args[:limit]).offset(args[:offset])
 
-      users = users.where(active: false) unless args[:include_inactive]
+      users = users.where(active: true) unless args[:include_inactive]
 
       users =
         users.where("first_name LIKE ? OR last_name LIKE ?", "%#{args[:name]}%", "%#{args[:name]}%") unless args[:name].nil?
