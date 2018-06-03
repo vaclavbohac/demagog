@@ -3,7 +3,7 @@
     <h2><%= @party.name %></h2>
     <section class="speakers-list">
       <%= render(partial: 'speaker/listed', collection: @party.current_members, as: :speaker, locals: {showLatest: false}) %>
-    </section> 
+    </section>
   <% else %>
     <h2>Aktuálně nejaktivnější politici</h2>
     <p>Politici s nejvyšším počtem výroků za posledních šest měsíců.</p>
