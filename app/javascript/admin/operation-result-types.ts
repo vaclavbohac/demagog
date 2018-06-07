@@ -58,7 +58,7 @@ export interface CreateSourceMutation {
   // Add new source
   createSource:  {
     id: string,
-    name: string,
+    name: string | null,
   } | null,
 };
 
@@ -71,7 +71,7 @@ export interface UpdateSourceMutation {
   // Update existing source
   updateSource:  {
     id: string,
-    name: string,
+    name: string | null,
   } | null,
 };
 
@@ -247,7 +247,7 @@ export interface GetSourcesQueryVariables {
 export interface GetSourcesQuery {
   sources:  Array< {
     id: string,
-    name: string,
+    name: string | null,
     source_url: string | null,
     released_at: string,
     medium:  {
@@ -265,7 +265,7 @@ export interface GetSourceQueryVariables {
 
 export interface GetSourceQuery {
   source:  {
-    name: string,
+    name: string | null,
     source_url: string | null,
     released_at: string,
     transcript: string | null,

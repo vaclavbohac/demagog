@@ -25,7 +25,7 @@ function sourceToSourceInput(sourceQuery: GetSourceQuery): SourceInputType {
   const { source } = sourceQuery;
 
   return {
-    name: source.name,
+    name: source.name || '',
     released_at: source.released_at,
     transcript: source.transcript || '',
     medium_id: get(source.medium, 'id'),
