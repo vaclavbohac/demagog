@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "./helpers/duplication_tester"
+require_relative "./helpers/image_url_helper"
 
 class MissingPortrait
   def id
@@ -31,7 +32,6 @@ class SpeakerMigration
 
     keys = [
       :id,
-      :attachment_id,
       :first_name,
       :last_name,
       :before_name,
@@ -47,20 +47,10 @@ class SpeakerMigration
       old_speakers.each do |old_speaker|
         next if @duplication_tester.duplicate?(old_speaker["id"])
 
-        portrait = MissingPortrait.new
-
-        if old_speaker["fotografia"]
-          portrait = Attachment.create(
-            attachment_type: Attachment::TYPE_PORTRAIT,
-            file: old_speaker["fotografia"]
-          )
-        end
-
         worker.add([
                      old_speaker["id"],
-                     portrait.id,
-                     old_speaker["meno"],
-                     old_speaker["priezvisko"],
+                     old_speaker["meno"].strip,
+                     old_speaker["priezvisko"].strip,
                      old_speaker["titul_pred_menom"],
                      old_speaker["titul_za_menom"],
                      old_speaker["zivotopis"],
@@ -70,6 +60,18 @@ class SpeakerMigration
                      Time.now
                    ])
 
+      end
+    end
+
+    old_speakers.each do |old_speaker|
+      next if @duplication_tester.duplicate?(old_speaker["id"])
+      next if old_speaker["fotografia"].empty?
+
+      path = "/data/politik/t/#{old_speaker["fotografia"]}"
+      speaker = Speaker.find(old_speaker["id"])
+
+      open(ImageUrlHelper.absolute_url(path)) do |file|
+        speaker.avatar.attach io: file, filename: old_speaker["fotografia"]
       end
     end
   end

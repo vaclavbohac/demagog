@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative "./helpers/image_url_helper"
+
 class UserMigration
   attr_accessor :connection
 
@@ -26,14 +28,14 @@ class UserMigration
 
       user.roles << Role.find_by(name: old_user["usertype"])
 
-      if old_user["fotografia"]
-        user.portrait = Attachment.create(
-          attachment_type: Attachment::TYPE_PORTRAIT,
-          file: old_user["fotografia"]
-        )
-      end
-
       user.save!
+
+      unless old_user["fotografia"].empty?
+        path = "/data/users/s/#{old_user["fotografia"]}"
+        open(ImageUrlHelper.absolute_url(path)) do |file|
+          user.avatar.attach io: file, filename: old_user["fotografia"]
+        end
+      end
     end
   end
 end
