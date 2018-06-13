@@ -33,6 +33,18 @@ Types::QueryType = GraphQL::ObjectType.define do
     }
   end
 
+  field :medium, !Types::MediumType do
+    argument :id, !types.Int
+
+    resolve -> (obj, args, ctx) {
+      begin
+        Medium.find(args[:id])
+      rescue ActiveRecord::RecordNotFound => err
+        nil
+      end
+    }
+  end
+
   field :media_personalities, !types[!Types::MediaPersonalityType] do
     resolve -> (obj, args, ctx) {
       MediaPersonality.order(name: :asc)
@@ -46,9 +58,9 @@ Types::QueryType = GraphQL::ObjectType.define do
 
     resolve -> (obj, args, ctx) {
       sources = Source
+        .order(released_at: :desc)
         .offset(args[:offset])
         .limit(args[:limit])
-        .order(created_at: :desc)
 
       sources = sources.matching_name(args[:name]) if args[:name].present?
 
@@ -99,15 +111,17 @@ Types::QueryType = GraphQL::ObjectType.define do
     }
   end
 
-  field :statements, types[Types::StatementType] do
+  field :statements, !types[!Types::StatementType] do
     argument :limit, types.Int, default_value: 10
     argument :offset, types.Int, default_value: 0
+    argument :source, types.Int
     argument :speaker, types.Int
     argument :veracity, Types::VeracityKeyType
 
     resolve -> (obj, args, ctx) {
       statements = Statement.offset(args[:offset]).limit(args[:limit])
 
+      statements = statements.where(source: args[:source]) if args[:source]
       statements = statements.where(speaker: args[:speaker]) if args[:speaker]
       statements = statements.joins(:veracities).where(veracities: { key: args[:veracity] }) if args[:veracity]
 

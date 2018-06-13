@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import * as Slate from 'slate';
 import Plain from 'slate-plain-serializer';
 import { Editor } from 'slate-react';
 
@@ -11,7 +12,7 @@ interface ITextInputProps {
 }
 
 interface ITextInputState {
-  value: string;
+  value: Slate.Value;
 }
 
 export class TextInput extends React.Component<ITextInputProps, ITextInputState> {

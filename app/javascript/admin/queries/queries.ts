@@ -1,23 +1,5 @@
 import gql from 'graphql-tag';
 
-export const GetMediaPersonalities = gql`
-  query GetMediaPersonalities {
-    media_personalities {
-      id
-      name
-    }
-  }
-`;
-
-export const GetMedia = gql`
-  query GetMedia {
-    media {
-      id
-      name
-    }
-  }
-`;
-
 export const GetSources = gql`
   query GetSources($name: String) {
     sources(limit: 100, name: $name) {
@@ -31,6 +13,14 @@ export const GetSources = gql`
       media_personality {
         name
       }
+      speakers_statements_stats {
+        speaker {
+          id
+          first_name
+          last_name
+        }
+        statements_published_count
+      }
     }
   }
 `;
@@ -38,6 +28,7 @@ export const GetSources = gql`
 export const GetSource = gql`
   query GetSource($id: Int!) {
     source(id: $id) {
+      id
       name
       source_url
       released_at
@@ -49,6 +40,34 @@ export const GetSource = gql`
       media_personality {
         id
         name
+      }
+      speakers {
+        id
+        first_name
+        last_name
+      }
+    }
+  }
+`;
+
+// TODO: add pagination and control limit
+export const GetSourceStatements = gql`
+  query GetSourceStatements($sourceId: Int!) {
+    statements(limit: 100, source: $sourceId) {
+      id
+      content
+      important
+      speaker {
+        id
+        first_name
+        last_name
+        avatar
+      }
+      statement_transcript_position {
+        start_line
+        start_offset
+        end_line
+        end_offset
       }
     }
   }

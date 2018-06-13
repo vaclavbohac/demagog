@@ -8,12 +8,14 @@ import { get } from 'lodash';
 import { GetSourceQuery, SourceInputType } from '../../operation-result-types';
 import DateInput from './controls/DateInput';
 import { Input } from './controls/Input';
-import { MediaPersonalitiesSelect } from './controls/MediaPersonalitySelect';
-import { MediaSelect } from './controls/MediaSelect';
+import MediaPersonalitiesSelect from './controls/MediaPersonalitySelect';
+import MediumSelect from './controls/MediumSelect';
+import SpeakersSelect from './controls/SpeakersSelect';
 import { TextInput } from './controls/TextInput';
 import { Form } from './Form';
 
 interface ISourceFormProps {
+  backPath: string;
   sourceQuery?: GetSourceQuery;
   onSubmit: (formData: SourceInputType) => void;
   submitting: boolean;
@@ -31,6 +33,7 @@ function sourceToSourceInput(sourceQuery: GetSourceQuery): SourceInputType {
     medium_id: get(source.medium, 'id'),
     media_personality_id: get(source.media_personality, 'id'),
     source_url: source.source_url,
+    speakers: source.speakers.map((speaker) => speaker.id),
   };
 }
 
@@ -40,12 +43,13 @@ export class SourceForm extends React.Component<ISourceFormProps> {
       source: {
         medium: {},
         media_personality: {},
+        speakers: [],
       },
     },
   };
 
   public render() {
-    const { sourceQuery, submitting } = this.props;
+    const { backPath, sourceQuery, submitting } = this.props;
 
     if (!sourceQuery) {
       return null;
@@ -55,7 +59,7 @@ export class SourceForm extends React.Component<ISourceFormProps> {
 
     return (
       <SourceInternalForm defaultValues={sourceInput} onSubmit={this.props.onSubmit}>
-        {({ onInputChange }) => (
+        {({ onInputChange, onAssociationChange }, data) => (
           <React.Fragment>
             <Input
               required
@@ -90,16 +94,25 @@ export class SourceForm extends React.Component<ISourceFormProps> {
             </div>
 
             <div className="form-row">
-              <MediaSelect
+              <MediumSelect
                 className="col-md-6"
-                onChange={onInputChange('medium_id')}
-                defaultValue={sourceInput.medium_id || undefined}
+                onChange={onAssociationChange('medium_id')}
+                value={data.medium_id}
               />
 
               <MediaPersonalitiesSelect
                 className="col-md-6"
-                onChange={onInputChange('media_personality_id')}
-                defaultValue={sourceInput.media_personality_id || undefined}
+                mediumId={data.medium_id}
+                onChange={onAssociationChange('media_personality_id')}
+                value={data.media_personality_id}
+              />
+            </div>
+
+            <div className="form-row">
+              <SpeakersSelect
+                className="col-md-6"
+                value={data.speakers}
+                onChange={onAssociationChange('speakers')}
               />
             </div>
 
@@ -115,8 +128,8 @@ export class SourceForm extends React.Component<ISourceFormProps> {
             <button type="submit" className="btn btn-primary" disabled={submitting}>
               {submitting ? 'Ukládám ...' : 'Uložit'}
             </button>
-            <Link to="/admin/statements" className="btn">
-              Zpět na seznam
+            <Link to={backPath} className="btn">
+              Zpět
             </Link>
           </React.Fragment>
         )}

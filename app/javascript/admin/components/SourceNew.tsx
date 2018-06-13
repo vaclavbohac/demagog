@@ -2,14 +2,14 @@ import * as React from 'react';
 import { Mutation, MutationFn } from 'react-apollo';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
-import { addFlashMessage } from '../../actions/flashMessages';
+import { addFlashMessage } from '../actions/flashMessages';
 import {
   CreateSourceMutation,
   CreateSourceMutationVariables,
   SourceInputType,
-} from '../../operation-result-types';
-import { CreateSource } from '../../queries/mutations';
-import { SourceForm } from '../forms/SourceForm';
+} from '../operation-result-types';
+import { CreateSource } from '../queries/mutations';
+import { SourceForm } from './forms/SourceForm';
 
 class CreateSourceMutationComponent extends Mutation<
   CreateSourceMutation,
@@ -35,7 +35,7 @@ export class SourceNew extends React.Component<ISourceNewProps, ISourceNewState>
     this.props.addFlashMessage('Zdroj výroků byl úspěšně uložen.');
 
     if (source.createSource) {
-      this.props.history.push(`/admin/statements/sources/edit/${source.createSource.id}`);
+      this.props.history.push(`/admin/sources/${source.createSource.id}`);
     }
   };
 
@@ -66,6 +66,7 @@ export class SourceNew extends React.Component<ISourceNewProps, ISourceNewState>
           {(createSource) => {
             return (
               <SourceForm
+                backPath="/admin/sources"
                 onSubmit={this.onSubmit(createSource)}
                 submitting={this.state.submitting}
               />
