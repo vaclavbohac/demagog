@@ -38,6 +38,7 @@ set :stage,           :production
 set :branch,          :beta
 
 set :rvm_custom_path, "/home/rails/.rvm"
+set :assets_role,     "app"
 
 # Prevent robots from indexing the beta server
 namespace :deploy do
