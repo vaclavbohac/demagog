@@ -3,19 +3,31 @@ import * as React from 'react';
 import { ApolloError } from 'apollo-client';
 import { truncate } from 'lodash';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
+import { ASSESSMENT_STATUS_LABELS } from '../constants';
 import { DeleteStatement } from '../queries/mutations';
+import { newlinesToBr, pluralize } from '../utils';
 import ConfirmDeleteModal from './modals/ConfirmDeleteModal';
 
 interface IStatement {
   id: string;
   content: string;
+  published: boolean;
   speaker: {
     id: string;
     first_name: string;
     last_name: string;
     avatar: string | null;
+  };
+  assessment: {
+    evaluation_status: string;
+    evaluator: null | {
+      id: string;
+      first_name: string | null;
+      last_name: string | null;
+    };
   };
   statement_transcript_position: null | {
     start_line: number;
@@ -23,6 +35,7 @@ interface IStatement {
     end_line: number;
     end_offset: number;
   };
+  comments_count: number;
 }
 
 interface IProps {
@@ -63,6 +76,8 @@ class StatementCard extends React.Component<IProps, IState> {
     const { refetchQueriesAfterDelete, statement } = this.props;
     const { showConfirmDeleteModal } = this.state;
 
+    const assessment = statement.assessment;
+
     return (
       <>
         {showConfirmDeleteModal && (
@@ -84,12 +99,12 @@ class StatementCard extends React.Component<IProps, IState> {
         <div className="card mb-3">
           <div className="card-body">
             <div className="float-right" style={{ marginTop: -7 }}>
-              <button type="button" className="btn btn-sm btn-outline-secondary" disabled>
+              <Link
+                to={`/admin/statements/${statement.id}`}
+                className="btn btn-sm btn-outline-secondary"
+              >
                 Na detail výroku
-              </button>
-              <button type="button" className="btn btn-sm btn-outline-secondary ml-1" disabled>
-                Upravit
-              </button>
+              </Link>
               <button
                 type="button"
                 className="btn btn-sm btn-outline-secondary ml-1"
@@ -102,12 +117,25 @@ class StatementCard extends React.Component<IProps, IState> {
             <h5>
               {statement.speaker.first_name} {statement.speaker.last_name}
             </h5>
-            <p style={{ margin: 0 }}>{statement.content}</p>
+            <p style={{ margin: 0 }}>{newlinesToBr(statement.content)}</p>
           </div>
           <div className="card-footer text-muted small">
-            Stav: ve zpracování{' · '}
-            Ověřovatel: Ivana Procházková{' · '}
-            1 komentář v diskuzi k výroku
+            {statement.published && <>Zveřejněný{' · '}</>}
+            Stav: {ASSESSMENT_STATUS_LABELS[assessment.evaluation_status]}
+            {assessment.evaluator && (
+              <>
+                {' · '}
+                Ověřovatel: {assessment.evaluator.first_name} {assessment.evaluator.last_name}
+              </>
+            )}
+            {statement.comments_count > 0 && (
+              <>
+                {' · '}
+                {statement.comments_count}{' '}
+                {pluralize(statement.comments_count, 'komentář', 'komentáře', 'komentářů')} v
+                diskuzi k výroku
+              </>
+            )}
           </div>
         </div>
       </>

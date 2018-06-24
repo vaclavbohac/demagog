@@ -14,18 +14,18 @@ import Plain from 'slate-plain-serializer';
 import { Editor } from 'slate-react';
 
 import {
+  CreateStatementInputType,
   CreateStatementMutation,
   CreateStatementMutationVariables,
   GetSourceQuery,
   GetSourceStatementsQuery,
   GetSourceStatementsQueryVariables,
-  StatementInputType,
 } from '../operation-result-types';
 import { CreateStatement } from '../queries/mutations';
 import { GetSource, GetSourceStatements } from '../queries/queries';
-import Loading from './Loading';
-
 import { displayDate, pluralize } from '../utils';
+import UserSelect from './forms/controls/UserSelect';
+import Loading from './Loading';
 import StatementCard from './StatementCard';
 
 class GetSourceQueryComponent extends Query<GetSourceQuery> {}
@@ -288,6 +288,7 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
       content: selection.text,
       speaker_id: source.speakers[0].id,
       note: '',
+      evaluator_id: null,
     };
 
     return (
@@ -307,7 +308,9 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
             //   return errors;
             // }}
             onSubmit={(values, { setSubmitting }) => {
-              const statementInput: StatementInputType = {
+              const note = values.note.trim();
+
+              const statementInput: CreateStatementInputType = {
                 content: values.content,
                 speaker_id: values.speaker_id,
                 source_id: source.id,
@@ -315,12 +318,16 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
                 published: false,
                 count_in_statistics: false,
                 excerpted_at: DateTime.utc().toISO(),
+                assessment: {
+                  evaluator_id: values.evaluator_id,
+                },
                 statement_transcript_position: {
                   start_line: selection.startLine,
                   start_offset: selection.startOffset,
                   end_line: selection.endLine,
                   end_offset: selection.endOffset,
                 },
+                first_comment_content: note !== '' ? note : null,
               };
 
               createStatement({ variables: { statementInput } })
@@ -344,6 +351,8 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
               handleBlur,
               handleSubmit,
               isSubmitting,
+              setFieldValue,
+              setFieldTouched,
             }) => (
               <form onSubmit={handleSubmit}>
                 <div className="card">
@@ -422,7 +431,11 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
                     </div> */}
                     <div className="form-group">
                       <label>Ověřovatel:</label>
-                      <p>TODO</p>
+                      <UserSelect
+                        onChange={(value) => setFieldValue('evaluator_id', value)}
+                        onBlur={() => setFieldTouched('evaluator_id')}
+                        value={values.evaluator_id}
+                      />
                     </div>
                     <div className="form-group">
                       <label htmlFor="note">Poznámka pro ověřování</label>
@@ -668,7 +681,7 @@ const addMarksFromStatements = (
     }
   });
 
-  return (change as any).setValue({ decorations });
+  return change.setValue({ decorations });
 };
 
 const findInlineNodeByLineNumber = (document: Slate.Document, line: number): Slate.Inline => {
@@ -713,7 +726,7 @@ const highlightNewStatementSelection = (
     );
   }
 
-  return (change as any).setValue({ decorations });
+  return change.setValue({ decorations });
 };
 
 const removeDecorationsWithMarkType = (

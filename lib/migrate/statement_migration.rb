@@ -26,29 +26,33 @@ class StatementMigration
       :source_id,
       :speaker_id,
       :content,
-      :questionables,
       :count_in_statistics,
       :important,
       :published,
       :excerpted_at,
+      :source_order,
       :created_at,
-      :updated_at
+      :updated_at,
+      :deleted_at
     ]
 
     Statement.bulk_insert(*keys) do |worker|
       old_statements.each do |old_statement|
+        content = migrate_statement_content old_statement["vyrok"]
+
         worker.add([
                      old_statement["id"],
                      old_statement["id_diskusia"],
                      @tester.duplicated_id(old_statement["id_politik"]),
-                     old_statement["vyrok"],
-                     old_statement["poznamka"],
+                     content,
                      old_statement["evaluate"] == 1,
                      old_statement["dolezity"] == 1,
                      old_statement["status"] == 1,
                      old_statement["timestamp"],
+                     old_statement["poradie"],
                      Time.now,
-                     Time.now
+                     Time.now,
+                     old_statement["status"] == -3 ? Time.now : nil
                    ])
       end
     end
@@ -56,11 +60,15 @@ class StatementMigration
 
   def evaluation_status
     {
-        -3 => Assessment::STATUS_REMOVED,
-        -2 => Assessment::STATUS_TO_BE_EVALUATED,
-        -1 => Assessment::STATUS_TO_BE_CHECKED_BY_SUPERVISOR,
-         0 => Assessment::STATUS_CORRECT,
-         1 => Assessment::STATUS_CORRECT
+        # -3 is removed statement, which we migrate by setting deleted_at,
+        # so does not really matter what the evaluation status of such
+        # statements are
+        -3 => Assessment::STATUS_BEING_EVALUATED,
+
+        -2 => Assessment::STATUS_BEING_EVALUATED,
+        -1 => Assessment::STATUS_APPROVAL_NEEDED,
+         0 => Assessment::STATUS_APPROVED,
+         1 => Assessment::STATUS_APPROVED
     }
   end
 
@@ -68,7 +76,7 @@ class StatementMigration
   def migrate_assessments(old_statements)
     keys = [
       :statement_id,
-      :explanation,
+      :explanation_html,
       :veracity_id,
       :evaluation_status,
       :user_id,
@@ -79,8 +87,6 @@ class StatementMigration
 
     Assessment.bulk_insert(*keys) do |worker|
       old_statements.each do |old_statement|
-        next unless old_statement["status"] >= -1
-
         veracity_id = nil
         if old_statement["id_pravdivostna_hodnota"]
           veracity_id = old_statement["id_pravdivostna_hodnota"]
@@ -148,5 +154,20 @@ class StatementMigration
         ])
       end
     end
+  end
+
+  def migrate_statement_content(old_content)
+    # First remove old newlines, which did not do anything, because statements
+    # were rendered as html
+    content = old_content.gsub(/(?:\r\n|\r|\n)/, " ")
+
+    # Then replace all existing <br> tags with newlines
+    content = content.gsub(/(?:<br>|<BR>|<\/br>)/, "\n")
+
+    # If there are any spaces before or after newline, remove them
+    content = content.gsub(/(?: \n|\n )/, "\n")
+
+    # And remove all other <i> tags
+    content.gsub(/(<i>|<\/i>)/, "")
   end
 end

@@ -1,12 +1,12 @@
 <section class="statement-detail">
   <h1>Tento výrok byl ověřen jako
-    <span class="veracity glyphicons <%= @statement.correct_assessment.veracity.default_name %>">
-      <i></i> <%= @statement.correct_assessment.veracity.name.downcase %>
+    <span class="veracity glyphicons <%= @statement.approved_assessment.veracity.default_name %>">
+      <i></i> <%= @statement.approved_assessment.veracity.name.downcase %>
     </span>
   </h1>
 
   <blockquote>
-    <b><%= @statement.speaker.full_name %>:</b> <%= raw(@statement.content) %>
+    <b><%= @statement.speaker.full_name %>:</b> <%= content_to_html(@statement.content) %>
     <cite><%= @statement.source.medium.name %>, <%= raw(l(@statement.source.released_at, format: :long)) %></cite>
   </blockquote>
 </section>
@@ -14,7 +14,7 @@
 <article>
   <h2>Odůvodnění</h2>
   <section class="reasons">
-    <%= raw(@statement.correct_assessment.explanation) %>
+    <%= raw(@statement.approved_assessment.explanation_html) %>
   </section>
 </article>
 

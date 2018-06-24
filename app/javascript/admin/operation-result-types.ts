@@ -51,7 +51,7 @@ export interface UserInputType {
   rank?: number | null,
 };
 
-export interface StatementInputType {
+export interface CreateStatementInputType {
   content: string,
   excerpted_at: string,
   important: boolean,
@@ -59,7 +59,15 @@ export interface StatementInputType {
   source_id: string,
   published: boolean,
   count_in_statistics: boolean,
+  assessment: CreateAssessmentInputType,
   statement_transcript_position?: StatementTranscriptPositionInputType | null,
+  first_comment_content?: string | null,
+};
+
+export interface CreateAssessmentInputType {
+  evaluator_id?: string | null,
+  explanation?: string | null,
+  veracity_id?: string | null,
 };
 
 export interface StatementTranscriptPositionInputType {
@@ -67,6 +75,32 @@ export interface StatementTranscriptPositionInputType {
   start_offset: number,
   end_line: number,
   end_offset: number,
+};
+
+export interface UpdateStatementInputType {
+  content?: string | null,
+  important?: boolean | null,
+  published?: boolean | null,
+  count_in_statistics?: boolean | null,
+  assessment?: UpdateAssessmentInputType | null,
+};
+
+export interface UpdateAssessmentInputType {
+  evaluator_id?: string | null,
+  evaluation_status?: string | null,
+  explanation_html?: string | null,
+  explanation_slatejson?: GraphQLCustomScalar_JSON | null,
+  short_explanation?: string | null,
+  veracity_id?: string | null,
+};
+
+export interface CommentInputType {
+  content: string,
+  statement_id: string,
+};
+
+export interface UpdateSourceStatementsOrderInputType {
+  ordered_statement_ids?: Array< string > | null,
 };
 
 export interface CreateSourceMutationVariables {
@@ -255,7 +289,7 @@ export interface DeleteUserMutation {
 };
 
 export interface CreateStatementMutationVariables {
-  statementInput: StatementInputType,
+  statementInput: CreateStatementInputType,
 };
 
 export interface CreateStatementMutation {
@@ -271,6 +305,46 @@ export interface CreateStatementMutation {
   } | null,
 };
 
+export interface UpdateStatementMutationVariables {
+  id: number,
+  statementInput: UpdateStatementInputType,
+};
+
+export interface UpdateStatementMutation {
+  // Update existing statement
+  updateStatement:  {
+    id: string,
+    content: string,
+    important: boolean,
+    published: boolean,
+    excerpted_at: string,
+    speaker:  {
+      id: string,
+      first_name: string,
+      last_name: string,
+      avatar: string | null,
+    },
+    assessment:  {
+      id: string,
+      short_explanation: string | null,
+      explanation_html: string | null,
+      explanation_slatejson: GraphQLCustomScalar_JSON | null,
+      evaluation_status: string,
+      evaluator:  {
+        id: string,
+        first_name: string | null,
+        last_name: string | null,
+      } | null,
+      veracity:  {
+        id: string,
+        key: GraphQLCustomScalar_VeracityKey,
+        name: string,
+      } | null,
+    },
+    comments_count: number,
+  } | null,
+};
+
 export interface DeleteStatementMutationVariables {
   id: string,
 };
@@ -278,6 +352,36 @@ export interface DeleteStatementMutationVariables {
 export interface DeleteStatementMutation {
   // Delete existing statement
   deleteStatement: string,
+};
+
+export interface CreateCommentMutationVariables {
+  commentInput: CommentInputType,
+};
+
+export interface CreateCommentMutation {
+  // Add new comment
+  createComment:  {
+    id: string,
+    content: string,
+    user:  {
+      id: string,
+      first_name: string | null,
+      last_name: string | null,
+    },
+    created_at: GraphQLCustomScalar_DateTime,
+  } | null,
+};
+
+export interface UpdateSourceStatementsOrderMutationVariables {
+  id: string,
+  input: UpdateSourceStatementsOrderInputType,
+};
+
+export interface UpdateSourceStatementsOrderMutation {
+  // Update order of statements in source
+  updateSourceStatementsOrder:  {
+    id: string,
+  } | null,
 };
 
 export interface GetSourcesQueryVariables {
@@ -345,18 +449,31 @@ export interface GetSourceStatementsQuery {
     id: string,
     content: string,
     important: boolean,
+    published: boolean,
     speaker:  {
       id: string,
       first_name: string,
       last_name: string,
       avatar: string | null,
     },
+    assessment:  {
+      id: string,
+      evaluation_status: string,
+      evaluator:  {
+        id: string,
+        first_name: string | null,
+        last_name: string | null,
+      } | null,
+    },
     statement_transcript_position:  {
+      id: string,
       start_line: number,
       start_offset: number,
       end_line: number,
       end_offset: number,
     } | null,
+    comments_count: number,
+    source_order: number | null,
   } >,
 };
 
@@ -488,4 +605,77 @@ export interface GetSpeakersQuery {
       until: string | null,
     } >,
   } >,
+};
+
+export interface GetStatementQueryVariables {
+  id: number,
+};
+
+export interface GetStatementQuery {
+  statement:  {
+    id: string,
+    content: string,
+    important: boolean,
+    published: boolean,
+    excerpted_at: string,
+    speaker:  {
+      id: string,
+      first_name: string,
+      last_name: string,
+      avatar: string | null,
+    },
+    assessment:  {
+      id: string,
+      explanation_html: string | null,
+      explanation_slatejson: GraphQLCustomScalar_JSON | null,
+      short_explanation: string | null,
+      evaluation_status: string,
+      evaluator:  {
+        id: string,
+        first_name: string | null,
+        last_name: string | null,
+      } | null,
+      veracity:  {
+        id: string,
+        key: GraphQLCustomScalar_VeracityKey,
+        name: string,
+      } | null,
+    },
+    source:  {
+      id: string,
+      name: string,
+      source_url: string | null,
+      released_at: string,
+      medium:  {
+        id: string,
+        name: string,
+      },
+      media_personality:  {
+        id: string,
+        name: string,
+      },
+    },
+    comments_count: number,
+  },
+};
+
+export interface GetStatementCommentsQueryVariables {
+  id: number,
+};
+
+export interface GetStatementCommentsQuery {
+  statement:  {
+    id: string,
+    comments_count: number,
+    comments:  Array< {
+      id: string,
+      content: string,
+      user:  {
+        id: string,
+        first_name: string | null,
+        last_name: string | null,
+      },
+      created_at: GraphQLCustomScalar_DateTime,
+    } >,
+  },
 };

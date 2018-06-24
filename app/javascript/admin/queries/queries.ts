@@ -55,22 +55,35 @@ export const GetSource = gql`
 // TODO: add pagination and control limit
 export const GetSourceStatements = gql`
   query GetSourceStatements($sourceId: Int!) {
-    statements(limit: 100, source: $sourceId) {
+    statements(limit: 100, source: $sourceId, include_unpublished: true) {
       id
       content
       important
+      published
       speaker {
         id
         first_name
         last_name
         avatar
       }
+      assessment {
+        id
+        evaluation_status
+        evaluator {
+          id
+          first_name
+          last_name
+        }
+      }
       statement_transcript_position {
+        id
         start_line
         start_offset
         end_line
         end_offset
       }
+      comments_count
+      source_order
     }
   }
 `;
@@ -189,6 +202,75 @@ export const GetSpeakers = gql`
         }
         since
         until
+      }
+    }
+  }
+`;
+
+export const GetStatement = gql`
+  query GetStatement($id: Int!) {
+    statement(id: $id, include_unpublished: true) {
+      id
+      content
+      important
+      published
+      excerpted_at
+      speaker {
+        id
+        first_name
+        last_name
+        avatar
+      }
+      assessment {
+        id
+        explanation_html
+        explanation_slatejson
+        short_explanation
+        evaluation_status
+        evaluator {
+          id
+          first_name
+          last_name
+        }
+        veracity {
+          id
+          key
+          name
+        }
+      }
+      source {
+        id
+        name
+        source_url
+        released_at
+        medium {
+          id
+          name
+        }
+        media_personality {
+          id
+          name
+        }
+      }
+      comments_count
+    }
+  }
+`;
+
+export const GetStatementComments = gql`
+  query GetStatementComments($id: Int!) {
+    statement(id: $id, include_unpublished: true) {
+      id
+      comments_count
+      comments {
+        id
+        content
+        user {
+          id
+          first_name
+          last_name
+        }
+        created_at
       }
     }
   }

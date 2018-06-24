@@ -69,10 +69,11 @@ FactoryBot.define do
 
   factory :assessment do
     statement
-    user
+    association :evaluator, factory: :user
     association :veracity, factory: :true
 
-    evaluation_status Assessment::STATUS_CORRECT
+    evaluation_status Assessment::STATUS_APPROVED
+    explanation_html "Lorem ipsum <strong>dolor</strong> sit amet"
   end
 
   factory :veracity do
@@ -111,10 +112,37 @@ FactoryBot.define do
       create(:assessment, statement: statement, veracity: create(:true))
     end
 
-    factory :important_statement do
+    trait :important do
       important true
     end
+
+    trait :unpublished do
+      published false
+    end
+
+    trait :with_transcript_position do
+      transient do
+        transcript_position [0, 0, 0, 20]
+      end
+
+      after(:create) do |statement, evaluator|
+        create(
+          :statement_transcript_position,
+          statement: statement,
+          source: statement.source,
+          start_line: evaluator.transcript_position[0],
+          start_offset: evaluator.transcript_position[1],
+          end_line: evaluator.transcript_position[2],
+          end_offset: evaluator.transcript_position[3],
+        )
+      end
+    end
+
+    factory :important_statement, traits: [:important]
+    factory :unpublished_statement, traits: [:unpublished]
   end
+
+  factory :statement_transcript_position
 
   factory :membership do
     speaker

@@ -5,13 +5,15 @@ Mutations::CreateStatement = GraphQL::Field.define do
   type Types::StatementType
   description "Add new statement"
 
-  argument :statement_input, !Types::StatementInputType
+  argument :statement_input, !Types::CreateStatementInputType
 
   resolve -> (obj, args, ctx) {
     raise Errors::AuthenticationNeededError.new unless ctx[:current_user]
 
     statement_input = args[:statement_input].to_h
     transcript_position_input = statement_input.delete("statement_transcript_position")
+    assessment_input = statement_input.delete("assessment")
+    first_comment_content = statement_input.delete("first_comment_content")
 
     Statement.transaction do
       statement = Statement.create!(statement_input)
@@ -20,6 +22,23 @@ Mutations::CreateStatement = GraphQL::Field.define do
         transcript_position_input["statement_id"] = statement.id
         transcript_position_input["source_id"] = statement.source.id
         StatementTranscriptPosition.create!(transcript_position_input)
+      end
+
+      evaluator_id = assessment_input.delete("evaluator_id")
+      unless evaluator_id.nil?
+        assessment_input["evaluator"] = User.find(evaluator_id)
+      end
+
+      assessment_input["statement"] = statement
+      assessment_input["evaluation_status"] = Assessment::STATUS_BEING_EVALUATED
+      Assessment.create!(assessment_input)
+
+      if first_comment_content
+        Comment.create!(
+          statement: statement,
+          content: first_comment_content,
+          user: ctx[:current_user]
+        )
       end
 
       statement

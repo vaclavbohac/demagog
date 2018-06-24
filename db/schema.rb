@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_06_14_024651) do
+ActiveRecord::Schema.define(version: 2018_06_23_032559) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
@@ -78,15 +78,16 @@ ActiveRecord::Schema.define(version: 2018_06_14_024651) do
   end
 
   create_table "assessments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.text "explanation"
+    t.text "explanation_html"
     t.string "evaluation_status"
     t.datetime "evaluated_at"
-    t.boolean "disputed"
     t.bigint "veracity_id"
     t.bigint "user_id"
     t.bigint "statement_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "explanation_slatejson"
+    t.text "short_explanation"
     t.index ["statement_id"], name: "index_assessments_on_statement_id"
     t.index ["user_id"], name: "index_assessments_on_user_id"
     t.index ["veracity_id"], name: "index_assessments_on_veracity_id"
@@ -117,9 +118,9 @@ ActiveRecord::Schema.define(version: 2018_06_14_024651) do
   end
 
   create_table "comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.text "content"
-    t.bigint "user_id"
-    t.bigint "statement_id"
+    t.text "content", null: false
+    t.bigint "user_id", null: false
+    t.bigint "statement_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["statement_id"], name: "index_comments_on_statement_id"
@@ -245,7 +246,6 @@ ActiveRecord::Schema.define(version: 2018_06_14_024651) do
 
   create_table "statements", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.text "content"
-    t.text "questionables"
     t.datetime "excerpted_at"
     t.boolean "important"
     t.boolean "published"
@@ -255,6 +255,7 @@ ActiveRecord::Schema.define(version: 2018_06_14_024651) do
     t.datetime "updated_at", null: false
     t.bigint "source_id"
     t.datetime "deleted_at"
+    t.integer "source_order"
     t.index ["source_id"], name: "index_statements_on_source_id"
     t.index ["speaker_id"], name: "index_statements_on_speaker_id"
   end

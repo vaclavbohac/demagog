@@ -9,35 +9,56 @@ class Statement < ApplicationRecord
   has_many :segments, through: :segment_has_statements
   has_many :article_has_segments, through: :segments
   has_many :articles, through: :article_has_segments
-  has_many :assessments
-  has_many :veracities, through: :assessments
+  has_one :assessment
+  has_one :veracity, through: :assessment
   has_one :statement_transcript_position
 
   default_scope {
+    # We keep here only soft-delete, ordering cannot be here because
+    # of has_many :through relations which use statements
     where(deleted_at: nil)
-      .includes(:statement_transcript_position)
+  }
+
+  scope :ordered, -> {
+    where(deleted_at: nil)
+      .left_outer_joins(
+        # Doing left outer join so it returns also statements without transcript position
+        :statement_transcript_position
+      )
       .order(
-        "statement_transcript_positions.start_line ASC",
-        "statement_transcript_positions.start_offset ASC",
+        # -column DESC means we sort in ascending order, but we want NULL values at the end
+        # See https://stackoverflow.com/questions/2051602/mysql-orderby-a-number-nulls-last
+        # It means that when user provides manual sorting in source_order columns, it will be
+        # used first and rest of the statements will be after
+        Arel.sql("- source_order DESC"),
+        Arel.sql("- statement_transcript_positions.start_line DESC"),
+        Arel.sql("- statement_transcript_positions.start_offset DESC"),
         "excerpted_at ASC"
       )
   }
 
   scope :published, -> {
-    where(published: true, deleted_at: nil)
-      .order(excerpted_at: :desc)
-      .joins(:assessments)
+    ordered
+      .where(published: true)
+      .joins(:assessment)
       .where.not(assessments: {
         veracity_id: nil
       })
       .where(assessments: {
-        evaluation_status: Assessment::STATUS_CORRECT
+        evaluation_status: Assessment::STATUS_APPROVED
       })
   }
 
   scope :relevant_for_statistics, -> {
     published
       .where(count_in_statistics: true)
+  }
+
+  scope :published_important_first, -> {
+    # We first call order and then the published scope so the important DESC
+    # order rule is used first and then the ones from scope ordered
+    # (source_order, etc.)
+    order(important: :desc).published
   }
 
   def self.interesting_statements
@@ -48,10 +69,10 @@ class Statement < ApplicationRecord
   end
 
   # @return [Assessment]
-  def correct_assessment
+  def approved_assessment
     Assessment.find_by(
       statement: self,
-      evaluation_status: Assessment::STATUS_CORRECT
+      evaluation_status: Assessment::STATUS_APPROVED
     )
   end
 end
