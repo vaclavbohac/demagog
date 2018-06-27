@@ -44,4 +44,59 @@ class Assessment < ApplicationRecord
   belongs_to :statement
 
   validates_with AssessmentValidator
+
+  def approved?
+    evaluation_status == STATUS_APPROVED
+  end
+
+  def unapproved?
+    evaluation_status != STATUS_APPROVED
+  end
+
+  # Meant to be used after setting new attributes with assign_attributes, just
+  # before calling save! on the record
+  def is_user_authorized_to_save(user)
+    permissions = user.role.permissions
+
+    # With statements:edit, user can edit anything in assessment
+    return true if permissions.include?("statements:edit")
+
+    evaluator_allowed_attributes = [
+      "veracity_id",
+      "explanation_html",
+      "explanation_slatejson",
+      "short_explanation",
+      "evaluation_status"
+    ]
+    evaluator_allowed_changes =
+      evaluation_status_was == STATUS_BEING_EVALUATED &&
+      (changed_attributes.keys - evaluator_allowed_attributes).empty?
+
+    if evaluator_allowed_changes && permissions.include?("statements:edit-as-evaluator") && user_id == user.id
+      return true
+    end
+
+    texts_allowed_attributes = [
+      "explanation_html",
+      "explanation_slatejson",
+      "short_explanation",
+    ]
+    texts_allowed_changes = unapproved? && (changed_attributes.keys - texts_allowed_attributes).empty?
+
+    if texts_allowed_changes && permissions.include?("statements:edit-texts")
+      return true
+    end
+
+    changed_attributes.empty?
+  end
+
+  def is_user_authorized_to_view_evaluation(user)
+    permissions = user.role.permissions
+
+    return true if approved?
+    return true if permissions.include?("statements:view-unapproved-evaluation")
+    return true if permissions.include?("statements:view-evaluation-as-evaluator") && user.id == user_id
+
+    false
+  end
 end

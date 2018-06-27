@@ -99,6 +99,10 @@ export const GetUsers = gql`
       active
       bio
       position_description
+      role {
+        id
+        name
+      }
     }
   }
 `;
@@ -114,6 +118,10 @@ export const GetUser = gql`
       active
       bio
       position_description
+      role {
+        id
+        name
+      }
     }
   }
 `;
@@ -271,6 +279,33 @@ export const GetStatementComments = gql`
           last_name
         }
         created_at
+      }
+    }
+  }
+`;
+
+export const GetRoles = gql`
+  query GetRoles {
+    roles {
+      id
+      key
+      name
+    }
+  }
+`;
+
+export const GetCurrentUser = gql`
+  query GetCurrentUser {
+    current_user {
+      id
+      first_name
+      last_name
+      email
+      role {
+        id
+        key
+        name
+        permissions
       }
     }
   }

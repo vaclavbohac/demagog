@@ -49,6 +49,7 @@ export interface UserInputType {
   phone?: string | null,
   order?: number | null,
   rank?: number | null,
+  role_id?: string | null,
 };
 
 export interface CreateStatementInputType {
@@ -259,7 +260,12 @@ export interface CreateUserMutation {
     id: string,
     first_name: string | null,
     last_name: string | null,
+    avatar: string | null,
     active: boolean,
+    role:  {
+      id: string,
+      name: string,
+    },
   } | null,
 };
 
@@ -276,6 +282,10 @@ export interface UpdateUserMutation {
     last_name: string | null,
     avatar: string | null,
     active: boolean,
+    role:  {
+      id: string,
+      name: string,
+    },
   } | null,
 };
 
@@ -492,6 +502,10 @@ export interface GetUsersQuery {
     active: boolean,
     bio: string | null,
     position_description: string | null,
+    role:  {
+      id: string,
+      name: string,
+    },
   } >,
 };
 
@@ -509,6 +523,10 @@ export interface GetUserQuery {
     active: boolean,
     bio: string | null,
     position_description: string | null,
+    role:  {
+      id: string,
+      name: string,
+    },
   },
 };
 
@@ -677,5 +695,28 @@ export interface GetStatementCommentsQuery {
       },
       created_at: GraphQLCustomScalar_DateTime,
     } >,
+  },
+};
+
+export interface GetRolesQuery {
+  roles:  Array< {
+    id: string,
+    key: string,
+    name: string,
+  } >,
+};
+
+export interface GetCurrentUserQuery {
+  current_user:  {
+    id: string,
+    first_name: string | null,
+    last_name: string | null,
+    email: string,
+    role:  {
+      id: string,
+      key: string,
+      name: string,
+      permissions: Array< string >,
+    },
   },
 };
