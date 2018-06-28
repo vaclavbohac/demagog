@@ -19,7 +19,7 @@ function Header(props: IProps) {
           {props.currentUser.first_name} {props.currentUser.last_name}
         </span>
       )}
-      <ul className="navbar-nav px-3">
+      <ul className="navbar-nav px-3" style={{ margin: 0 }}>
         <li className="nav-item text-nowrap">
           <a className="nav-link" data-method="delete" href="/sign_out">
             Odhlásit se
