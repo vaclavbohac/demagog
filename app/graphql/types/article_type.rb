@@ -9,7 +9,8 @@ Types::ArticleType = GraphQL::ObjectType.define do
   field :title, !types.String
   field :slug, !types.String
   field :perex, types.String
-  field :published_at, !types.String
+  field :published_at, types.String
+  field :published, !types.Boolean
   field :source, Types::SourceType
 
   field :article_type, !types.String do
@@ -48,11 +49,15 @@ Types::ArticleType = GraphQL::ObjectType.define do
 
   field :illustration, types.String do
     resolve -> (obj, args, ctx) do
-      return nil if obj.illustration.file.empty?
+      return nil unless obj.illustration.attached?
 
-      folder = obj.article_type.name === "static" ? "pages" : "diskusia"
+      Rails.application.routes.url_helpers.rails_blob_path(obj.illustration, only_path: true)
+    end
+  end
 
-      "/data/#{folder}/s/#{obj.illustration.file}"
+  field :segments, types[!Types::SegmentType] do
+    resolve -> (obj, args, ctx) do
+      obj.segments
     end
   end
 end

@@ -7,17 +7,20 @@ import { Redirect, Route, Router, Switch } from 'react-router';
 import { fetchCurrentUser } from './actions/currentUser';
 import { IState } from './reducers';
 
-import Loading from './components/Loading';
-
-import FlashMessages from './components/FlashMessages';
-import Header from './components/Header';
-// import Home from './components/Home';
-import NotFound from './components/NotFound';
-import Sidebar from './components/Sidebar';
+import ArticleEdit from './components/articles/ArticleEdit';
+import ArticleNew from './components/articles/ArticleNew';
+import Articles from './components/articles/Articles';
 
 import Bodies from './components/Bodies';
 import BodyEdit from './components/BodyEdit';
 import BodyNew from './components/BodyNew';
+
+import FlashMessages from './components/FlashMessages';
+import Header from './components/Header';
+// import Home from './components/Home';
+import Loading from './components/Loading';
+import NotFound from './components/NotFound';
+import Sidebar from './components/Sidebar';
 
 import SpeakerEdit from './components/SpeakerEdit';
 import SpeakerNew from './components/SpeakerNew';
@@ -70,6 +73,10 @@ class App extends React.Component<IProps> {
                   <Route path="/admin" exact>
                     <Redirect to="/admin/sources" />
                   </Route>
+
+                  <Route path="/admin/articles" exact component={Articles} />
+                  <Route path="/admin/articles/new" exact component={ArticleNew} />
+                  <Route path="/admin/articles/edit/:id" exact component={ArticleEdit} />
 
                   <Route path="/admin/sources" exact component={Sources} />
                   <Route path="/admin/sources/new" exact component={SourceNew} />

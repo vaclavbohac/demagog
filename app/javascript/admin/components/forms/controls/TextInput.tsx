@@ -4,11 +4,19 @@ import * as Slate from 'slate';
 import Plain from 'slate-plain-serializer';
 import { Editor } from 'slate-react';
 
+interface IEditorChangeEvent {
+  target: {
+    value: string;
+  };
+}
+
 interface ITextInputProps {
   className?: string;
+  label: string;
   defaultValue?: string | null;
+  minHeight?: number;
   placeholder: string;
-  onChange(evt: any): void;
+  onChange(evt: IEditorChangeEvent): void;
 }
 
 interface ITextInputState {
@@ -16,6 +24,10 @@ interface ITextInputState {
 }
 
 export class TextInput extends React.Component<ITextInputProps, ITextInputState> {
+  public static defaultProps: Partial<ITextInputProps> = {
+    minHeight: 320,
+  };
+
   constructor(props: ITextInputProps) {
     super(props);
 
@@ -34,12 +46,14 @@ export class TextInput extends React.Component<ITextInputProps, ITextInputState>
 
   public render() {
     return (
-      <div className={`form-group ${this.props.className ? this.props.className : ''}`}>
-        <label>Přepis:</label>
+      <div
+        className={`form-group ${this.props.className ? this.props.className : ''}`}
+        style={{ minHeight: this.props.minHeight }}
+      >
+        <label>{this.props.label}</label>
 
         <div
           style={{
-            height: 300,
             overflow: 'scroll',
             border: '1px solid #ced4da',
             borderRadius: '.25rem',
@@ -50,7 +64,7 @@ export class TextInput extends React.Component<ITextInputProps, ITextInputState>
             placeholder={this.props.placeholder}
             value={this.state.value}
             onChange={this.onChange}
-            style={{ minHeight: '280px' }}
+            style={{ minHeight: `${this.props.minHeight}px` }}
           />
         </div>
       </div>
