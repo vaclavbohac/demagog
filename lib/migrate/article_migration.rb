@@ -106,7 +106,7 @@ class ArticleMigration
 
       segment = Segment.create!(
         segment_type: "text",
-        text: old_article["obsah"]
+        text_html: old_article["obsah"]
       )
 
       ArticleHasSegment.create!(
