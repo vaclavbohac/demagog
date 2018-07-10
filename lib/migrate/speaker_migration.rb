@@ -1,19 +1,17 @@
 # frozen_string_literal: true
 
+require "ruby-progressbar/outputs/null"
+
 require_relative "./helpers/duplication_tester"
 require_relative "./helpers/image_url_helper"
 
-class MissingPortrait
-  def id
-    nil
-  end
-end
-
 class SpeakerMigration
   attr_accessor :connection
+  attr_accessor :quiet
 
-  def initialize(connection)
+  def initialize(connection, quiet)
     self.connection = connection
+    self.quiet = quiet
 
     @duplication_tester = DuplicationTester.new
   end
@@ -63,16 +61,23 @@ class SpeakerMigration
       end
     end
 
+    progressbar = ProgressBar.create(
+      format: "Migrating speaker avatars: %e |%b>>%i| %p%% %t",
+      total: old_speakers.size,
+      output: quiet ? ProgressBar::Outputs::Null : $stdout
+    )
+
     old_speakers.each do |old_speaker|
-      next if @duplication_tester.duplicate?(old_speaker["id"])
-      next if old_speaker["fotografia"].empty?
+      unless @duplication_tester.duplicate?(old_speaker["id"]) || old_speaker["fotografia"].empty?
+        path = "/data/politik/t/#{old_speaker["fotografia"]}"
+        speaker = Speaker.find(old_speaker["id"])
 
-      path = "/data/politik/t/#{old_speaker["fotografia"]}"
-      speaker = Speaker.find(old_speaker["id"])
-
-      open(ImageUrlHelper.absolute_url(path)) do |file|
-        speaker.avatar.attach io: file, filename: old_speaker["fotografia"]
+        ImageUrlHelper.open_image(path) do |file|
+          speaker.avatar.attach io: file, filename: old_speaker["fotografia"]
+        end
       end
+
+      progressbar.increment
     end
   end
 end
