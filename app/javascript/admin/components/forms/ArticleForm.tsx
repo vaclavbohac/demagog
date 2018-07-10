@@ -1,97 +1,93 @@
 /* eslint camelcase: 0 */
 
 import * as React from 'react';
+
+import { Button, Classes, EditableText, Intent } from '@blueprintjs/core';
+import { Form, Formik } from 'formik';
+import { DateTime } from 'luxon';
 import { Link } from 'react-router-dom';
 
-import { EditableText, Switch } from '@blueprintjs/core';
 import { ArticleInputType, GetArticleQuery } from '../../operation-result-types';
 import ArticleIllustration from '../ArticleIllustration';
-import DateInput from './controls/DateInput';
-import ImageInput from './controls/ImageInput';
-// import { CheckboxInput } from './controls/CheckboxInput';
-// import { Input } from './controls/Input';
+import DateField from './controls/DateField';
+import ImageField, { ImageValueType } from './controls/ImageField';
 import { SegmentManager } from './controls/SegmentManager';
-// import { TextInput } from './controls/TextInput';
-import { Form } from './Form';
+import SwitchField from './controls/SwitchField';
+import FormGroup from './FormGroup';
+
+export interface IArticleFormData extends ArticleInputType {
+  illustration: ImageValueType;
+}
 
 interface IArticleFormProps {
-  articleQuery?: GetArticleQuery;
-  onSubmit: (formData: ArticleInputType) => void;
-  submitting: boolean;
+  article?: GetArticleQuery['article'];
+  onSubmit: (formData: ArticleInputType) => Promise<any>;
   title: string;
   backPath: string;
 }
 
-class ArticleInternalForm extends Form<ArticleInputType> {}
-
-function mapQueryToInput(articleQuery: GetArticleQuery): ArticleInputType {
-  const { article } = articleQuery;
-
-  return {
-    title: article.title,
-    perex: article.perex || '',
-    published: article.published,
-    segments: (article.segments || []).map((segment) => ({
-      id: segment.id,
-      segment_type: segment.segment_type,
-      text_html: segment.text_html,
-      text_slatejson: segment.text_slatejson,
-      statements: segment.statements.map((statement) => statement.id),
-    })),
-  };
-}
-
 export class ArticleForm extends React.Component<IArticleFormProps> {
-  public static defaultProps: Partial<IArticleFormProps> = {
-    articleQuery: {
-      article: {
-        title: '',
-        perex: '',
-        slug: '',
-        published: false,
-        published_at: '',
-        illustration: null,
-        segments: [],
-      },
-    },
-  };
-
   public render() {
-    const { backPath, articleQuery, submitting, title } = this.props;
+    const { article, backPath, title } = this.props;
 
-    if (!articleQuery) {
-      return null;
-    }
-
-    const articleInput = mapQueryToInput(articleQuery);
+    const initialValues = {
+      title: article ? article.title : '',
+      perex: article && article.perex ? article.perex : '',
+      segments:
+        article && article.segments
+          ? article.segments.map((s) => ({
+              id: s.id,
+              segment_type: s.segment_type,
+              text_html: s.text_html,
+              text_slatejson: s.text_slatejson,
+              statements: s.statements.map((statement) => statement.id),
+            }))
+          : [],
+      illustration: article ? article.illustration : null,
+      published: article ? article.published : false,
+      published_at: article ? article.published_at : DateTime.local().toISODate(),
+    };
 
     return (
-      <ArticleInternalForm defaultValues={articleInput} onSubmit={this.props.onSubmit}>
-        {({ onInputChange, onCheckboxChange, onImageChange, onAssociationChange }) => (
-          <React.Fragment>
-            <div className="float-right">
-              <Link to={backPath} className="btn btn-secondary">
+      <Formik
+        initialValues={initialValues}
+        onSubmit={(values, { setSubmitting }) => {
+          const formData: IArticleFormData = values;
+
+          this.props
+            .onSubmit(formData)
+            .then(() => {
+              setSubmitting(false);
+            })
+            .catch(() => {
+              setSubmitting(false);
+            });
+        }}
+      >
+        {({ values, isSubmitting, setFieldValue }) => (
+          <Form>
+            <div style={{ float: 'right' }}>
+              <Link to={backPath} className={Classes.BUTTON}>
                 Zpět
               </Link>
-              <button
+              <Button
                 type="submit"
-                className="btn btn-primary"
+                intent={Intent.PRIMARY}
                 style={{ marginLeft: 7 }}
-                disabled={submitting}
-              >
-                {submitting ? 'Ukládám ...' : 'Uložit'}
-              </button>
+                disabled={isSubmitting}
+                text={isSubmitting ? 'Ukládám…' : 'Uložit'}
+              />
             </div>
 
-            <h3 style={{ marginTop: 7, marginBottom: 20 }}>{title}</h3>
+            <h2>{title}</h2>
 
-            <div className="row">
-              <div className="col-md-8">
+            <div style={{ display: 'flex' }}>
+              <div style={{ flex: '2 2', overflow: 'hidden', padding: 10 }}>
                 <h2 style={{ marginBottom: 20 }}>
                   <EditableText
-                    placeholder="Upravit Název.."
-                    defaultValue={articleInput.title}
-                    onChange={onInputChange('title')}
+                    placeholder="Upravit název…"
+                    onChange={(value) => setFieldValue('title', value)}
+                    value={values.title}
                   />
                 </h2>
 
@@ -101,56 +97,41 @@ export class ArticleForm extends React.Component<IArticleFormProps> {
                     minLines={3}
                     multiline={true}
                     placeholder="Zadejte perex..."
-                    defaultValue={articleInput.perex}
-                    onChange={onInputChange('perex')}
+                    value={values.perex || ''}
+                    onChange={(value) => setFieldValue('perex', value)}
                   />
                 </div>
 
                 <SegmentManager
-                  defaultValue={articleInput.segments || []}
-                  onChange={onAssociationChange('segments')}
+                  defaultValue={values.segments}
+                  onChange={(value) => setFieldValue('segments', value)}
                 />
               </div>
 
-              <div className="col-md-4">
-                <div className="form-row">
-                  <ImageInput
-                    label="Ilustrační obrázek"
-                    defaultValue={articleQuery.article.illustration}
+              <div style={{ flex: '1 1', marginLeft: 15 }}>
+                <FormGroup label="Ilustrační obrázek" name="illustration">
+                  <ImageField
                     name="illustration"
-                    onChange={onImageChange('illustration')}
                     renderImage={(src) => (
-                      <ArticleIllustration illustration={src} title={articleInput.title} />
+                      <ArticleIllustration illustration={src} title={values.title} />
                     )}
                   />
-                </div>
+                </FormGroup>
 
-                <div className="form-row" style={{ marginTop: 20 }}>
-                  <div className="form-group">
-                    <Switch
-                      defaultChecked={articleInput.published || false}
-                      label="Zveřejněný článek"
-                      onChange={onCheckboxChange('published')}
-                    />
-                  </div>
-                </div>
+                <SwitchField
+                  name="published"
+                  label="Zveřejněný článek"
+                  style={{ marginBottom: 20 }}
+                />
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <DateInput
-                      onChange={onInputChange('published_at')}
-                      label="Datum zveřejnění"
-                      placeholder="Zadejte datum zveřejnění"
-                      name="published_at"
-                      defaultValue={articleInput.published_at || ''}
-                    />
-                  </div>
-                </div>
+                <FormGroup label="Datum zveřejnění" name="published_at">
+                  <DateField name="published_at" />
+                </FormGroup>
               </div>
             </div>
-          </React.Fragment>
+          </Form>
         )}
-      </ArticleInternalForm>
+      </Formik>
     );
   }
 }

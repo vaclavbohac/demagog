@@ -1,145 +1,177 @@
 /* eslint camelcase: 0, react/sort-comp: 0 */
 
 import * as React from 'react';
+
+import { Button, Classes, Intent } from '@blueprintjs/core';
+import { IconNames } from '@blueprintjs/icons';
+import { FieldArray, Form, Formik } from 'formik';
 import { Link } from 'react-router-dom';
+import * as yup from 'yup';
 
 import { GetSpeakerQuery, SpeakerInputType } from '../../operation-result-types';
 import SpeakerAvatar from '../SpeakerAvatar';
-import ImageInput, { ImageValueType } from './controls/ImageInput';
-import { Form } from './Form';
-
-import { MembershipForm } from './MembershipForm';
+import BodySelect from './controls/BodySelect';
+import DateField from './controls/DateField';
+import ImageField, { ImageValueType } from './controls/ImageField';
+import SelectComponentField from './controls/SelectComponentField';
+import TextField from './controls/TextField';
+import FormGroup from './FormGroup';
 
 export interface ISpeakerFormData extends SpeakerInputType {
   avatar: ImageValueType;
 }
 
-class SpeakerFormInternal extends Form<ISpeakerFormData> {}
-
 interface ISpeakerFormProps {
-  speakerQuery?: GetSpeakerQuery;
-  onSubmit: (formData: ISpeakerFormData) => void;
-  submitting: boolean;
+  speaker?: GetSpeakerQuery['speaker'];
+  onSubmit: (formData: ISpeakerFormData) => Promise<any>;
   title: string;
 }
 
-// tslint:disable-next-line:max-classes-per-file
 export class SpeakerForm extends React.Component<ISpeakerFormProps> {
-  public static defaultProps = {
-    speakerQuery: {
-      speaker: {
-        id: '',
-
-        first_name: '',
-        last_name: '',
-        avatar: null,
-        website_url: '',
-
-        memberships: [],
-      },
-    },
-  };
-
   public render() {
-    const { speakerQuery, submitting, title } = this.props;
+    const { speaker, title } = this.props;
 
-    if (!speakerQuery) {
-      return null;
-    }
-
-    const defaultValues: ISpeakerFormData = {
-      first_name: speakerQuery.speaker.first_name,
-      last_name: speakerQuery.speaker.last_name,
-      avatar: speakerQuery.speaker.avatar,
-      website_url: speakerQuery.speaker.website_url,
-      memberships: speakerQuery.speaker.memberships.map((m) => ({
-        id: m.id,
-        since: m.since,
-        until: m.until,
-        body: {
-          id: m.body.id,
-        },
-      })),
+    const initialValues = {
+      first_name: speaker ? speaker.first_name : '',
+      last_name: speaker ? speaker.last_name : '',
+      avatar: speaker ? speaker.avatar : null,
+      website_url: speaker ? speaker.website_url : '',
+      memberships: speaker
+        ? speaker.memberships.map((m) => ({
+            id: m.id,
+            body_id: m.body.id,
+            since: m.since,
+            until: m.until,
+          }))
+        : [],
     };
 
     return (
-      <SpeakerFormInternal defaultValues={defaultValues} onSubmit={this.props.onSubmit}>
-        {({ onInputChange, onImageChange, onAssociationChange }) => (
-          <div style={{ paddingBottom: 50 }}>
-            <div className="float-right">
-              <Link to="/admin/speakers" className="btn btn-secondary">
+      <Formik
+        initialValues={initialValues}
+        validationSchema={yup.object().shape({
+          first_name: yup.string().required('Je třeba vyplnit jméno'),
+          last_name: yup.string().required('Je třeba vyplnit příjmení'),
+          memberships: yup.array().of(
+            yup.object().shape({
+              body_id: yup.mixed().notOneOf([null], 'Je třeba vybrat stranu či skupinu'),
+            }),
+          ),
+        })}
+        onSubmit={(values, { setSubmitting }) => {
+          const formData: ISpeakerFormData = values;
+
+          this.props
+            .onSubmit(formData)
+            .then(() => {
+              setSubmitting(false);
+            })
+            .catch(() => {
+              setSubmitting(false);
+            });
+        }}
+      >
+        {({ values, isSubmitting }) => (
+          <Form>
+            <div style={{ float: 'right' }}>
+              <Link to="/admin/speakers" className={Classes.BUTTON}>
                 Zpět
               </Link>
-              <button
+              <Button
                 type="submit"
-                className="btn btn-primary"
+                intent={Intent.PRIMARY}
                 style={{ marginLeft: 7 }}
-                disabled={submitting}
-              >
-                {submitting ? 'Ukládám ...' : 'Uložit'}
-              </button>
+                disabled={isSubmitting}
+                text={isSubmitting ? 'Ukládám…' : 'Uložit'}
+              />
             </div>
 
-            <h3 style={{ marginBottom: 25 }}>{title}</h3>
+            <h2>{title}</h2>
 
-            <div className="form-row">
-              <div className="form-group col-md-6">
-                <label htmlFor="first_name">Jméno:</label>
-                <input
-                  required
-                  className="form-control"
-                  id="first_name"
-                  placeholder="Zadejte jméno"
-                  defaultValue={defaultValues.first_name}
-                  onChange={onInputChange('first_name')}
-                />
+            <div style={{ display: 'flex', marginTop: 30 }}>
+              <div style={{ flex: '0 0 200px' }}>
+                <h4>Základní údaje</h4>
               </div>
+              <div style={{ flex: '1 1' }}>
+                <div style={{ display: 'flex' }}>
+                  <div style={{ flex: '1 1' }}>
+                    <FormGroup label="Jméno" name="first_name">
+                      <TextField name="first_name" />
+                    </FormGroup>
+                  </div>
+                  <div style={{ flex: '1 1', marginLeft: 15 }}>
+                    <FormGroup label="Přijmení" name="last_name">
+                      <TextField name="last_name" />
+                    </FormGroup>
+                  </div>
+                </div>
 
-              <div className="form-group col-md-6">
-                <label htmlFor="last_name">Přijmení</label>
-                <input
-                  required
-                  className="form-control"
-                  id="last_name"
-                  placeholder="Zadejte přijmení"
-                  defaultValue={defaultValues.last_name}
-                  onChange={onInputChange('last_name')}
+                <FormGroup label="Portrét" name="avatar" optional>
+                  <ImageField name="avatar" renderImage={(src) => <SpeakerAvatar avatar={src} />} />
+                </FormGroup>
+
+                <FormGroup
+                  label="Respektovaný odkaz (wiki, nasipolitici)"
+                  name="website_url"
+                  optional
+                >
+                  <TextField name="website_url" placeholder="http://www…" />
+                </FormGroup>
+              </div>
+            </div>
+            <div style={{ display: 'flex', marginTop: 30 }}>
+              <div style={{ flex: '0 0 200px' }}>
+                <h4>Příslušnost ke stranám/skupinám</h4>
+              </div>
+              <div style={{ flex: '1 1' }}>
+                <FieldArray
+                  name="memberships"
+                  render={(arrayHelpers) => (
+                    <div>
+                      {values.memberships.map((_0, index) => (
+                        <div key={index} style={{ display: 'flex' }}>
+                          <div style={{ flex: '1 1 300px' }}>
+                            <FormGroup label="Strana/skupina" name={`memberships.${index}.body_id`}>
+                              <SelectComponentField name={`memberships.${index}.body_id`}>
+                                {(renderProps) => <BodySelect {...renderProps} />}
+                              </SelectComponentField>
+                            </FormGroup>
+                          </div>
+                          <div style={{ flex: '0 1 190px', marginLeft: 15 }}>
+                            <FormGroup label="Od" name={`memberships.${index}.since`} optional>
+                              <DateField name={`memberships.${index}.since`} />
+                            </FormGroup>
+                          </div>
+                          <div style={{ flex: '0 1 190px', marginLeft: 15 }}>
+                            <FormGroup label="Do" name={`memberships.${index}.until`} optional>
+                              <DateField name={`memberships.${index}.until`} />
+                            </FormGroup>
+                          </div>
+                          <div style={{ flex: '0 0 30px', marginLeft: 15, paddingTop: 15 }}>
+                            <Button
+                              icon={IconNames.TRASH}
+                              onClick={() => arrayHelpers.remove(index)}
+                              minimal
+                              title="Odstranit příslušnost"
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      <Button
+                        onClick={() =>
+                          arrayHelpers.push({ body_id: null, since: null, until: null })
+                        }
+                        icon={IconNames.PLUS}
+                        text="Přidat příslušnost ke straně nebo skupině"
+                      />
+                    </div>
+                  )}
                 />
               </div>
             </div>
-
-            <div className="form-row">
-              <div className="form-group col-md-12">
-                <ImageInput
-                  label="Portrét"
-                  name="avatar"
-                  defaultValue={defaultValues.avatar}
-                  onChange={onImageChange('avatar')}
-                  renderImage={(src) => <SpeakerAvatar avatar={src} />}
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group col-md-6">
-                <label htmlFor="illustration">Respektovaný odkaz (wiki, nasipolitici):</label>
-                <input
-                  className="form-control"
-                  id="website_url"
-                  placeholder="Zadejte odkaz"
-                  defaultValue={defaultValues.website_url || undefined}
-                  onChange={onInputChange('website_url')}
-                />
-              </div>
-            </div>
-
-            <MembershipForm
-              memberships={defaultValues.memberships}
-              onChange={onAssociationChange('memberships')}
-            />
-          </div>
+          </Form>
         )}
-      </SpeakerFormInternal>
+      </Formik>
     );
   }
 }

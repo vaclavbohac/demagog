@@ -23,15 +23,7 @@ interface ISourceNewProps extends RouteComponentProps<{}> {
   dispatch: Dispatch;
 }
 
-interface ISourceNewState {
-  submitting: boolean;
-}
-
-export class SourceNew extends React.Component<ISourceNewProps, ISourceNewState> {
-  public state: ISourceNewState = {
-    submitting: false,
-  };
-
+export class SourceNew extends React.Component<ISourceNewProps> {
   public onSuccess = (source: CreateSourceMutation) => {
     this.props.dispatch(addFlashMessage('Zdroj výroků byl úspěšně uložen.', 'success'));
 
@@ -47,16 +39,12 @@ export class SourceNew extends React.Component<ISourceNewProps, ISourceNewState>
   };
 
   public onSubmit = (createSource: CreateSourceMutationFn) => (sourceInput: SourceInputType) => {
-    this.setState({ submitting: true });
-
-    createSource({ variables: { sourceInput } }).finally(() => {
-      this.setState({ submitting: false });
-    });
+    return createSource({ variables: { sourceInput } });
   };
 
   public render() {
     return (
-      <div role="main" style={{ marginTop: 15 }}>
+      <div style={{ padding: '15px 0 40px 0' }}>
         <CreateSourceMutationComponent
           mutation={CreateSource}
           onCompleted={this.onSuccess}
@@ -68,7 +56,6 @@ export class SourceNew extends React.Component<ISourceNewProps, ISourceNewState>
               <SourceForm
                 backPath="/admin/sources"
                 onSubmit={this.onSubmit(createSource)}
-                submitting={this.state.submitting}
                 title="Přidat nový zdroj"
               />
             );

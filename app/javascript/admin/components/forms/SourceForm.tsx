@@ -1,41 +1,27 @@
 /* eslint camelcase: 0 */
 
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 
-import { get } from 'lodash';
+import { Button, Classes, Intent } from '@blueprintjs/core';
+import { Form, Formik } from 'formik';
+import { Link } from 'react-router-dom';
+import * as yup from 'yup';
 
 import { GetSourceQuery, SourceInputType } from '../../operation-result-types';
-import DateInput from './controls/DateInput';
-import { Input } from './controls/Input';
+import DateField from './controls/DateField';
 import MediaPersonalitiesSelect from './controls/MediaPersonalitySelect';
 import MediumSelect from './controls/MediumSelect';
+import SelectComponentField from './controls/SelectComponentField';
 import SpeakersSelect from './controls/SpeakersSelect';
-import { TextInput } from './controls/TextInput';
-import { Form } from './Form';
+import TextareaField from './controls/TextareaField';
+import TextField from './controls/TextField';
+import FormGroup from './FormGroup';
 
 interface ISourceFormProps {
   backPath: string;
-  sourceQuery?: GetSourceQuery;
-  onSubmit: (formData: SourceInputType) => void;
-  submitting: boolean;
+  source?: GetSourceQuery['source'];
+  onSubmit: (formData: SourceInputType) => Promise<any>;
   title: string;
-}
-
-class SourceInternalForm extends Form<SourceInputType> {}
-
-function sourceToSourceInput(sourceQuery: GetSourceQuery): SourceInputType {
-  const { source } = sourceQuery;
-
-  return {
-    name: source.name || '',
-    released_at: source.released_at,
-    transcript: source.transcript || '',
-    medium_id: get(source.medium, 'id'),
-    media_personality_id: get(source.media_personality, 'id'),
-    source_url: source.source_url,
-    speakers: source.speakers.map((speaker) => speaker.id),
-  };
 }
 
 export class SourceForm extends React.Component<ISourceFormProps> {
@@ -45,106 +31,137 @@ export class SourceForm extends React.Component<ISourceFormProps> {
         medium: {},
         media_personality: {},
         speakers: [],
+        released_at: null,
       },
     },
   };
 
   public render() {
-    const { backPath, sourceQuery, submitting, title } = this.props;
+    const { backPath, source, title } = this.props;
 
-    if (!sourceQuery) {
-      return null;
-    }
-
-    const sourceInput = sourceToSourceInput(sourceQuery);
+    const initialValues = {
+      name: source ? source.name : '',
+      medium_id: source ? source.medium.id : null,
+      media_personality_id: source ? source.media_personality.id : null,
+      released_at: source ? source.released_at : null,
+      source_url: source ? source.source_url : '',
+      speakers: source ? source.speakers.map((s) => s.id) : [],
+      transcript: source && source.transcript ? source.transcript : '',
+    };
 
     return (
-      <SourceInternalForm defaultValues={sourceInput} onSubmit={this.props.onSubmit}>
-        {({ onInputChange, onAssociationChange }, data) => (
-          <div style={{ paddingBottom: 50 }}>
-            <div className="float-right">
-              <Link to={backPath} className="btn btn-secondary">
+      <Formik
+        initialValues={initialValues}
+        validationSchema={yup.object().shape({
+          name: yup.string().required('Je třeba vyplnit název'),
+          medium_id: yup.mixed().notOneOf([null], 'Je třeba vybrat pořad'),
+          media_personality_id: yup.mixed().notOneOf([null], 'Je třeba vybrat moderátora'),
+          released_at: yup.mixed().notOneOf([null], 'Je třeba vyplnit datum publikace'),
+          speakers: yup.array().min(1, 'Je třeba vybrat alespoň jednoho řečníka'),
+        })}
+        onSubmit={(values, { setSubmitting }) => {
+          const formData: SourceInputType = {
+            ...values,
+
+            // released_at will always be a string, because null won't pass validation
+            released_at: values.released_at as string,
+          };
+
+          this.props
+            .onSubmit(formData)
+            .then(() => {
+              setSubmitting(false);
+            })
+            .catch(() => {
+              setSubmitting(false);
+            });
+        }}
+      >
+        {({ isSubmitting, values }) => (
+          <Form>
+            <div style={{ float: 'right' }}>
+              <Link to={backPath} className={Classes.BUTTON}>
                 Zpět
               </Link>
-              <button
+              <Button
                 type="submit"
-                className="btn btn-primary"
+                intent={Intent.PRIMARY}
                 style={{ marginLeft: 7 }}
-                disabled={submitting}
-              >
-                {submitting ? 'Ukládám ...' : 'Uložit'}
-              </button>
+                disabled={isSubmitting}
+                text={isSubmitting ? 'Ukládám ...' : 'Uložit'}
+              />
             </div>
 
-            <h3 style={{ marginBottom: 20 }}>{title}</h3>
+            <h2>{title}</h2>
 
-            <Input
-              required
-              id="name"
-              label="Název"
-              defaultValue={sourceInput.name}
-              placeholder="Zadejte název"
-              onChange={onInputChange('name')}
-            />
-
-            <div className="form-row">
-              <Input
-                className="col-md-6"
-                id="source_url"
-                label="Odkaz"
-                defaultValue={sourceInput.source_url || ''}
-                placeholder="Zadejte odkaz"
-                onChange={onInputChange('source_url')}
-              />
-
-              {/* FIXME: don't let me have to define .form-group */}
-              <div className="form-group col-md-6">
-                <DateInput
-                  required={true}
-                  name="released_at"
-                  label="Publikováno"
-                  placeholder="Zadejte datum"
-                  defaultValue={sourceInput.released_at}
-                  onChange={onInputChange('released_at')}
-                />
+            <div style={{ display: 'flex', marginTop: 30 }}>
+              <div style={{ flex: '0 0 200px', marginRight: 15 }}>
+                <h4>Základní údaje</h4>
+              </div>
+              <div style={{ flex: '1 1' }}>
+                <FormGroup name="name" label="Název">
+                  <TextField name="name" />
+                </FormGroup>
+                <div style={{ display: 'flex' }}>
+                  <div style={{ flex: '1 1' }}>
+                    <FormGroup name="medium_id" label="Pořad">
+                      <SelectComponentField name="medium_id">
+                        {(renderProps) => <MediumSelect {...renderProps} />}
+                      </SelectComponentField>
+                    </FormGroup>
+                  </div>
+                  <div style={{ flex: '1 1', marginLeft: 15 }}>
+                    <FormGroup name="media_personality_id" label="Moderátor">
+                      <SelectComponentField name="media_personality_id">
+                        {(renderProps) => (
+                          <MediaPersonalitiesSelect mediumId={values.medium_id} {...renderProps} />
+                        )}
+                      </SelectComponentField>
+                    </FormGroup>
+                  </div>
+                </div>
+                <FormGroup name="released_at" label="Publikováno">
+                  <DateField name="released_at" />
+                </FormGroup>
+                <FormGroup name="source_url" label="Odkaz" optional>
+                  <TextField name="source_url" placeholder="http://www…" />
+                </FormGroup>
               </div>
             </div>
 
-            <div className="form-row">
-              <MediumSelect
-                className="col-md-6"
-                onChange={onAssociationChange('medium_id')}
-                value={data.medium_id}
-              />
+            <div style={{ display: 'flex', marginTop: 30 }}>
+              <div style={{ flex: '0 0 200px', marginRight: 15 }}>
+                <h4>Řečníci</h4>
 
-              <MediaPersonalitiesSelect
-                className="col-md-6"
-                mediumId={data.medium_id}
-                onChange={onAssociationChange('media_personality_id')}
-                value={data.media_personality_id}
-              />
+                <p>Výroky v rámci tohoto zdroje půjde vytvořit jen pro osoby zde vybrané.</p>
+              </div>
+              <div style={{ flex: '1 1' }}>
+                <FormGroup name="speakers" label="Řečníci">
+                  <SelectComponentField name="speakers">
+                    {(renderProps) => <SpeakersSelect {...renderProps} />}
+                  </SelectComponentField>
+                </FormGroup>
+              </div>
             </div>
 
-            <div className="form-row">
-              <SpeakersSelect
-                className="col-md-6"
-                value={data.speakers}
-                onChange={onAssociationChange('speakers')}
-              />
-            </div>
+            <div style={{ display: 'flex', marginTop: 30 }}>
+              <div style={{ flex: '0 0 200px', marginRight: 15 }}>
+                <h4>Přepis</h4>
 
-            <div className="form-row">
-              <TextInput
-                className="col-md-12"
-                label="Přepis:"
-                placeholder="Zadejte text přepisu..."
-                defaultValue={sourceInput.transcript}
-                onChange={onInputChange('transcript')}
-              />
+                <p>
+                  Je-li dostupný, doporučujeme vyplnit, protože usnaďňuje vytváření výroků
+                  označováním v přepisu.
+                </p>
+              </div>
+              <div style={{ flex: '1 1' }}>
+                <FormGroup name="transcript" label="Přepis" optional>
+                  <TextareaField name="transcript" rows={15} />
+                </FormGroup>
+              </div>
             </div>
-          </div>
+          </Form>
         )}
-      </SourceInternalForm>
+      </Formik>
     );
   }
 }

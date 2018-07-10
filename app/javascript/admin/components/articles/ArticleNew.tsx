@@ -1,7 +1,9 @@
 import * as React from 'react';
+
 import { Mutation, MutationFn } from 'react-apollo';
 import { connect, Dispatch } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
+
 import { addFlashMessage } from '../../actions/flashMessages';
 import { uploadArticleIllustration } from '../../api';
 import {
@@ -23,15 +25,7 @@ interface ISourceNewProps extends RouteComponentProps<{}> {
   dispatch: Dispatch;
 }
 
-interface ISourceNewState {
-  submitting: boolean;
-}
-
-export class ArticleNew extends React.Component<ISourceNewProps, ISourceNewState> {
-  public state: ISourceNewState = {
-    submitting: false,
-  };
-
+export class ArticleNew extends React.Component<ISourceNewProps> {
   public onSuccess = (articleId: string) => {
     this.props.dispatch(addFlashMessage('Článek byl úspěšně uložen.', 'success'));
 
@@ -42,8 +36,6 @@ export class ArticleNew extends React.Component<ISourceNewProps, ISourceNewState
     this.props.dispatch(addFlashMessage('Došlo k chybě při ukládání článku', 'error'));
     // tslint:disable-next-line:no-console
     console.error(error);
-
-    this.setState({ submitting: false });
   };
 
   public onSubmit = (createArticle: CreateArticleMutationFn) => (
@@ -51,9 +43,7 @@ export class ArticleNew extends React.Component<ISourceNewProps, ISourceNewState
   ) => {
     const { illustration, ...articleInput } = articleFormData;
 
-    this.setState({ submitting: true });
-
-    createArticle({ variables: { articleInput } })
+    return createArticle({ variables: { articleInput } })
       .then((mutationResult) => {
         if (!mutationResult || !mutationResult.data || !mutationResult.data.createArticle) {
           return;
@@ -74,13 +64,12 @@ export class ArticleNew extends React.Component<ISourceNewProps, ISourceNewState
 
   public render() {
     return (
-      <div role="main">
+      <div style={{ padding: '15px 0 40px 0' }}>
         <CreateArticleMutationComponent mutation={CreateArticle}>
           {(createArticle) => {
             return (
               <ArticleForm
                 onSubmit={this.onSubmit(createArticle)}
-                submitting={this.state.submitting}
                 title="Přidat nový článek"
                 backPath="/admin/articles"
               />

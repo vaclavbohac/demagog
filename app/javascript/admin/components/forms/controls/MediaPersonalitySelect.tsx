@@ -1,5 +1,7 @@
-import gql from 'graphql-tag';
 import * as React from 'react';
+
+import { Colors } from '@blueprintjs/core';
+import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import Select, { Option } from 'react-select';
 
@@ -28,8 +30,9 @@ interface IGetMediaPersonalitiesQuery {
 class MediaPersonalitiesQueryComponent extends Query<IGetMediaPersonalitiesQuery> {}
 
 interface IMediaSelectProps {
-  className?: string;
+  id?: string;
   value?: string | null;
+  error?: object | false;
   mediumId?: string | null;
   onChange(value: string | null): void;
 }
@@ -57,19 +60,19 @@ export default class MediaPersonalitiesSelect extends React.Component<IMediaSele
           }
 
           return (
-            <div className={`form-group ${this.props.className ? this.props.className : ''}`}>
-              <label htmlFor="media-personality-select">Moderátor:</label>
-              <Select
-                id="media-personality-select"
-                disabled={!this.props.mediumId}
-                value={this.props.value || undefined}
-                isLoading={loading}
-                options={options}
-                onChange={(option: Option<string>) => this.props.onChange(option.value || null)}
-                placeholder="Vyberte moderátora …"
-                noResultsText="Žádný moderátor nenalezen"
-              />
-            </div>
+            <Select
+              id={this.props.id}
+              disabled={!this.props.mediumId}
+              value={this.props.value || undefined}
+              isLoading={loading}
+              options={options}
+              onChange={(option: Option<string>) => this.props.onChange(option.value || null)}
+              placeholder="Vyberte moderátora …"
+              noResultsText="Žádný moderátor nenalezen"
+              style={{
+                borderColor: this.props.error ? Colors.RED3 : '#cccccc',
+              }}
+            />
           );
         }}
       </MediaPersonalitiesQueryComponent>
