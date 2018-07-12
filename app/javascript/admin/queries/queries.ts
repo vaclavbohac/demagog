@@ -23,8 +23,8 @@ export const GetArticle = gql`
 `;
 
 export const GetArticles = gql`
-  query GetArticles($title: String) {
-    articles(include_unpublished: true, limit: 100, title: $title) {
+  query GetArticles($title: String, $offset: Int, $limit: Int) {
+    articles(include_unpublished: true, offset: $offset, limit: $limit, title: $title) {
       id
       title
       slug
@@ -53,8 +53,8 @@ export const GetMedia = gql`
 `;
 
 export const GetSources = gql`
-  query GetSources($name: String) {
-    sources(limit: 100, name: $name) {
+  query GetSources($name: String, $offset: Int, $limit: Int) {
+    sources(name: $name, offset: $offset, limit: $limit) {
       id
       name
       source_url
