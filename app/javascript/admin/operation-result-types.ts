@@ -117,6 +117,10 @@ export interface UpdateSourceStatementsOrderInputType {
   ordered_statement_ids?: Array< string > | null,
 };
 
+export interface ContentImageInputType {
+  user_id: string,
+};
+
 export interface CreateArticleMutationVariables {
   articleInput: ArticleInputType,
 };
@@ -485,6 +489,32 @@ export interface UpdateSourceStatementsOrderMutation {
   updateSourceStatementsOrder:  {
     id: string,
   } | null,
+};
+
+export interface CreateContentImageMutationVariables {
+  input: ContentImageInputType,
+};
+
+export interface CreateContentImageMutation {
+  // Add new content image
+  createContentImage:  {
+    id: string,
+    created_at: GraphQLCustomScalar_DateTime,
+    user:  {
+      id: string,
+      first_name: string,
+      last_name: string,
+    } | null,
+  } | null,
+};
+
+export interface DeleteContentImageMutationVariables {
+  id: string,
+};
+
+export interface DeleteContentImageMutation {
+  // Delete existing content image
+  deleteContentImage: string,
 };
 
 export interface GetArticleQueryVariables {
@@ -870,5 +900,29 @@ export interface GetCurrentUserQuery {
       name: string,
       permissions: Array< string >,
     },
+  },
+};
+
+export interface GetContentImagesQueryVariables {
+  name?: string | null,
+  offset?: number | null,
+  limit?: number | null,
+};
+
+export interface GetContentImagesQuery {
+  content_images:  {
+    total_count: number,
+    items:  Array< {
+      id: string,
+      image: string,
+      image_50x50: string,
+      name: string,
+      created_at: GraphQLCustomScalar_DateTime,
+      user:  {
+        id: string,
+        first_name: string,
+        last_name: string,
+      } | null,
+    } >,
   },
 };

@@ -262,3 +262,23 @@ export const UpdateSourceStatementsOrder = gql`
     }
   }
 `;
+
+export const CreateContentImage = gql`
+  mutation CreateContentImage($input: ContentImageInputType!) {
+    createContentImage(content_image_input: $input) {
+      id
+      created_at
+      user {
+        id
+        first_name
+        last_name
+      }
+    }
+  }
+`;
+
+export const DeleteContentImage = gql`
+  mutation DeleteContentImage($id: ID!) {
+    deleteContentImage(id: $id)
+  }
+`;
