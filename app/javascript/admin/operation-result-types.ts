@@ -2,12 +2,14 @@
 //  This file was automatically generated and should not be edited.
 
 export interface ArticleInputType {
+  article_type: string,
   title: string,
   perex: string,
   slug?: string | null,
   published?: boolean | null,
   published_at?: string | null,
   segments?: Array< SegmentInputType > | null,
+  source_id?: string | null,
 };
 
 export interface SegmentInputType {
@@ -125,7 +127,25 @@ export interface CreateArticleMutation {
   // Add new article
   createArticle:  {
     id: string,
+    article_type: string,
     title: string,
+    slug: string,
+    perex: string | null,
+    published: boolean,
+    published_at: GraphQLCustomScalar_DateTime | null,
+    illustration: string | null,
+    segments:  Array< {
+      id: string,
+      segment_type: string,
+      text_html: string | null,
+      text_slatejson: GraphQLCustomScalar_JSON | null,
+      statements:  Array< {
+        id: string,
+      } >,
+    } > | null,
+    source:  {
+      id: string,
+    } | null,
   } | null,
 };
 
@@ -138,7 +158,25 @@ export interface UpdateArticleMutation {
   // Update existing article
   updateArticle:  {
     id: string,
+    article_type: string,
     title: string,
+    slug: string,
+    perex: string | null,
+    published: boolean,
+    published_at: GraphQLCustomScalar_DateTime | null,
+    illustration: string | null,
+    segments:  Array< {
+      id: string,
+      segment_type: string,
+      text_html: string | null,
+      text_slatejson: GraphQLCustomScalar_JSON | null,
+      statements:  Array< {
+        id: string,
+      } >,
+    } > | null,
+    source:  {
+      id: string,
+    } | null,
   } | null,
 };
 
@@ -462,6 +500,8 @@ export interface GetArticleQueryVariables {
 
 export interface GetArticleQuery {
   article:  {
+    id: string,
+    article_type: string,
     title: string,
     slug: string,
     perex: string | null,
@@ -477,6 +517,9 @@ export interface GetArticleQuery {
         id: string,
       } >,
     } > | null,
+    source:  {
+      id: string,
+    } | null,
   },
 };
 
@@ -489,6 +532,7 @@ export interface GetArticlesQueryVariables {
 export interface GetArticlesQuery {
   articles:  Array< {
     id: string,
+    article_type: string,
     title: string,
     slug: string,
     published: boolean,
@@ -565,6 +609,22 @@ export interface GetSourceQuery {
       last_name: string,
     } >,
   },
+};
+
+export interface GetSourcesForSelectQuery {
+  sources:  Array< {
+    id: string,
+    name: string,
+    released_at: string,
+    medium:  {
+      id: string,
+      name: string,
+    },
+    media_personality:  {
+      id: string,
+      name: string,
+    },
+  } >,
 };
 
 export interface GetSourceStatementsQueryVariables {
