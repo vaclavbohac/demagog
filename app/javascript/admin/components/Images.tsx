@@ -105,7 +105,7 @@ class Images extends React.Component<IProps, IState> {
           if (error.status === 413) {
             this.props.dispatch(
               addFlashMessage(
-                'Obrázek je větší než aktuální limit 1MB, zmenšete ho a nahrajte znovu.',
+                'Obrázek je větší než teď povolujeme, zmenšete ho a nahrajte znovu.',
                 'warning',
               ),
             );
