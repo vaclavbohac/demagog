@@ -274,7 +274,10 @@ Types::QueryType = GraphQL::ObjectType.define do
     resolve -> (obj, args, ctx) {
       raise Errors::AuthenticationNeededError.new unless ctx[:current_user]
 
-      users = User.limit(args[:limit]).offset(args[:offset])
+      users = User
+        .limit(args[:limit])
+        .offset(args[:offset])
+        .order(last_name: :asc, first_name: :asc)
 
       users = users.where(active: true) unless args[:include_inactive]
 
