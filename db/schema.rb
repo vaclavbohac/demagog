@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_07_11_120744) do
+ActiveRecord::Schema.define(version: 2018_07_22_164208) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
@@ -185,6 +185,17 @@ ActiveRecord::Schema.define(version: 2018_07_11_120744) do
     t.index ["speaker_id"], name: "index_memberships_on_speaker_id"
   end
 
+  create_table "notifications", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.text "content", null: false
+    t.string "action_link", null: false
+    t.string "action_text", null: false
+    t.bigint "recipient_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "read_at"
+    t.datetime "emailed_at"
+    t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
+  end
+
   create_table "roles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "key"
     t.datetime "created_at", null: false
@@ -220,6 +231,7 @@ ActiveRecord::Schema.define(version: 2018_07_11_120744) do
     t.bigint "media_personality_id"
     t.string "name", null: false
     t.datetime "deleted_at"
+    t.bigint "expert_id"
     t.index ["media_personality_id"], name: "index_sources_on_media_personality_id"
     t.index ["medium_id"], name: "index_sources_on_medium_id"
   end
@@ -296,6 +308,7 @@ ActiveRecord::Schema.define(version: 2018_07_11_120744) do
     t.datetime "last_sign_in_at"
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
+    t.boolean "email_notifications", default: false
   end
 
   create_table "users_roles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|

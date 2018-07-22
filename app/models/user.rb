@@ -8,6 +8,7 @@ class User < ApplicationRecord
   has_and_belongs_to_many :roles, join_table: :users_roles
   has_many :comments
   has_many :assessments
+  has_many :notifications, foreign_key: "recipient_id"
 
   has_one_attached :avatar
 
@@ -27,5 +28,9 @@ class User < ApplicationRecord
   end
   def role_id=(value)
     self.roles = [Role.find(value)]
+  end
+
+  def display_in_notification
+    "#{first_name} #{last_name}"
   end
 end

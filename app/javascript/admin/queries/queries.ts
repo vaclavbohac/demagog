@@ -80,6 +80,11 @@ export const GetSources = gql`
       statements {
         id
       }
+      expert {
+        id
+        first_name
+        last_name
+      }
     }
   }
 `;
@@ -101,6 +106,11 @@ export const GetSource = gql`
         name
       }
       speakers {
+        id
+        first_name
+        last_name
+      }
+      expert {
         id
         first_name
         last_name
@@ -174,6 +184,7 @@ export const GetUsers = gql`
       active
       bio
       position_description
+      email_notifications
       role {
         id
         name
@@ -193,6 +204,7 @@ export const GetUser = gql`
       active
       bio
       position_description
+      email_notifications
       role {
         id
         name
@@ -334,6 +346,11 @@ export const GetStatement = gql`
           id
           name
         }
+        expert {
+          id
+          first_name
+          last_name
+        }
       }
       comments_count
     }
@@ -401,6 +418,22 @@ export const GetContentImages = gql`
           first_name
           last_name
         }
+      }
+    }
+  }
+`;
+
+export const GetNotifications = gql`
+  query GetNotifications($includeRead: Boolean, $offset: Int, $limit: Int) {
+    notifications(include_read: $includeRead, offset: $offset, limit: $limit) {
+      total_count
+      items {
+        id
+        content
+        action_link
+        action_text
+        created_at
+        read_at
       }
     }
   }

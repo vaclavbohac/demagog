@@ -28,6 +28,7 @@ export interface SourceInputType {
   media_personality_id?: string | null,
   transcript: string,
   speakers: Array< string >,
+  expert_id?: string | null,
 };
 
 export interface BodyInputType {
@@ -60,6 +61,7 @@ export interface UserInputType {
   first_name: string,
   last_name: string,
   role_id: string,
+  email_notifications: boolean,
   position_description?: string | null,
   bio?: string | null,
   phone?: string | null,
@@ -117,6 +119,10 @@ export interface CommentInputType {
 
 export interface UpdateSourceStatementsOrderInputType {
   ordered_statement_ids?: Array< string > | null,
+};
+
+export interface UpdateNotificationInputType {
+  read_at?: string | null,
 };
 
 export interface CreateArticleMutationVariables {
@@ -350,6 +356,7 @@ export interface CreateUserMutation {
     active: boolean,
     position_description: string | null,
     bio: string | null,
+    email_notifications: boolean,
     role:  {
       id: string,
       name: string,
@@ -373,6 +380,7 @@ export interface UpdateUserMutation {
     active: boolean,
     position_description: string | null,
     bio: string | null,
+    email_notifications: boolean,
     role:  {
       id: string,
       name: string,
@@ -494,6 +502,19 @@ export interface DeleteContentImageMutation {
   deleteContentImage: string,
 };
 
+export interface UpdateNotificationMutationVariables {
+  id: string,
+  input: UpdateNotificationInputType,
+};
+
+export interface UpdateNotificationMutation {
+  // Update notification
+  updateNotification:  {
+    id: string,
+    read_at: GraphQLCustomScalar_DateTime | null,
+  } | null,
+};
+
 export interface GetArticleQueryVariables {
   id: string,
 };
@@ -581,6 +602,11 @@ export interface GetSourcesQuery {
     statements:  Array< {
       id: string,
     } >,
+    expert:  {
+      id: string,
+      first_name: string,
+      last_name: string,
+    } | null,
   } >,
 };
 
@@ -608,6 +634,11 @@ export interface GetSourceQuery {
       first_name: string,
       last_name: string,
     } >,
+    expert:  {
+      id: string,
+      first_name: string,
+      last_name: string,
+    } | null,
   },
 };
 
@@ -679,6 +710,7 @@ export interface GetUsersQuery {
     active: boolean,
     bio: string | null,
     position_description: string | null,
+    email_notifications: boolean,
     role:  {
       id: string,
       name: string,
@@ -700,6 +732,7 @@ export interface GetUserQuery {
     active: boolean,
     bio: string | null,
     position_description: string | null,
+    email_notifications: boolean,
     role:  {
       id: string,
       name: string,
@@ -849,6 +882,11 @@ export interface GetStatementQuery {
         id: string,
         name: string,
       },
+      expert:  {
+        id: string,
+        first_name: string,
+        last_name: string,
+      } | null,
     },
     comments_count: number,
   },
@@ -918,6 +956,26 @@ export interface GetContentImagesQuery {
         first_name: string,
         last_name: string,
       } | null,
+    } >,
+  },
+};
+
+export interface GetNotificationsQueryVariables {
+  includeRead?: boolean | null,
+  offset?: number | null,
+  limit?: number | null,
+};
+
+export interface GetNotificationsQuery {
+  notifications:  {
+    total_count: number,
+    items:  Array< {
+      id: string,
+      content: string,
+      action_link: string,
+      action_text: string,
+      created_at: GraphQLCustomScalar_DateTime,
+      read_at: GraphQLCustomScalar_DateTime | null,
     } >,
   },
 };

@@ -187,6 +187,7 @@ export const CreateUser = gql`
       active
       position_description
       bio
+      email_notifications
       role {
         id
         name
@@ -206,6 +207,7 @@ export const UpdateUser = gql`
       active
       position_description
       bio
+      email_notifications
       role {
         id
         name
@@ -302,5 +304,14 @@ export const UpdateSourceStatementsOrder = gql`
 export const DeleteContentImage = gql`
   mutation DeleteContentImage($id: ID!) {
     deleteContentImage(id: $id)
+  }
+`;
+
+export const UpdateNotification = gql`
+  mutation UpdateNotification($id: ID!, $input: UpdateNotificationInputType!) {
+    updateNotification(id: $id, input: $input) {
+      id
+      read_at
+    }
   }
 `;
