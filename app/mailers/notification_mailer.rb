@@ -8,7 +8,7 @@ class NotificationMailer < ApplicationMailer
     @host = ActionMailer::Base.default_url_options[:host]
 
     recipient = @notification.recipient
-    email_with_name = "#{@recipient.first_name} #{recipient.last_name} <#{recipient.email}>"
+    email_with_name = "#{recipient.first_name} #{recipient.last_name} <#{recipient.email}>"
 
     mail(to: email_with_name, subject: @notification.content)
   end
