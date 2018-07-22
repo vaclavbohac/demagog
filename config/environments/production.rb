@@ -75,7 +75,7 @@ Rails.application.configure do
   config.action_mailer.perform_caching = false
 
   # Set default url for device
-  config.action_mailer.default_url_options = { host: "demagog.cz" }
+  config.action_mailer.default_url_options = { host: ENV["MAILER_URL_HOST"] || "demagog.cz" }
 
   # Set SendGrid SMTP service
   config.action_mailer.delivery_method = :smtp
