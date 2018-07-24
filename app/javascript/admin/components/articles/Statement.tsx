@@ -66,6 +66,13 @@ export function Statement(props: IProps) {
                   }}
                 >
                   {statement.assessment.veracity.name}
+
+                  {statement.important && (
+                    <span style={{ textTransform: 'uppercase', color: '#666', fontSize: '80%' }}>
+                      {' '}
+                      (důležitý výrok)
+                    </span>
+                  )}
                 </p>
               )}
             </div>
