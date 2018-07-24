@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { Button, Callout, Intent, Menu, MenuItem, Popover, Position } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
+import { css } from 'emotion';
 import { v4 as uuid } from 'uuid';
 
 import { SegmentInputType } from '../../../operation-result-types';
@@ -123,7 +124,14 @@ function TextSegment(props: ISegmentProps<ITextSegment>) {
             smazat a vytvořit textový segment nový.
           </Callout>
 
-          <div dangerouslySetInnerHTML={{ __html: props.segment.text_html }} />
+          <div
+            dangerouslySetInnerHTML={{ __html: props.segment.text_html }}
+            className={css`
+              img {
+                max-width: 100%;
+              }
+            `}
+          />
         </div>
       ) : (
         <RichTextEditor

@@ -4,6 +4,7 @@ import * as React from 'react';
 
 import { Button, Callout, Classes, EditableText, Intent } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
+import { css } from 'emotion';
 import { Form, Formik } from 'formik';
 import { Link } from 'react-router-dom';
 
@@ -101,7 +102,14 @@ export class PageForm extends React.Component<IPageFormProps> {
                       />
                     </Callout>
 
-                    <div dangerouslySetInnerHTML={{ __html: values.text_html }} />
+                    <div
+                      dangerouslySetInnerHTML={{ __html: values.text_html }}
+                      className={css`
+                        img {
+                          max-width: 100%;
+                        }
+                      `}
+                    />
                   </div>
                 ) : (
                   <RichTextEditor
