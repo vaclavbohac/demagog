@@ -262,7 +262,6 @@ Types::QueryType = GraphQL::ObjectType.define do
   field :pages, !types[!Types::PageType] do
     argument :offset, types.Int, default_value: 0
     argument :limit, types.Int, default_value: 10
-    argument :order, types.String, default_value: "desc"
     argument :title, types.String
     argument :include_unpublished, types.Boolean, default_value: false
 
@@ -279,7 +278,7 @@ Types::QueryType = GraphQL::ObjectType.define do
       pages = pages
                    .offset(args[:offset])
                    .limit(args[:limit])
-                   .order(created_at: args[:order])
+                   .order(title: :asc)
 
       pages = pages.matching_title(args[:title]) if args[:title].present?
 

@@ -21,7 +21,8 @@ import Error from '../Error';
 import Loading from '../Loading';
 import ConfirmDeleteModal from '../modals/ConfirmDeleteModal';
 
-const PAGES_PER_PAGE = 15;
+// Lets just load all of them, there shouldn't be hundreds of them
+const PAGES_PER_PAGE = 100;
 
 interface IProps {
   dispatch: Dispatch;
@@ -113,8 +114,6 @@ class Pages extends React.Component<IProps, IState> {
               (s) => s.id === confirmDeleteModalPageId,
             );
 
-            const pagesLength = props.data.pages.length;
-
             return (
               <div style={{ marginTop: 15 }}>
                 {confirmDeleteModalPage && (
@@ -140,75 +139,57 @@ class Pages extends React.Component<IProps, IState> {
                   />
                 )}
 
-                <React.Fragment>
-                  <table
-                    className={classNames(Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED)}
-                    style={{ width: '100%' }}
-                  >
-                    <thead>
-                      <tr>
-                        <th scope="col">Titulek</th>
-                        <th scope="col">Stav</th>
-                        <th scope="col">Odkaz</th>
-                        <th scope="col" />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {props.data.pages.map((page) => {
-                        return (
-                          <tr key={page.id}>
-                            <td>{page.title}</td>
-                            <td>{page.published ? 'Zveřejněná' : 'Nezveřejněná'}</td>
-                            <td>
-                              <a href={`/${page.slug}`}>Odkaz</a>
-                            </td>
-                            <td>
-                              <div style={{ display: 'flex' }}>
-                                <Link
-                                  to={`/admin/pages/edit/${page.id}`}
-                                  className={classNames(
-                                    Classes.BUTTON,
-                                    Classes.iconClass(IconNames.EDIT),
-                                  )}
-                                >
-                                  Upravit
-                                </Link>
-                                <Button
-                                  icon={IconNames.TRASH}
-                                  style={{ marginLeft: 7 }}
-                                  onClick={this.showConfirmDeleteModal(page.id)}
-                                  title="Smazat"
-                                />
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-
-                  <Button
-                    onClick={() =>
-                      props.fetchMore({
-                        variables: {
-                          offset: pagesLength,
-                        },
-
-                        updateQuery: (prev, { fetchMoreResult }) => {
-                          if (!fetchMoreResult) {
-                            return prev;
-                          }
-
-                          return {
-                            ...prev,
-                            pages: [...prev.pages, ...fetchMoreResult.pages],
-                          };
-                        },
-                      })
-                    }
-                    text="Načíst další"
-                  />
-                </React.Fragment>
+                <table
+                  className={classNames(Classes.HTML_TABLE, Classes.HTML_TABLE_STRIPED)}
+                  style={{ width: '100%' }}
+                >
+                  <thead>
+                    <tr>
+                      <th scope="col">Titulek</th>
+                      <th scope="col">Stav</th>
+                      <th scope="col">Odkaz</th>
+                      <th scope="col" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {props.data.pages.map((page) => {
+                      return (
+                        <tr key={page.id}>
+                          <td>{page.title}</td>
+                          <td>
+                            {page.published ? (
+                              'Zveřejněná'
+                            ) : (
+                              <span className={Classes.TEXT_MUTED}>Nezveřejněná</span>
+                            )}
+                          </td>
+                          <td>
+                            <a href={`/${page.slug}`}>Odkaz</a>
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex' }}>
+                              <Link
+                                to={`/admin/pages/edit/${page.id}`}
+                                className={classNames(
+                                  Classes.BUTTON,
+                                  Classes.iconClass(IconNames.EDIT),
+                                )}
+                              >
+                                Upravit
+                              </Link>
+                              <Button
+                                icon={IconNames.TRASH}
+                                style={{ marginLeft: 7 }}
+                                onClick={this.showConfirmDeleteModal(page.id)}
+                                title="Smazat"
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             );
           }}
