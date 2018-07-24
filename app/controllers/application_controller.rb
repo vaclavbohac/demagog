@@ -3,8 +3,8 @@
 class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
-  def published_pages
-    Page.published
+  def menu_items
+    MenuItem.order(order: :asc)
   end
 
   def speaker_stats
