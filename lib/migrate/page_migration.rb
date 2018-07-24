@@ -12,6 +12,7 @@ class PageMigration
   def perform
     migrate_pages
     migrate_menu_items
+    migrate_images_in_pages
   end
 
   def migrate_pages
@@ -90,5 +91,50 @@ class PageMigration
       page: Page.find_by(slug: "czech-this-out"),
       order: 8
     )
+  end
+
+  def migrate_images_in_pages
+    pages = Page.all
+
+    progressbar = ProgressBar.create(
+      format: "Migrating page content images: %e |%b>>%i| %p%% %t",
+      total: pages.size,
+      output: quiet ? ProgressBar::Outputs::Null : $stdout
+    )
+
+    pages.each do |page|
+      img_src_matches = page.text_html.scan(/<img[^>]*src="([^"]+)"[^>]*>/)
+
+      img_src_matches.each do |img_src_match|
+        src = img_src_match[0]
+
+        is_demagog_upload_image = src.starts_with?("/data/images/") ||
+          src.starts_with?("http://demagog.cz/data/images/") ||
+          src.starts_with?("http://legacy.demagog.cz/data/images/")
+
+        next unless is_demagog_upload_image
+
+        path = src[/\/data\/images\/.*$/]
+        filename = path.match(/\/data\/images\/(.*)/)[1]
+
+        content_image = ContentImage.create!(created_at: page.created_at)
+
+        ImageUrlHelper.open_image(path) do |file|
+          content_image.image.attach io: file, filename: filename
+        end
+
+        # Using polymorphic_url as it is the same as url_for, but allows
+        # generating only the path of url without host. Not using
+        # rails_blob_path, because url_for generates the permanent link
+        # decoupled from where the file actually is.
+        # See http://edgeguides.rubyonrails.org/active_storage_overview.html#linking-to-files
+        src_new = Rails.application.routes.url_helpers.polymorphic_url(content_image.image, only_path: true)
+
+        page.text_html = page.text_html.gsub(src, src_new)
+      end
+
+      page.save!
+      progressbar.increment
+    end
   end
 end
