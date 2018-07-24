@@ -1,10 +1,12 @@
 import * as React from 'react';
 
+import { css, cx } from 'emotion';
 import createBrowserHistory from 'history/createBrowserHistory';
 import { connect, Dispatch } from 'react-redux';
 import { Redirect, Route, Router, Switch } from 'react-router';
 
 import { fetchCurrentUser } from './actions/currentUser';
+import hoffImg from './images/hoff.png';
 import { IState } from './reducers';
 
 import ArticleEdit from './components/articles/ArticleEdit';
@@ -48,6 +50,13 @@ import Users from './components/Users';
 
 const history = createBrowserHistory();
 
+const hoff = css`
+  background-image: url(${hoffImg});
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+`;
+
 interface IProps {
   currentUser: IState['currentUser']['user'];
   dispatch: Dispatch;
@@ -67,7 +76,10 @@ class App extends React.Component<IProps> {
     return (
       <Router history={history}>
         {/* top padding because of the fixed position header */}
-        <div style={{ paddingTop: 50 }}>
+        <div
+          style={{ paddingTop: 50 }}
+          className={cx({ [hoff]: this.props.currentUser.email === 'tvrdon.honza@gmail.com' })}
+        >
           <Header />
           <div style={{ display: 'flex' }}>
             <Sidebar />
