@@ -63,9 +63,11 @@ const ImageNode = (props: RenderNodeProps) => {
   const { attributes, node, isSelected } = props;
 
   const src = node.data.get('src');
-  const style = isSelected
-    ? { boxShadow: '0 0 2px', marginBottom: '1rem' }
-    : { marginBottom: '1rem' };
+  const style = {
+    marginBottom: '1rem',
+    maxWidth: '100%',
+    boxShadow: isSelected ? '0 0 2px' : 'none',
+  };
 
   return <img src={src} style={style} alt="" {...attributes} />;
 };
