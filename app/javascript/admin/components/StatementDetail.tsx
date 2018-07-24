@@ -14,6 +14,7 @@ import {
 import { IconNames } from '@blueprintjs/icons';
 import { ApolloError } from 'apollo-client';
 import * as classNames from 'classnames';
+import { css } from 'emotion';
 import { Formik } from 'formik';
 import { get, isEqual, set } from 'lodash';
 import { Mutation, Query } from 'react-apollo';
@@ -435,6 +436,11 @@ class StatementDetail extends React.Component<IProps, IState> {
                                       dangerouslySetInnerHTML={{
                                         __html: values.assessment.explanation_html || '',
                                       }}
+                                      className={css`
+                                        img {
+                                          max-width: 100%;
+                                        }
+                                      `}
                                     />
                                   </>
                                 )}
