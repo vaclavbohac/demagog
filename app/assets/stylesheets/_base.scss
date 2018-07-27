@@ -58,7 +58,11 @@ a:hover {
 }
 
 footer {
-  padding: 3rem 15px;
+  overflow: hidden;
+}
+
+footer p {
+  grid-column: 1 / -1;
 }
 
 h1 {
@@ -118,6 +122,15 @@ blockquote {
     font-size: 90%;
     font-style: normal;
     text-transform: uppercase;
+  }
+}
+
+ul.bare-list {
+  padding: 0;
+
+  li {
+    list-style-type: none;
+    margin-bottom: 0.25rem;
   }
 }
 
@@ -197,15 +210,18 @@ p.lead {
     margin-top: 0;
   }
 
-  .quote {
+  blockquote {
     letter-spacing: 0.05em;
-    margin-bottom: 0.5em;
+    margin: 0 0 0.5rem;
+    text-indent: -0.4rem;
+  }
 
-    b {
-      font-style: normal;
-      text-transform: uppercase;
-      font-size: 90%;
-    }
+  blockquote::before {
+    content: '„';
+  }
+
+  blockquote::after {
+    content: '“';
   }
 
   .permalink,
@@ -242,10 +258,9 @@ p.lead {
   .veracity {
     @include veracity;
 
-    font-size: var(--medium-typesize);
     font-weight: bold;
     margin-bottom: 0.5rem;
-    margin-left: -1.7rem;
+    margin-left: 0.2rem;
   }
 
   table {
@@ -323,7 +338,7 @@ p.lead {
 .label {
   text-transform: uppercase;
   font-weight: bold;
-  font-size: 80%;
+  font-size: 90%;
 
   &.factcheck { color: var(--true); }
   &.editorial { color: var(--orange); }
@@ -390,6 +405,18 @@ p.lead {
   }
 }
 
+a.stats-box:hover {
+  text-decoration: none;
+
+  .name {
+    text-decoration: underline;
+  }
+
+  .portrait {
+    box-shadow: 0 0 0 3px var(--orange)
+  }
+}
+
 .author {
   display: grid;
   grid-template-columns: var(--large-portrait) 1fr;
@@ -429,7 +456,7 @@ article.preview {
   .speakers {
     float: right;
     max-width: 35%;
-    margin: 0 0 -1rem 0.5rem;
+    margin: 0 0 -0.5rem 0.5rem;
   }
 }
 
