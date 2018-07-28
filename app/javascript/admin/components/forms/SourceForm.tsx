@@ -156,7 +156,7 @@ class SourceForm extends React.Component<ISourceFormProps> {
               <div style={{ flex: '1 1' }}>
                 <FormGroup name="expert_id" label="Expert" optional>
                   <SelectComponentField name="expert_id">
-                    {(renderProps) => <UserSelect {...renderProps} />}
+                    {(renderProps) => <UserSelect roles={['expert', 'admin']} {...renderProps} />}
                   </SelectComponentField>
                 </FormGroup>
               </div>

@@ -393,7 +393,7 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
                     </FormGroup>
                     <FormGroup label="Ověřovatel" name="evaluator_id" optional>
                       <SelectComponentField name="evaluator_id">
-                        {(renderProps) => <UserSelect role="expert" {...renderProps} />}
+                        {(renderProps) => <UserSelect {...renderProps} />}
                       </SelectComponentField>
                     </FormGroup>
                     <FormGroup

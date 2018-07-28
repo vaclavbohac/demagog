@@ -363,7 +363,7 @@ Types::QueryType = GraphQL::ObjectType.define do
     argument :limit, types.Int, default_value: 10
     argument :name, types.String
     argument :include_inactive, types.Boolean, default_value: false
-    argument :role, types.String
+    argument :roles, types[!types.String]
 
     resolve -> (obj, args, ctx) {
       raise Errors::AuthenticationNeededError.new unless ctx[:current_user]
@@ -375,7 +375,7 @@ Types::QueryType = GraphQL::ObjectType.define do
 
       users = users.where(active: true) unless args[:include_inactive]
 
-      users = users.joins(:roles).where(roles: { key: [args[:role]] }) if args[:role]
+      users = users.joins(:roles).where(roles: { key: args[:roles] }) if args[:roles]
 
       users =
         users.where("first_name LIKE ? OR last_name LIKE ?", "%#{args[:name]}%", "%#{args[:name]}%") unless args[:name].nil?
