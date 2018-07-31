@@ -23,7 +23,7 @@ class UserMigration
       FROM user LEFT JOIN usertype ON user.id_usertype = usertype.id")
 
     old_users.each do |old_user|
-      user = User.new(id: old_user["id"],
+      user = User.unscoped.new(id: old_user["id"],
         first_name: old_user["meno"],
         last_name: old_user["priezvisko"],
         bio: old_user["bio"],

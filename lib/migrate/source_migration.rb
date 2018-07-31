@@ -17,7 +17,7 @@ class SourceMigration
   def migrate_sources
     old_sources = self.connection.query("SELECT * FROM diskusia")
     old_sources.each do |old_source|
-      Source.create!(
+      Source.unscoped.create!(
         id: old_source["id"],
         name: old_source["nazov"],
         medium: Medium.find(old_source["id_relacia"]),

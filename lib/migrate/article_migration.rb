@@ -96,7 +96,7 @@ class ArticleMigration
     article_type_static = ArticleType.find_by(name: "static")
 
     old_articles.each do |old_article|
-      article = Article.new(
+      article = Article.unscoped.new(
         title: old_article["nazov"],
         slug: old_article["alias"],
         perex: old_article["excerpt"],
