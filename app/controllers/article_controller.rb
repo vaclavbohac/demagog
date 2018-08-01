@@ -2,9 +2,13 @@
 
 class ArticleController < ApplicationController
   def index
-    @article = Article.published.friendly.find(params[:id])
+    # Redirect pages to new url
+    page = Page.published.friendly.find_by(slug: params[:slug])
+    if page
+      return redirect_to page_url(page), status: 301
+    end
 
-    @users = User.where(active: true).order(rank: :asc, last_name: :asc) if params[:id] == "o-nas"
+    @article = Article.published.friendly.find(params[:slug])
 
     return unless Rails.env.production?
 
