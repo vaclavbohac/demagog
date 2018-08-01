@@ -11,7 +11,6 @@
 
 server "188.226.140.217", user: "rails", port: 22, roles: [:web, :app, :db], primary: true
 
-
 # role-based syntax
 # ==================
 
@@ -24,7 +23,7 @@ server "188.226.140.217", user: "rails", port: 22, roles: [:web, :app, :db], pri
 # role :web, %w{user1@primary.com user2@additional.com}, other_property: :other_value
 # role :db,  %w{deploy@example.com}
 
-
+set :rvm_custom_path, "/home/rails/.rvm"
 
 # Configuration
 # =============
