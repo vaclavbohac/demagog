@@ -5,7 +5,7 @@
     <article class="author">
       <figure class="portrait">      
         <% if user.avatar.attached? %>  
-          <%= image_tag(user.avatar) %>
+          <img src="<%= polymorphic_url(user.avatar, only_path: true) %>" alt="<%= user.full_name %>" />
         <% end %>
       </figure>
 

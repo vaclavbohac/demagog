@@ -6,7 +6,7 @@
 
     <% if @cover_story.illustration.attached? %>
       <figure>
-        <%= image_tag(@cover_story.illustration) %>
+        <img src="<%= polymorphic_url(@cover_story.illustration, only_path: true) %>" alt="<%= @cover_story.title %>" />
       </figure>
     <% end %>
 
