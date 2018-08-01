@@ -1,0 +1,64 @@
+<%
+
+@nav = [
+  Struct::Submenu.new(
+    "Přehledy",
+    [Struct::Link.new('Politici', speakers_path())]
+  ),
+  Struct::Submenu.new(
+    'Speciály',
+    [
+      Struct::Link.new('Vládní sliby 2014—17', 'https://extra.demagog.cz/vladni-sliby/'),
+      Struct::Link.new('Sliby Miloše Zemana', 'https://zpravy.aktualne.cz/domaci/zverejnujeme-velkou-inventuru-zemanovych-slibu-ktere-slovo-d/r~9ebe8728ff6911e7adc2ac1f6b220ee8/')
+    ]
+  ),
+  Struct::Submenu.new(
+    "O nás",
+    controller.menu_items.map do |menu_item|
+      case menu_item.kind
+      when MenuItem::KIND_PAGE then Struct::Link.new(menu_item.title, page_url(slug: menu_item.page.slug))
+      when MenuItem::KIND_DIVIDER then '<hr>'
+      else
+        raise Error("Unknown menu item kind #{menu_item.kind}")
+      end
+    end
+  )
+]
+
+%>
+
+<nav id="main-menu" role="navigation">
+  <label for="tm" id="toggle-menu"><span class="drop-icon">Menu ☰</span></label>
+  <input type="checkbox" id="tm">
+  <ul>
+    <% @nav.each_with_index do |submenu, index| %>
+      <li>
+        <span class="drop-icon"><%= submenu.name %> ▾</span>
+        <label title="Toggle Drop-down" class="drop-icon" for="sm<%= index %>"><%= submenu.name %> ▾</label>
+        <input type="checkbox" id="sm<%= index %>">
+        <ul class="sub-menu">
+          <% submenu.items.each do |item| %>
+            <% if (item.is_a? String) %>
+              <%= raw item %>
+            <% else %>
+              <li><a href="<%= item.href %>"><%= item.text %></a></li>
+            <% end %>
+          <% end %>
+        </ul>
+      </li>
+    <% end %>
+    <li>
+      <form id="search" onsubmit="searchFn(); return false;">
+        <script>
+          function searchFn() {
+            var q = document.getElementById('searchQuery').value;
+            window.open('https://search.seznam.cz/?q=' + encodeURIComponent(q) + '+site%3Ademagog.cz', '_blank');
+          }
+        </script>
+          
+        <input id="searchQuery" type="text" placeholder="">
+        <a href="#" onclick="searchFn(); return false;">Hledat</a>
+      </form>
+    </li>
+  </ul>
+</nav>

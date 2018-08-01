@@ -2,8 +2,16 @@
 
 class RedirectController < ApplicationController
   def index
-    article = Article.friendly.find(params[:slug])
+    article = Article.published.friendly.find_by(slug: params[:slug])
+    if article
+      return redirect_to article_url(article), status: 301
+    end
 
-    redirect_to article_url(article), status: 301
+    page = Page.published.friendly.find_by(slug: params[:slug])
+    if page
+      return redirect_to page_url(page), status: 301
+    end
+
+    render status: 404
   end
 end

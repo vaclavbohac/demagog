@@ -1,0 +1,96 @@
+import * as React from 'react';
+
+import { Classes } from '@blueprintjs/core';
+import { IconNames } from '@blueprintjs/icons';
+import * as classNames from 'classnames';
+import { Field, FieldProps } from 'formik';
+import Dropzone, { ImageFile } from 'react-dropzone';
+
+export type ImageValueType = string | ImageFile | null;
+
+interface IImageInputProps {
+  renderImage: (src: string | null) => React.ReactNode;
+  value: ImageValueType;
+  onChange(file: ImageValueType);
+}
+
+interface IImageInputState {
+  value: ImageValueType;
+}
+
+class ImageInput extends React.Component<IImageInputProps, IImageInputState> {
+  public onDrop = (acceptedFiles) => {
+    if (acceptedFiles.length === 1) {
+      this.props.onChange(acceptedFiles[0]);
+    }
+  };
+
+  public onRemoveClick = () => {
+    this.props.onChange(null);
+  };
+
+  public render() {
+    const { value } = this.props;
+
+    return (
+      <div style={{ display: 'flex' }}>
+        {value !== null && (
+          <div style={{ marginRight: 10 }}>
+            {this.props.renderImage(value instanceof File ? value.preview || null : value)}
+          </div>
+        )}
+
+        <div style={{ marginBottom: 10 }}>
+          <Dropzone
+            accept="image/jpeg, image/png, image/gif"
+            multiple={false}
+            onDrop={this.onDrop}
+            style={{}}
+            className="dropzone"
+          >
+            <button
+              type="button"
+              className={classNames(Classes.BUTTON, Classes.iconClass(IconNames.FOLDER_OPEN))}
+            >
+              {value !== null ? 'Vybrat novou fotku' : 'Vybrat fotku'}
+            </button>
+          </Dropzone>
+          {value !== null && (
+            <button
+              type="button"
+              className={classNames(Classes.BUTTON, Classes.iconClass(IconNames.TRASH))}
+              style={{ marginTop: 7 }}
+              onClick={this.onRemoveClick}
+            >
+              Odstranit tuto fotku
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+}
+
+interface IImageFieldProps extends Partial<IImageInputProps> {
+  name: string;
+  renderImage: (src: string | null) => React.ReactNode;
+}
+
+const ImageField = (props: IImageFieldProps) => {
+  const { name, ...restProps } = props;
+
+  return (
+    <Field
+      name={name}
+      render={({ field, form }: FieldProps) => (
+        <ImageInput
+          onChange={(value) => form.setFieldValue(name, value)}
+          value={field.value}
+          {...restProps}
+        />
+      )}
+    />
+  );
+};
+
+export default ImageField;

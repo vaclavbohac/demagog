@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_04_18_202647) do
+ActiveRecord::Schema.define(version: 2018_07_31_205322) do
 
   create_table "active_storage_attachments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
@@ -63,6 +63,7 @@ ActiveRecord::Schema.define(version: 2018_04_18_202647) do
     t.integer "document_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
     t.index ["article_type_id"], name: "index_articles_on_article_type_id"
     t.index ["document_id"], name: "index_articles_on_document_id"
     t.index ["illustration_id"], name: "index_articles_on_illustration_id"
@@ -78,15 +79,16 @@ ActiveRecord::Schema.define(version: 2018_04_18_202647) do
   end
 
   create_table "assessments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.text "explanation"
+    t.text "explanation_html"
     t.string "evaluation_status"
     t.datetime "evaluated_at"
-    t.boolean "disputed"
     t.bigint "veracity_id"
     t.bigint "user_id"
     t.bigint "statement_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "explanation_slatejson"
+    t.text "short_explanation"
     t.index ["statement_id"], name: "index_assessments_on_statement_id"
     t.index ["user_id"], name: "index_assessments_on_user_id"
     t.index ["veracity_id"], name: "index_assessments_on_veracity_id"
@@ -117,13 +119,20 @@ ActiveRecord::Schema.define(version: 2018_04_18_202647) do
   end
 
   create_table "comments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.text "content"
-    t.bigint "user_id"
-    t.bigint "statement_id"
+    t.text "content", null: false
+    t.bigint "user_id", null: false
+    t.bigint "statement_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["statement_id"], name: "index_comments_on_statement_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
+  end
+
+  create_table "content_images", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "deleted_at"
+    t.index ["user_id"], name: "index_content_images_on_user_id"
   end
 
   create_table "friendly_id_slugs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -145,6 +154,7 @@ ActiveRecord::Schema.define(version: 2018_04_18_202647) do
     t.bigint "attachment_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
     t.index ["attachment_id"], name: "index_media_on_attachment_id"
   end
 
@@ -162,24 +172,57 @@ ActiveRecord::Schema.define(version: 2018_04_18_202647) do
     t.bigint "attachment_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
     t.index ["attachment_id"], name: "index_media_personalities_on_attachment_id"
   end
 
   create_table "memberships", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.bigint "body_id"
     t.bigint "speaker_id"
-    t.datetime "since"
-    t.datetime "until"
+    t.date "since"
+    t.date "until"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["body_id"], name: "index_memberships_on_body_id"
     t.index ["speaker_id"], name: "index_memberships_on_speaker_id"
   end
 
-  create_table "roles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
-    t.string "name"
+  create_table "menu_items", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "title"
+    t.string "kind", null: false
+    t.bigint "page_id"
+    t.integer "order", null: false
+    t.datetime "created_at", null: false
+    t.index ["page_id"], name: "index_menu_items_on_page_id"
+  end
+
+  create_table "notifications", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.text "content", null: false
+    t.string "action_link", null: false
+    t.string "action_text", null: false
+    t.bigint "recipient_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "read_at"
+    t.datetime "emailed_at"
+    t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
+  end
+
+  create_table "pages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "title"
+    t.string "slug"
+    t.boolean "published"
+    t.text "text_html"
+    t.text "text_slatejson"
+    t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "roles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name"
   end
 
   create_table "segment_has_statements", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -194,21 +237,32 @@ ActiveRecord::Schema.define(version: 2018_04_18_202647) do
 
   create_table "segments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "segment_type"
-    t.text "text", limit: 4294967295
+    t.text "text_html", limit: 4294967295
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "text_slatejson"
   end
 
   create_table "sources", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.text "transcript", limit: 4294967295
     t.string "source_url"
-    t.datetime "released_at"
+    t.date "released_at"
     t.bigint "medium_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "media_personality_id"
+    t.string "name", null: false
+    t.datetime "deleted_at"
+    t.bigint "expert_id"
     t.index ["media_personality_id"], name: "index_sources_on_media_personality_id"
     t.index ["medium_id"], name: "index_sources_on_medium_id"
+  end
+
+  create_table "sources_speakers", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "source_id"
+    t.bigint "speaker_id"
+    t.index ["source_id"], name: "index_sources_speakers_on_source_id"
+    t.index ["speaker_id"], name: "index_sources_speakers_on_speaker_id"
   end
 
   create_table "speakers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -221,13 +275,21 @@ ActiveRecord::Schema.define(version: 2018_04_18_202647) do
     t.boolean "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "attachment_id"
-    t.index ["attachment_id"], name: "index_speakers_on_attachment_id"
+  end
+
+  create_table "statement_transcript_positions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "statement_id"
+    t.bigint "source_id"
+    t.integer "start_line", null: false
+    t.integer "start_offset", null: false
+    t.integer "end_line", null: false
+    t.integer "end_offset", null: false
+    t.index ["source_id"], name: "index_statement_transcript_positions_on_source_id"
+    t.index ["statement_id"], name: "index_statement_transcript_positions_on_statement_id"
   end
 
   create_table "statements", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.text "content"
-    t.text "questionables"
     t.datetime "excerpted_at"
     t.boolean "important"
     t.boolean "published"
@@ -236,6 +298,8 @@ ActiveRecord::Schema.define(version: 2018_04_18_202647) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "source_id"
+    t.datetime "deleted_at"
+    t.integer "source_order"
     t.index ["source_id"], name: "index_statements_on_source_id"
     t.index ["speaker_id"], name: "index_statements_on_speaker_id"
   end
@@ -254,20 +318,19 @@ ActiveRecord::Schema.define(version: 2018_04_18_202647) do
     t.text "position_description"
     t.text "bio"
     t.string "email"
-    t.string "password"
     t.string "phone"
     t.datetime "registered_at"
     t.integer "order"
     t.boolean "active"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.integer "portrait_id"
     t.integer "rank"
     t.integer "sign_in_count", default: 0, null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
+    t.boolean "email_notifications", default: false
   end
 
   create_table "users_roles", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|

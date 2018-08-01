@@ -20,19 +20,23 @@
 /db/*.sqlite3
 /db/*.sqlite3-journal
 
-# Ignore all logfiles and tempfiles.
+# Ignore all logfiles, storage files and tempfiles.
 /log/*
 /tmp/*
+/storage/*
 !/log/.keep
 !/tmp/.keep
+!/storage/.keep
 
 /node_modules
 /yarn-error.log
+yarn-debug.log*
+.yarn-integrity
 
 .byebug_history
 /public/packs
 /public/packs-test
-/node_modules
+/public/assets
 
 config/settings.local.yml
 config/settings/*.local.yml

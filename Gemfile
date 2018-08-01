@@ -24,8 +24,6 @@ gem "sass-rails", "~> 5.0"
 gem "uglifier", ">= 1.3.0"
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
-# Add foundation CSS framework
-gem "foundation-rails", "~> 5.5.2"
 # Add gem for paging
 gem "kaminari"
 # Add webpack support
@@ -55,11 +53,33 @@ gem "meta-tags"
 # Enables env. specific configuration
 gem "config"
 
+# Authentication
+gem "devise"
+
+# Enables devise & omniauth to authenticate against Google OAuth 2
+gem "omniauth-google-oauth2"
+
 # Use redis for store layer
 gem "redis", "~> 4.0", ">= 4.0.1"
 
+# Use Amazon S3 for active storage for production environment
+gem "aws-sdk-s3", require: false
+
 # Patches security vulnerability CVE-2018-8048
 gem "loofah", "~> 2.2.1"
+
+# Enable image processing for active storage
+gem "image_processing", "~> 1.2"
+
+# For migration progress display
+gem "ruby-progressbar"
+
+# For cron jobs
+gem "whenever", require: false
+
+gem "nokogiri"
+
+gem "htmlbeautifier"
 
 # Add skylight profiler
 # gem "skylight"
@@ -71,6 +91,7 @@ group :development do
   gem "capistrano-rails", require: false
   gem "capistrano-bundler", require: false
   gem "capistrano3-unicorn", require: false
+  gem "guard-livereload", "~> 2.5", require: false
 end
 
 group :development, :test do
@@ -84,6 +105,9 @@ group :development, :test do
   # Tools for autorunning tests
   gem "guard"
   gem "guard-minitest"
+
+  # Fixture replacement
+  gem "factory_bot_rails"
 end
 
 group :development do

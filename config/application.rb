@@ -17,6 +17,8 @@ module Demagog
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
+    config.autoload_paths << Rails.root.join("app/graphql/utils")
+
     # Enable CORS to /graphql resource from anywhere
     config.middleware.insert_before 0, Rack::Cors do
       allow do
@@ -24,5 +26,8 @@ module Demagog
         resource "/graphql", headers: :any, methods: [:get, :post, :options]
       end
     end
+
+    # Needed to be able to use JSON type in GraphQL
+    config.action_controller.permit_all_parameters = true
   end
 end

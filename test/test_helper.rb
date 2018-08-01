@@ -7,5 +7,15 @@ class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
 
-  # Add more helper methods to be used by all tests here...
+  # Enable factorybot
+  include FactoryBot::Syntax::Methods
+
+  setup do
+    ensure_veracities
+  end
+
+  private
+    def ensure_veracities
+      [:true, :untrue, :misleading, :unverifiable].each { |key| create(key) }
+    end
 end
