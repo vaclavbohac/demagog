@@ -44,6 +44,8 @@ FactoryBot.define do
     end
   end
 
+  factory :segment
+
   factory :body do
     transient do
       member_count 5

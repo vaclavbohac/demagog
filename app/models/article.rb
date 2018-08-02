@@ -17,6 +17,8 @@ class Article < ApplicationRecord
   has_many :speakers, through: :statements
   has_many :attachments, through: :speakers
 
+  after_update :invalidate_caches
+
   has_one_attached :illustration
 
   friendly_id :title, use: :slugged
@@ -105,4 +107,9 @@ class Article < ApplicationRecord
       Segment.new
     end
   end
+
+  private
+    def invalidate_caches
+      Stats::Article::StatsBuilderFactory.new.create(Settings).invalidate(self)
+    end
 end
