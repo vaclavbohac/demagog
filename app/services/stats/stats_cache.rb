@@ -16,6 +16,10 @@ module Stats
       stats
     end
 
+    def del(key)
+      @store.del(key)
+    end
+
     def load(key)
       record = @store.get(key)
 

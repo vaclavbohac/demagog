@@ -13,5 +13,13 @@ module Store
     def set(key, value)
       @storage[key] = value
     end
+
+    def del(key)
+      @storage.delete(key)
+    end
+
+    def empty?
+      @storage.empty?
+    end
   end
 end

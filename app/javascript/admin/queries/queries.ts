@@ -351,6 +351,7 @@ export const GetStatement = gql`
       important
       published
       excerpted_at
+      count_in_statistics
       speaker {
         id
         first_name

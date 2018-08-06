@@ -13,14 +13,20 @@ module Stats::Article
     def build(article, speaker)
       key = cache_key(article, speaker)
 
-      p statements(article, speaker)
-
       if @cache.contains?(key)
         @cache.load(key)
       else
         stats = build_stats statements(article, speaker)
 
         @cache.save(key, stats)
+      end
+    end
+
+    def invalidate(article)
+      article.speakers.each do |speaker|
+        key = cache_key(article, speaker)
+
+        @cache.del(key)
       end
     end
 

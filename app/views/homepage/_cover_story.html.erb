@@ -23,7 +23,7 @@
           partial: "shared/speaker_stat",
           locals: {
             speaker: speaker,
-            stats: controller.source_stats.build(@cover_story.source, speaker),
+            stats: controller.article_stats.build(@cover_story, speaker),
             lazy_load_images: false
           })
         %>
