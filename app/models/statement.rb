@@ -15,6 +15,8 @@ class Statement < ApplicationRecord
   has_one :veracity, through: :assessment
   has_one :statement_transcript_position
 
+  after_update :invalidate_caches
+
   default_scope {
     # We keep here only soft-delete, ordering cannot be here because
     # of has_many :through relations which use statements
@@ -118,4 +120,13 @@ class Statement < ApplicationRecord
   def display_in_notification
     "#{speaker.first_name} #{speaker.last_name}: „#{content.truncate(50, omission: '…')}‟"
   end
+
+  private
+    def invalidate_caches
+      Stats::Speaker::StatsBuilderFactory.new.create(Settings).invalidate(speaker)
+
+      articles.each do |article|
+        Stats::Article::StatsBuilderFactory.new.create(Settings).invalidate(article)
+      end
+    end
 end

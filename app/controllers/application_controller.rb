@@ -11,10 +11,6 @@ class ApplicationController < ActionController::Base
     Stats::Speaker::StatsBuilderFactory.new.create(Settings)
   end
 
-  def source_stats
-    Stats::Source::StatsBuilderFactory.new.create(Settings)
-  end
-
   def article_stats
     Stats::Article::StatsBuilderFactory.new.create(Settings)
   end

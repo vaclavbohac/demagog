@@ -13,6 +13,7 @@ Types::StatementType = GraphQL::ObjectType.define do
   field :statement_transcript_position, Types::StatementTranscriptPositionType
   field :assessment, !Types::AssessmentType
   field :published, !types.Boolean
+  field :count_in_statistics, !types.Boolean
 
   field :comments, !types[!Types::CommentType] do
     resolve -> (obj, args, ctx) {

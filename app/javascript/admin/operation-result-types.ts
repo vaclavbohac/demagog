@@ -998,6 +998,7 @@ export interface GetStatementQuery {
     important: boolean,
     published: boolean,
     excerpted_at: string,
+    count_in_statistics: boolean,
     speaker:  {
       id: string,
       first_name: string,

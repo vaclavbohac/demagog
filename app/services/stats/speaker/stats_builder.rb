@@ -21,6 +21,12 @@ module Stats::Speaker
       end
     end
 
+    def invalidate(speaker)
+      key = cache_key(speaker)
+
+      @cache.del(key)
+    end
+
     private
 
       # @param [Speaker] speaker

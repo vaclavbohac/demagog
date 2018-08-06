@@ -123,6 +123,7 @@ class StatementDetail extends React.Component<IProps, IState> {
             content: statement.content,
             published: statement.published,
             important: statement.important,
+            count_in_statistics: statement.count_in_statistics,
             assessment: {
               evaluation_status: statement.assessment.evaluation_status,
               veracity_id: statement.assessment.veracity ? statement.assessment.veracity.id : null,
@@ -190,6 +191,7 @@ class StatementDetail extends React.Component<IProps, IState> {
                         'assessment.evaluation_status',
                         'assessment.explanation_slatejson',
                         'assessment.explanation_html',
+                        'count_in_statistics',
                         'published',
                         'content',
                         'important',
@@ -518,6 +520,26 @@ class StatementDetail extends React.Component<IProps, IState> {
                                   }
                                   onBlur={() => setFieldTouched('assessment.evaluator_id')}
                                   value={values.assessment.evaluator_id}
+                                />
+                              </div>
+                            </div>
+
+                            <div className={classNames(Classes.FORM_GROUP, Classes.INLINE)}>
+                              <label
+                                htmlFor="count_in_statistics"
+                                className={Classes.LABEL}
+                                style={{ flex: '1' }}
+                              >
+                                Započítat do statistik
+                              </label>
+                              <div className={Classes.FORM_CONTENT} style={{ flex: '2' }}>
+                                <Switch
+                                  id="count_in_statistics"
+                                  name="count_in_statistics"
+                                  checked={values.count_in_statistics}
+                                  onChange={handleChange}
+                                  large
+                                  disabled={!canEditPublished}
                                 />
                               </div>
                             </div>
