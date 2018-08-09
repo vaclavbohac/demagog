@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import Select, { Option } from 'react-select';
 
-const GET_MEDIA_PERSONALITIES = gql`
+export const GET_MEDIA_PERSONALITIES = gql`
   query {
     media_personalities {
       id

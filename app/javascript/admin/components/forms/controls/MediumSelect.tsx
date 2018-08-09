@@ -1,27 +1,12 @@
 import * as React from 'react';
 
 import { Colors } from '@blueprintjs/core';
-import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import Select, { Option } from 'react-select';
+import { GetMediaQuery } from '../../../operation-result-types';
+import { GetMedia } from '../../../queries/queries';
 
-const GET_MEDIA = gql`
-  query {
-    media {
-      id
-      name
-    }
-  }
-`;
-
-interface IGetMediaQuery {
-  media: Array<{
-    id: string;
-    name: string;
-  }>;
-}
-
-class GetMediaQueryComponent extends Query<IGetMediaQuery> {}
+class GetMediaQueryComponent extends Query<GetMediaQuery> {}
 
 interface IMediaSelectProps {
   id?: string;
@@ -34,7 +19,7 @@ interface IMediaSelectProps {
 export default class MediumSelect extends React.Component<IMediaSelectProps> {
   public render() {
     return (
-      <GetMediaQueryComponent query={GET_MEDIA}>
+      <GetMediaQueryComponent query={GetMedia} variables={{ name: '' }}>
         {({ data, loading }) => {
           let options: Array<{ label: string; value: string }> = [];
 

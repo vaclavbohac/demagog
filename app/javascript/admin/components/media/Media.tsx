@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 
-// import { Button, Classes, Icon, Intent, Tag } from '@blueprintjs/core';
 import { Boundary, Button, Classes, CollapsibleList, MenuItem } from '@blueprintjs/core';
 import { IconNames } from '@blueprintjs/icons';
 import { ApolloError } from 'apollo-client';

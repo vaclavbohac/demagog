@@ -12,6 +12,7 @@ import {
 } from '../../operation-result-types';
 import { CreateMedium } from '../../queries/mutations';
 import { GetMedia } from '../../queries/queries';
+import { GET_MEDIA_PERSONALITIES } from '../forms/controls/MediaPersonalitySelect';
 import { MediumForm } from '../forms/MediumForm';
 
 class CreateMediumMutationComponent extends Mutation<
@@ -58,7 +59,10 @@ export class MediumNew extends React.Component<ISourceNewProps> {
         <CreateMediumMutationComponent
           mutation={CreateMedium}
           // TODO: is there a nicer way of updating apollo cache after creating?
-          refetchQueries={[{ query: GetMedia, variables: { name: '' } }]}
+          refetchQueries={[
+            { query: GetMedia, variables: { name: '' } },
+            { query: GET_MEDIA_PERSONALITIES },
+          ]}
         >
           {(createMedium) => {
             return <MediumForm onSubmit={this.onSubmit(createMedium)} title="Přidat nový pořad" />;
