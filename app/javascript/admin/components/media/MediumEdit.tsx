@@ -12,6 +12,7 @@ import {
 } from '../../operation-result-types';
 import { UpdateMedium } from '../../queries/mutations';
 import { GetMedia, GetMedium } from '../../queries/queries';
+import { GET_MEDIA_PERSONALITIES } from '../forms/controls/MediaPersonalitySelect';
 import { MediumForm } from '../forms/MediumForm';
 import Loading from '../Loading';
 
@@ -67,8 +68,9 @@ class MediumEdit extends React.Component<IMediumEditProps> {
               <UpdateMediumMutationComponent
                 mutation={UpdateMedium}
                 refetchQueries={[
-                  { query: GetMedia, variables: { name: null } },
+                  { query: GetMedia, variables: { name: '' } },
                   { query: GetMedium, variables: { id } },
+                  { query: GET_MEDIA_PERSONALITIES },
                 ]}
               >
                 {(updateMedium) => {
