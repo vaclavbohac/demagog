@@ -4,7 +4,7 @@ Political fact checking website. For more information see http://demagog.cz/o-na
 
 ### Ruby version
 
-2.4.1
+2.5.1
 
 ## Configuration
 
