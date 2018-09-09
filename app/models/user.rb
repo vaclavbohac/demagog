@@ -33,4 +33,18 @@ class User < ApplicationRecord
   def display_in_notification
     "#{first_name} #{last_name}"
   end
+
+  def self.update_users_rank(ordered_user_ids)
+    User.transaction do
+      User.update_all(rank: nil)
+
+      unless ordered_user_ids.nil?
+        ordered_user_ids.each_with_index do |user_id, index|
+          User.find(user_id).update!(rank: index)
+        end
+      end
+    end
+
+    User.all
+  end
 end
