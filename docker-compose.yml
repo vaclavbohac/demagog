@@ -1,0 +1,60 @@
+version: '3.0'
+services:
+  redis:
+    image: redis:5.0.0
+    ports:
+      - 6379:6379
+    restart: always
+
+  elasticsearch:
+    image: elasticsearch:6.4.1
+    ports:
+      - 9200:9200
+      - 9300:9300
+    restart: always
+
+  db:
+    image: mysql:5.7.23
+    ports:
+      - 3306:3306
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    volumes:
+      - db-data-volume:/var/lib/mysql
+
+  webpacker:
+    image: ${DOCKER_IMAGE_NAME-demagog}
+    command: ["bin/webpack-dev-server"]
+    env_file:
+      - .env.webpacker
+    volumes:
+      - ./app:/app/app
+      - ./public:/app/public
+    ports:
+      - 3035:3035
+
+  web:
+    image: ${DOCKER_IMAGE_NAME-demagog}
+    build:
+      context: .
+      args:
+        precompileassets: 'not'
+    links:
+      - db
+      - redis
+      - elasticsearch
+      - webpacker
+    ports:
+      - 3000:3000
+    environment:
+      DB_HOST: db
+      WEBPACKER_DEV_SERVER_HOST: webpacker
+
+    command: bundle exec rails s -b 0.0.0.0
+    volumes:
+      - ./app:/app/app
+      - ./public:/app/public
+
+volumes:
+    db-data-volume:
