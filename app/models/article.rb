@@ -8,14 +8,10 @@ class Article < ApplicationRecord
   after_initialize :set_defaults
 
   belongs_to :article_type
-  belongs_to :source, optional: true
   belongs_to :user, optional: true
   belongs_to :document, class_name: "Attachment", optional: true
   has_many :article_has_segments, dependent: :destroy
   has_many :segments, through: :article_has_segments
-  has_many :statements, through: :segments
-  has_many :speakers, through: :statements
-  has_many :attachments, through: :speakers
 
   after_update :invalidate_caches
 
@@ -40,10 +36,16 @@ class Article < ApplicationRecord
     self.user
   end
 
+  def source
+    source_statements_segment = segments.source_statements_type_only.first
+    source_statements_segment ? source_statements_segment.source : nil
+  end
+
   def unique_speakers
     return [] unless source
 
-    source.speakers
+    source
+      .speakers
       .distinct
       .order(last_name: :asc, first_name: :asc)
   end
@@ -63,9 +65,11 @@ class Article < ApplicationRecord
       article[:segments] = article[:segments].map do |seg|
         if seg[:segment_type] == Segment::TYPE_TEXT
           Segment.new(segment_type: seg[:segment_type], text_html: seg[:text_html], text_slatejson: seg[:text_slatejson])
+        elsif seg[:segment_type] == Segment::TYPE_SOURCE_STATEMENTS
+          source = Source.find(seg[:source_id])
+          Segment.new(segment_type: seg[:segment_type], source: source)
         else
-          statements = Statement.where(id: seg[:statements])
-          Segment.new(segment_type: seg[:segment_type], statements: statements)
+          raise "Creating segment of type #{seg[:segment_type]} is not implemented"
         end
       end
     end
@@ -87,11 +91,13 @@ class Article < ApplicationRecord
           text_html: seg[:text_html],
           text_slatejson: seg[:text_slatejson]
         )
-      else
+      elsif seg[:segment_type] == Segment::TYPE_SOURCE_STATEMENTS
         segment.assign_attributes(
           segment_type: seg[:segment_type],
-          statements: Statement.where(id: seg[:statements])
+          source: Source.find(seg[:source_id])
         )
+      else
+        raise "Updating segment of type #{seg[:segment_type]} is not implemented"
       end
 
       segment

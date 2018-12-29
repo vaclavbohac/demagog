@@ -7,10 +7,6 @@ class Statement < ApplicationRecord
   belongs_to :source, optional: true
   has_many :comments
   has_many :attachments, through: :speaker
-  has_many :segment_has_statements
-  has_many :segments, through: :segment_has_statements
-  has_many :article_has_segments, through: :segments
-  has_many :articles, through: :article_has_segments
   has_one :assessment
   has_one :veracity, through: :assessment
   has_one :statement_transcript_position
@@ -121,11 +117,15 @@ class Statement < ApplicationRecord
     "#{speaker.first_name} #{speaker.last_name}: „#{content.truncate(50, omission: '…')}‟"
   end
 
+  def mentioning_articles
+    Article.joins(:segments).where(segments: { source_id: source.id }).distinct.order(published_at: :desc)
+  end
+
   private
     def invalidate_caches
       Stats::Speaker::StatsBuilderFactory.new.create(Settings).invalidate(speaker)
 
-      articles.each do |article|
+      mentioning_articles.each do |article|
         Stats::Article::StatsBuilderFactory.new.create(Settings).invalidate(article)
       end
     end
