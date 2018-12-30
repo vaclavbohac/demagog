@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require "elasticsearch/model"
+
 class Article < ApplicationRecord
   extend FriendlyId
+
+  include Elasticsearch::Model
 
   default_scope { where(deleted_at: nil) }
 

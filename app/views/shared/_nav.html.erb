@@ -53,17 +53,10 @@
       </li>
     <% end %>
     <li>
-      <form id="search" onsubmit="searchFn(); return false;">
-        <script>
-          function searchFn() {
-            var q = document.getElementById('searchQuery').value;
-            window.open('https://search.seznam.cz/?q=' + encodeURIComponent(q) + '+site%3Ademagog.cz', '_blank');
-          }
-        </script>
-          
-        <input id="searchQuery" type="text" placeholder="">
-        <a href="#" onclick="searchFn(); return false;">Hledat</a>
-      </form>
+      <%= form_tag search_index_path, method: :get, class: 'search' do |t| %>
+        <%= text_field_tag :query, params[:query] %>
+        <%= submit_tag 'Hledat', name: nil %>
+      <% end %>
     </li>
   </ul>
 </nav>

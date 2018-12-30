@@ -32,6 +32,24 @@ docker-compose exec web yarn jest
 docker-compose up -d --no-deps --build <service_name>
 ```
 
+## Elasticsearch integration
+
+Elasticsearch server is installed by docker-compose and will be running on http://localhost:9200 by default
+
+First run:
+```
+# It's necessary to use the parameters FORCE=y as it creates the elasticsearch indexes
+docker-compose exec web rails environment elasticsearch:import:all FORCE=y
+
+# If you are not using docker for development run:
+rails environment elasticsearch:import:all FORCE=y
+```
+
+Regular data refresh:
+```
+docker-compose exec web rails environment elasticsearch:import:all
+```
+
 ## Configuration
 
 Site configuration is done via .env file (see dotenv project).

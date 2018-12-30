@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
+  get "search/index"
   get "page_controller/show"
   devise_for :users, controllers: { omniauth_callbacks: "users/omniauth_callbacks" }
 
