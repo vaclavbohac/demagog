@@ -95,6 +95,10 @@ gem "htmlbeautifier"
 
 gem "sentry-raven"
 
+# Add elasticsearch integration
+gem "elasticsearch-model"
+gem "elasticsearch-rails"
+
 # Use Capistrano for deployment
 group :development do
   gem "capistrano", require: false
