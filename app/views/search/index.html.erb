@@ -1,7 +1,38 @@
-<div>Results for: "<%= params[:query] %>"</div>
+<div class="search-result-page">
+  <div>Results for: "<%= params[:query] %>"</div>
 
-<% @results.each do |result| %>
-  <div>
-    <h1><%= result.title %></h1>
-  </div>
-<% end %>
+  <% if @results.empty? %>
+    <div>No results found</div>
+  <% else %>
+    <div>Found <%= @results.total_count %> results</div>
+
+    <% @results.page(params[:page]).records.to_a.each do |result| %>
+      <div>
+        <% if result.class.name == Speaker.name %>
+          <h1><%= link_to result.full_name, speaker_path(result) %></h1>
+        <% end %>
+
+        <% if result.class.name == Body.name %>
+          <h1><%= link_to result.name, speakers_path(result) %></h1>
+        <% end %>
+
+        <% if result.class.name == Article.name %>
+          <h1><%= result.title %></h1>
+        <% end %>
+
+        <% if result.class.name == Statement.name %>
+          <p>&quot;<%= result.content %>&quot;</p>
+          <% if @result.speaker? %>
+            <div>&mdash;<% @result.speaker?.full_name %></div>
+            <% end %>
+        <% end %>
+
+        <% if result.class.name == Page.name %>
+          <h1><%= result.title %></h1>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%= paginate @results %>
+  <% end %>
+</div>

@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require "elasticsearch/model"
+
 class Speaker < ApplicationRecord
+  include Elasticsearch::Model
+
   has_many :memberships, dependent: :destroy
   has_many :bodies, through: :memberships
   has_many :statements
