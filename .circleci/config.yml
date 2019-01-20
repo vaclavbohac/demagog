@@ -23,6 +23,8 @@ jobs:
          - MYSQL_HOST=127.0.0.1
          - MYSQL_ROOT_HOST=%
 
+      - image: elasticsearch:6.4.1
+
     working_directory: ~/repo
 
     steps:
@@ -80,6 +82,8 @@ jobs:
       # run tests!
       - run:
           name: run tests
+          environment:
+            - CIRCLE_CI_ELASTICSEARCH_URI=localhost:9200
           command: |
             bundle exec rake test
 
