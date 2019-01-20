@@ -95,8 +95,7 @@
   .search {
     display: flex;
 
-    input,
-    a {
+    input {
       display: block;
       margin: 0;
       padding: 0 0.2rem;
@@ -104,11 +103,11 @@
       font-size: var(--normal-typesize);
     }
 
-    input {
+    input[type="search"] {
       max-width: 7rem;
     }
 
-    a {
+    input[type="submit"] {
       padding: 0 0.5rem;
       background-color: var(--silver);
       color: var(--jumbo);

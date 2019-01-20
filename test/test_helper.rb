@@ -2,6 +2,7 @@
 
 require File.expand_path("../../config/environment", __FILE__)
 require "rails/test_help"
+require "elasticsearch"
 
 class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
@@ -17,5 +18,25 @@ class ActiveSupport::TestCase
   private
     def ensure_veracities
       [:true, :untrue, :misleading, :unverifiable].each { |key| create(key) }
+    end
+
+    def elasticsearch_setup
+      Elasticsearch::Model.client = Elasticsearch::Client.new url: "http://localhost:9250", log: false
+    end
+
+    def elasticsearch_index(models)
+      models.each do |model|
+        model.__elasticsearch__.create_index!
+        model.__elasticsearch__.import
+      end
+
+      # Let the elasticsearch server process the indexed documents
+      Kernel.sleep(1)
+    end
+
+    def elasticsearch_cleanup(models)
+      models.each do |model|
+        model.__elasticsearch__.delete_index!
+      end
     end
 end

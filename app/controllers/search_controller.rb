@@ -4,6 +4,31 @@ require "elasticsearch/model"
 
 class SearchController < ApplicationController
   def index
-    @results = Elasticsearch::Model.search(params[:query], [Article, Page, Statement, Speaker, Body])
+    query = escape_query(params[:query])
+
+    @speakers = Speaker.search(query)
+    @articles = Article.search(query)
+    @statements = Statement.search(query)
   end
+
+  def show
+    query = escape_query(params[:query])
+
+    @results = case params[:type].to_s.to_sym
+               when :articles
+                 Article.search(query)
+               when :statements
+                 Statement.search(query)
+               when :speakers
+                 Speaker.search(query)
+               else
+                 raise "Unknown type #{params[:type]}"
+               end
+  end
+
+  private
+    def escape_query(query)
+      escaped_characters = Regexp.escape('\\/+-&|!(){}[]^~*?:')
+      query.gsub(/([#{escaped_characters}])/, '\\\\\1')
+    end
 end

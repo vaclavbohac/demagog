@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  get "search/index"
   get "page_controller/show"
+
   devise_for :users, controllers: { omniauth_callbacks: "users/omniauth_callbacks" }
 
   devise_scope :user do
@@ -53,6 +53,8 @@ Rails.application.routes.draw do
   get "politici/:id(/*name)" => "speaker#show", as: "speaker", concerns: :paginatable
   get "archiv" => "archive#index", as: "archive", concerns: :paginatable
   get "stranka/:slug" => "page#show", as: "page"
+  get "search/index"
+  get "search/show"
 
   root to: "homepage#index"
 

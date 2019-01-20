@@ -13,6 +13,13 @@ services:
       - 9300:9300
     restart: always
 
+  elasticsearch_test:
+    image: elasticsearch:6.4.1
+    ports:
+      - 9250:9200
+      - 9350:9300
+    restart: always
+
   db:
     image: mysql:5.7.23
     ports:
