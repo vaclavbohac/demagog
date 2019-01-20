@@ -23,7 +23,7 @@ class SearchController < ApplicationController
                  Speaker.search(query)
                else
                  raise "Unknown type #{params[:type]}"
-               end
+    end
   end
 
   private
