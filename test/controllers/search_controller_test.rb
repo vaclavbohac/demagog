@@ -5,10 +5,6 @@ require "test_helper"
 class SearchControllerTest < ActionDispatch::IntegrationTest
   MODELS = [Article, Page, Statement, Speaker, Body]
 
-  setup do
-    elasticsearch_setup
-  end
-
   teardown do
     elasticsearch_cleanup MODELS
   end

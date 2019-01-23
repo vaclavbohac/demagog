@@ -20,11 +20,6 @@ class ActiveSupport::TestCase
       [:true, :untrue, :misleading, :unverifiable].each { |key| create(key) }
     end
 
-    def elasticsearch_setup
-      url = ENV["CIRCLE_CI_ELASTICSEARCH_URI"] || "http://localhost:9250"
-      Elasticsearch::Model.client = Elasticsearch::Client.new url: url, log: false
-    end
-
     def elasticsearch_index(models)
       models.each do |model|
         model.__elasticsearch__.create_index!

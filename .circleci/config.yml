@@ -83,7 +83,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            CIRCLE_CI_ELASTICSEARCH_URI=localhost:9200 bundle exec rake test
+            bundle exec rake test
 
       # run more tests!
       # TODO: uncomment when we have some JS tests

@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-require "elasticsearch/model"
-
 class Page < ApplicationRecord
   extend FriendlyId
 
-  include Elasticsearch::Model
+  include Searchable
 
   default_scope { where(deleted_at: nil) }
 

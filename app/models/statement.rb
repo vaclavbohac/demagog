@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require "elasticsearch/model"
-
 class Statement < ApplicationRecord
   include ActiveModel::Dirty
-  include Elasticsearch::Model
+  include Searchable
 
   belongs_to :speaker
   belongs_to :source, optional: true

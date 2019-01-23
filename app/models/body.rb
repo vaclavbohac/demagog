@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require "elasticsearch/model"
-
 class Body < ApplicationRecord
-  include Elasticsearch::Model
+  include Searchable
 
   has_many :memberships, dependent: :destroy
   has_many :speakers, through: :memberships
