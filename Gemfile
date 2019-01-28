@@ -62,6 +62,9 @@ gem "omniauth-google-oauth2"
 # Use redis for store layer
 gem "redis", "~> 4.0", ">= 4.0.1"
 
+# Use sidekiq for background jobs
+gem "sidekiq"
+
 # Use Amazon S3 for active storage for production environment
 gem "aws-sdk-s3", require: false
 
