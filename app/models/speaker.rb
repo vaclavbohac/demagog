@@ -3,6 +3,10 @@
 class Speaker < ApplicationRecord
   include Searchable
 
+  after_create  { ElasticsearchWorker.perform_async(:speaker, :index,  self.id) }
+  after_update  { ElasticsearchWorker.perform_async(:speaker, :update,  self.id) }
+  after_destroy { ElasticsearchWorker.perform_async(:speaker, :destroy,  self.id) }
+
   has_many :memberships, dependent: :destroy
   has_many :bodies, through: :memberships
   has_many :statements
