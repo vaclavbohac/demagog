@@ -46,7 +46,7 @@ namespace :deploy do
           execute "rake assets:clobber"
 
           # And compile fresh new assets (includes JS apps)
-          execute "rake assets:precompile"
+          execute "RAILS_ENV=production rake assets:precompile"
         end
       end
 
