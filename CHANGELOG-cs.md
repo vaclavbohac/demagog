@@ -2,6 +2,9 @@
 
 Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## 19. února 2019
+- Migrace na nový databázový systém - postgresql
+
 ## 21. ledna 2019
 - Opraveno: Odstranění uživatelé neblokují změnu ověřovatele výroku
 
