@@ -27,13 +27,9 @@ class Statement < ApplicationRecord
         :statement_transcript_position
       )
       .order(
-        # -column DESC means we sort in ascending order, but we want NULL values at the end
-        # See https://stackoverflow.com/questions/2051602/mysql-orderby-a-number-nulls-last
-        # It means that when user provides manual sorting in source_order columns, it will be
-        # used first and rest of the statements will be after
-        Arel.sql("- source_order DESC"),
-        Arel.sql("- statement_transcript_positions.start_line DESC"),
-        Arel.sql("- statement_transcript_positions.start_offset DESC"),
+        Arel.sql("source_order ASC NULLS LAST"),
+        Arel.sql("statement_transcript_positions.start_line ASC NULLS LAST"),
+        Arel.sql("statement_transcript_positions.start_offset ASC NULLS LAST"),
         "excerpted_at ASC"
       )
   }
@@ -59,7 +55,7 @@ class Statement < ApplicationRecord
     # We first call order and then the published scope so the important DESC
     # order rule is used first and then the ones from scope ordered
     # (source_order, etc.)
-    order(important: :desc).published
+    order(important: :asc).published
   }
 
   def self.interesting_statements
