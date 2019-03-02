@@ -34,5 +34,14 @@ class ActiveSupport::TestCase
       models.each do |model|
         model.__elasticsearch__.delete_index!
       end
+
+    def assert_discardable(subject)
+      assert subject.is_a?(ActiveRecord::Base), "Subject expected to be instance of a model class"
+      assert subject.respond_to?(:discard), "Missing `include Discardable` in the model class?"
+
+      subject.discard
+
+      assert_not_nil subject.deleted_at
+      assert subject.discarded?
     end
 end

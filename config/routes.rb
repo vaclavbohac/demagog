@@ -67,6 +67,11 @@ Rails.application.routes.draw do
   # Shortcut redirect
   get "workshopy", to: redirect("/diskuze/workshopy-demagogcz")
 
+  # Dynamic error pages
+  get "/404", to: "error#not_found"
+  get "/422", to: "error#unprocessable_entity"
+  get "/500", to: "error#internal_server_error"
+
   # Redirects from legacy web server
   get "diskusie/:id/:slug" => "redirect#index", as: "redirect_discussion"
   get ":slug" => "redirect#index", as: "redirect_static"
