@@ -31,16 +31,6 @@ import * as ActiveStorage from 'activestorage';
 
 ActiveStorage.start();
 
-// import { Classes, FormGroup } from '@blueprintjs/core';
-
-// We use the required label the other way around: to mark fields which
-// are NOT required
-// FormGroup.DEFAULT_REQUIRED_CONTENT = (
-//   <small className={Classes.TEXT_MUTED} style={{ paddingLeft: 7 }}>
-//     nepovinné
-//   </small>
-// );
-
 import App from './App';
 import rootEpic from './epics';
 import rootReducer from './reducers';
