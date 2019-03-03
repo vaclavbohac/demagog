@@ -3,6 +3,7 @@
 Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## 3. března 2019
+- Změněno: Komentáře u výroku z nedávné doby (dnes a včera) jsou ukázány s "dnes" a "včera" pro lepší přehlednost (iterujem, bejby!) ([#334](https://github.com/Demagog2/demagog/pull/334))
 - Změněno: Komentáře u výroku z nedávné doby (max 24h) jsou ukázány s relativním časem pro lepší přehlednost ([#333](https://github.com/Demagog2/demagog/pull/333))
 - Opraveno: Výroky jsou znovu korektně řazeny s důležitými na začátku, ne na konci ([#332](https://github.com/Demagog2/demagog/pull/332))
 
