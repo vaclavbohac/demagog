@@ -2,6 +2,15 @@
 
 Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## 3. března 2019
+- Změněno: Komentáře u výroku z nedávné doby (max 24h) jsou ukázány s relativním časem pro lepší přehlednost ([#333](https://github.com/Demagog2/demagog/pull/333))
+- Opraveno: Výroky jsou znovu korektně řazeny s důležitými na začátku, ne na konci ([#332](https://github.com/Demagog2/demagog/pull/332))
+
+## 2. března 2019
+- Změněno: Filtrování výroků na detailu diskuze se reflektuje v url, takže se při reloadu neztratí ([#330](https://github.com/Demagog2/demagog/pull/330))
+- Změněno: Vyhledávání v administraci už funguje i bez diakritiky (např. hledání "babis" najde našeho současného premiéra) ([#329](https://github.com/Demagog2/demagog/pull/329))
+- Přidáno: Máme nově stránku, která se zobrazí při špatném dotazu na web, či při chybě ([#288](https://github.com/Demagog2/demagog/issues/288))
+
 ## 22. února 2019
 - Opraveno: Lze uploadovat obrázek — ať už obsahový, k článku, nebo kdekoliv jinde ([#316](https://github.com/Demagog2/demagog/pull/316))
 
