@@ -2,6 +2,8 @@ import * as React from 'react';
 
 import { Button, Classes } from '@blueprintjs/core';
 import anchorme from 'anchorme';
+import { format, isToday, isYesterday } from 'date-fns';
+import * as dateFnsCsLocale from 'date-fns/locale/cs';
 import { css, cx } from 'emotion';
 import { Formik } from 'formik';
 import { Mutation, Query } from 'react-apollo';
@@ -18,7 +20,6 @@ import {
 } from '../operation-result-types';
 import { CreateComment } from '../queries/mutations';
 import { GetStatementComments, GetUsers } from '../queries/queries';
-import { displayDateTime } from '../utils';
 import Authorize from './Authorize';
 import Loading from './Loading';
 
@@ -67,7 +68,7 @@ class StatementComments extends React.PureComponent<IProps> {
                     {comment.user.first_name} {comment.user.last_name}
                   </strong>
                   <small className={Classes.TEXT_MUTED} style={{ marginLeft: 10 }}>
-                    {displayDateTime(comment.created_at)}
+                    {formatCreatedAt(comment.created_at)}
                   </small>
                   <p
                     style={{ marginTop: 3 }}
@@ -269,6 +270,17 @@ const CommentInput = (props: ICommentInputProps) => {
       }}
     </GetUsersQueryComponent>
   );
+};
+
+const formatCreatedAt = (createdAt: string) => {
+  let datePart = format(createdAt, 'dd D. M. YYYY', { locale: dateFnsCsLocale });
+  if (isToday(createdAt)) {
+    datePart = 'dnes';
+  } else if (isYesterday(createdAt)) {
+    datePart = 'včera';
+  }
+
+  return datePart + format(createdAt, ' H:mm', { locale: dateFnsCsLocale });
 };
 
 export default StatementComments;

@@ -56,7 +56,7 @@ class Statement < ApplicationRecord
     # We first call order and then the published scope so the important DESC
     # order rule is used first and then the ones from scope ordered
     # (source_order, etc.)
-    order(important: :asc).published
+    order(important: :desc).published
   }
 
   def self.interesting_statements
@@ -116,7 +116,7 @@ class Statement < ApplicationRecord
   end
 
   def mentioning_articles
-    Article.joins(:segments).where(segments: { source_id: source.id }).distinct.order(published_at: :desc)
+    Article.joins(:segments).where(article_segments: { source_id: source.id }).distinct.order(published_at: :desc)
   end
 
   private

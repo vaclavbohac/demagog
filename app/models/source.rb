@@ -3,7 +3,7 @@
 class Source < ApplicationRecord
   include Discardable
 
-  has_many :segments
+  has_many :article_segments
   has_many :statements
   has_many :statement_transcript_positions
   has_and_belongs_to_many :speakers
@@ -14,7 +14,7 @@ class Source < ApplicationRecord
   default_scope { kept }
 
   def self.matching_name(name)
-    where("name LIKE ?", "%#{name}%")
+    where("name ILIKE ? OR UNACCENT(name) ILIKE ?", "%#{name}%", "%#{name}%")
   end
 
   def update_statements_source_order(ordered_statement_ids)

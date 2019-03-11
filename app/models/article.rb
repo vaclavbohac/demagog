@@ -12,7 +12,7 @@ class Article < ApplicationRecord
   belongs_to :article_type
   belongs_to :user, optional: true
   belongs_to :document, class_name: "Attachment", optional: true
-  has_many :segments, -> { order(order: :asc) }
+  has_many :segments, class_name: "ArticleSegment", dependent: :destroy
 
   after_update :invalidate_caches
 
@@ -30,7 +30,7 @@ class Article < ApplicationRecord
   end
 
   def self.matching_title(title)
-    where("title LIKE ?", "%#{title}%")
+    where("title ILIKE ? OR UNACCENT(title) ILIKE ?", "%#{title}%", "%#{title}%")
   end
 
   def author
@@ -63,12 +63,21 @@ class Article < ApplicationRecord
     article[:article_type] = ArticleType.find_by!(name: article[:article_type])
 
     if article[:segments]
-      article[:segments] = article[:segments].map do |seg|
-        if seg[:segment_type] == Segment::TYPE_TEXT
-          Segment.new(segment_type: seg[:segment_type], text_html: seg[:text_html], text_slatejson: seg[:text_slatejson])
-        elsif seg[:segment_type] == Segment::TYPE_SOURCE_STATEMENTS
+      article[:segments] = article[:segments].map.with_index(0) do |seg, order|
+        if seg[:segment_type] == ArticleSegment::TYPE_TEXT
+          ArticleSegment.new(
+            segment_type: seg[:segment_type],
+            text_html: seg[:text_html],
+            text_slatejson: seg[:text_slatejson],
+            order: order
+          )
+        elsif seg[:segment_type] == ArticleSegment::TYPE_SOURCE_STATEMENTS
           source = Source.find(seg[:source_id])
-          Segment.new(segment_type: seg[:segment_type], source: source)
+          ArticleSegment.new(
+            segment_type: seg[:segment_type],
+            source: source,
+            order: order
+          )
         else
           raise "Creating segment of type #{seg[:segment_type]} is not implemented"
         end
@@ -86,14 +95,14 @@ class Article < ApplicationRecord
     article[:segments] = article[:segments].map.with_index(0) do |seg, order|
       segment = ensure_segment(seg[:id], article_id)
 
-      if seg[:segment_type] == Segment::TYPE_TEXT
+      if seg[:segment_type] == ArticleSegment::TYPE_TEXT
         segment.assign_attributes(
           segment_type: seg[:segment_type],
           text_html: seg[:text_html],
           text_slatejson: seg[:text_slatejson],
           order: order
         )
-      elsif seg[:segment_type] == Segment::TYPE_SOURCE_STATEMENTS
+      elsif seg[:segment_type] == ArticleSegment::TYPE_SOURCE_STATEMENTS
         segment.assign_attributes(
           segment_type: seg[:segment_type],
           source: Source.find(seg[:source_id]),
@@ -119,7 +128,7 @@ class Article < ApplicationRecord
     begin
       article.segments.find(segment_id)
     rescue ActiveRecord::RecordNotFound => err
-      Segment.new
+      ArticleSegment.new
     end
   end
 

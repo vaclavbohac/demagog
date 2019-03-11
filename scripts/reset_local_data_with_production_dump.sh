@@ -7,6 +7,10 @@ rm -r demagog_production_active_storage_blobs
 unzip -q demagog_production_active_storage_blobs.zip
 cd -
 
+psql -U postgres -c 'REVOKE CONNECT ON DATABASE demagog_development FROM public;'
+psql -U postgres -c "SELECT pg_terminate_backend(pg_stat_activity.pid)
+FROM pg_stat_activity
+WHERE pg_stat_activity.datname = 'demagog_development';";
 psql -U postgres -c 'DROP DATABASE demagog_development';
 psql -U postgres -c 'CREATE DATABASE demagog_development';
 psql -d demagog_development -U postgres -f /tmp/demagog_production_db.sql
