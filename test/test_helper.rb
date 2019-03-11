@@ -34,6 +34,7 @@ class ActiveSupport::TestCase
       models.each do |model|
         model.__elasticsearch__.delete_index!
       end
+    end
 
     def assert_discardable(subject)
       assert subject.is_a?(ActiveRecord::Base), "Subject expected to be instance of a model class"

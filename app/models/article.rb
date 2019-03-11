@@ -7,6 +7,10 @@ class Article < ApplicationRecord
 
   default_scope { kept }
 
+  after_create  { ElasticsearchWorker.perform_async(:article, :index,  self.id) }
+  after_update  { ElasticsearchWorker.perform_async(:article, :update,  self.id) }
+  after_discard { ElasticsearchWorker.perform_async(:article, :destroy,  self.id) }
+
   after_initialize :set_defaults
 
   belongs_to :article_type

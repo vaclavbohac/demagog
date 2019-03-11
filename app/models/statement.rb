@@ -5,6 +5,10 @@ class Statement < ApplicationRecord
   include Searchable
   include Discardable
 
+  after_create  { ElasticsearchWorker.perform_async(:statement, :index,  self.id) }
+  after_update  { ElasticsearchWorker.perform_async(:statement, :update,  self.id) }
+  after_discard { ElasticsearchWorker.perform_async(:statement, :destroy,  self.id) }
+
   belongs_to :speaker
   belongs_to :source, optional: true
   has_many :comments
