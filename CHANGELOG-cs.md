@@ -2,6 +2,9 @@
 
 Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## 17. března 2019
+- Přidáno: Stránka "API pro vývojáře" s dokumentací GraphQL API ([#346](https://github.com/Demagog2/demagog/pull/346))
+
 ## 14. března 2019
 - Změněno: NFNZ mezi podporovateli, předchozí US embassy a Visegrad fund skryti
 
