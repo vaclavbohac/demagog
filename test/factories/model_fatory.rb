@@ -76,6 +76,8 @@ FactoryBot.define do
   end
 
   factory :user do
+    first_name "John"
+    last_name "Doe"
     active true
 
     trait :admin do

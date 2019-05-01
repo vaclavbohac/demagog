@@ -12,7 +12,11 @@ import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import apolloClient from '../apolloClient';
-import { GetNotificationsQuery, GetNotificationsQueryVariables } from '../operation-result-types';
+import {
+  GetNotificationsQuery,
+  GetNotificationsQueryVariables,
+  UpdateNotificationMutationVariables,
+} from '../operation-result-types';
 import { MarkUnreadNotificationsAsRead, UpdateNotification } from '../queries/mutations';
 import { GetNotifications } from '../queries/queries';
 import { displayDateTime } from '../utils';
@@ -43,19 +47,24 @@ class Notifications extends React.Component<IProps, IState> {
       return;
     }
 
-    if (notification.read_at) {
-      this.props.history.push(notification.action_link);
+    if (notification.readAt) {
+      this.props.history.push(notification.actionLink);
     } else {
       this.markAsRead(notification).then(() => {
-        this.props.history.push(notification.action_link);
+        this.props.history.push(notification.actionLink);
       });
     }
   };
 
   public markAsRead = (notification) => {
+    const variables: UpdateNotificationMutationVariables = {
+      id: notification.id,
+      input: { readAt: DateTime.local().toISOTime() },
+    };
+
     return apolloClient.mutate({
       mutation: UpdateNotification,
-      variables: { id: notification.id, input: { read_at: DateTime.local().toISOTime() } },
+      variables,
       refetchQueries: [
         {
           query: GetNotifications,
@@ -66,9 +75,14 @@ class Notifications extends React.Component<IProps, IState> {
   };
 
   public markAsUnread = (notification) => {
+    const variables: UpdateNotificationMutationVariables = {
+      id: notification.id,
+      input: { readAt: null },
+    };
+
     return apolloClient.mutate({
       mutation: UpdateNotification,
-      variables: { id: notification.id, input: { read_at: null } },
+      variables,
       refetchQueries: [
         {
           query: GetNotifications,
@@ -154,7 +168,7 @@ class Notifications extends React.Component<IProps, IState> {
                             td {
                               border-bottom: 1px solid rgba(16, 22, 26, 0.15);
                             }
-                            background-color: ${notification.read_at ? 'transparent' : '#cdecff'};
+                            background-color: ${notification.readAt ? 'transparent' : '#cdecff'};
                           `}
                           onClick={this.handleNotificationClick(notification)}
                         >
@@ -162,19 +176,19 @@ class Notifications extends React.Component<IProps, IState> {
                             {notification.content}
                             <br />
                             <small className={Classes.TEXT_MUTED}>
-                              {distanceInWordsToNow(notification.created_at, {
+                              {distanceInWordsToNow(notification.createdAt, {
                                 locale: dateFnsCsLocale,
                                 addSuffix: true,
                               })}
                               {' — '}
-                              {displayDateTime(notification.created_at)}
+                              {displayDateTime(notification.createdAt)}
                             </small>
                           </td>
                           <td>
                             <Button
                               type="button"
                               text={
-                                notification.read_at
+                                notification.readAt
                                   ? 'Označit za nepřečtené'
                                   : 'Označit za přečtené'
                               }
@@ -182,7 +196,7 @@ class Notifications extends React.Component<IProps, IState> {
                                 white-space: nowrap;
                               `}
                               onClick={() =>
-                                notification.read_at
+                                notification.readAt
                                   ? this.markAsUnread(notification)
                                   : this.markAsRead(notification)
                               }
@@ -190,7 +204,7 @@ class Notifications extends React.Component<IProps, IState> {
                           </td>
                         </tr>
                       ))}
-                      {data.notifications.total_count > data.notifications.items.length && (
+                      {data.notifications.totalCount > data.notifications.items.length && (
                         <tr>
                           <td colSpan={6} style={{ textAlign: 'center' }}>
                             <Button

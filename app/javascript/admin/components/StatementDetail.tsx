@@ -16,7 +16,6 @@ import { ApolloError } from 'apollo-client';
 import * as classNames from 'classnames';
 import { css } from 'emotion';
 import { Formik } from 'formik';
-import { get, isEqual, set } from 'lodash';
 import { Mutation, Query } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
@@ -32,7 +31,7 @@ import {
 } from '../constants';
 import {
   GetStatementQuery,
-  UpdateStatementInputType,
+  UpdateStatementInput,
   UpdateStatementMutation,
   UpdateStatementMutationVariables,
 } from '../operation-result-types';
@@ -123,13 +122,13 @@ class StatementDetail extends React.Component<IProps, IState> {
             content: statement.content,
             published: statement.published,
             important: statement.important,
-            count_in_statistics: statement.count_in_statistics,
+            count_in_statistics: statement.countInStatistics,
             assessment: {
-              evaluation_status: statement.assessment.evaluation_status,
+              evaluation_status: statement.assessment.evaluationStatus,
               veracity_id: statement.assessment.veracity ? statement.assessment.veracity.id : null,
-              short_explanation: statement.assessment.short_explanation,
-              explanation_html: statement.assessment.explanation_html,
-              explanation_slatejson: statement.assessment.explanation_slatejson,
+              short_explanation: statement.assessment.shortExplanation,
+              explanation_html: statement.assessment.explanationHtml,
+              explanation_slatejson: statement.assessment.explanationSlatejson,
               evaluator_id: statement.assessment.evaluator
                 ? statement.assessment.evaluator.id
                 : null,
@@ -182,26 +181,20 @@ class StatementDetail extends React.Component<IProps, IState> {
 
                       setSubmitting(true);
 
-                      const statementInput: UpdateStatementInputType = {};
-
-                      const paths = [
-                        'assessment.veracity_id',
-                        'assessment.short_explanation',
-                        'assessment.evaluator_id',
-                        'assessment.evaluation_status',
-                        'assessment.explanation_slatejson',
-                        'assessment.explanation_html',
-                        'count_in_statistics',
-                        'published',
-                        'content',
-                        'important',
-                      ];
-
-                      paths.forEach((path) => {
-                        if (!isEqual(get(initialValues, path), get(values, path))) {
-                          set(statementInput, path, get(values, path));
-                        }
-                      });
+                      const statementInput: UpdateStatementInput = {
+                        assessment: {
+                          veracityId: values.assessment.veracity_id,
+                          evaluationStatus: values.assessment.evaluation_status,
+                          evaluatorId: values.assessment.evaluator_id,
+                          explanationHtml: values.assessment.explanation_html,
+                          explanationSlatejson: values.assessment.explanation_slatejson,
+                          shortExplanation: values.assessment.short_explanation,
+                        },
+                        countInStatistics: values.count_in_statistics,
+                        content: values.content,
+                        important: values.important,
+                        published: values.published,
+                      };
 
                       this.updateStatementPromise = updateStatement({
                         variables: { id: parseInt(statement.id, 10), statementInput },
@@ -342,7 +335,7 @@ class StatementDetail extends React.Component<IProps, IState> {
                         <div style={{ display: 'flex', marginTop: 20, marginBottom: 30 }}>
                           <div style={{ flex: '2 0' }}>
                             <h5 className={Classes.HEADING}>
-                              {statement.speaker.first_name} {statement.speaker.last_name}
+                              {statement.speaker.firstName} {statement.speaker.lastName}
                             </h5>
                             {canEditStatementContent ? (
                               <textarea
@@ -359,22 +352,22 @@ class StatementDetail extends React.Component<IProps, IState> {
                             )}
                             <p className={Classes.TEXT_MUTED}>
                               Diskuze: {statement.source.name}, {statement.source.medium.name} ze
-                              dne {displayDate(statement.source.released_at)}
-                              {statement.source.media_personalities.length > 0 && (
+                              dne {displayDate(statement.source.releasedAt)}
+                              {statement.source.mediaPersonalities.length > 0 && (
                                 <>
                                   ,{' '}
-                                  {statement.source.media_personalities
+                                  {statement.source.mediaPersonalities
                                     .map((p) => p.name)
                                     .join(' & ')}
                                 </>
                               )}
-                              {statement.source.source_url && (
+                              {statement.source.sourceUrl && (
                                 <>
-                                  , <a href={statement.source.source_url}>odkaz</a>
+                                  , <a href={statement.source.sourceUrl}>odkaz</a>
                                 </>
                               )}
                               {' — '}
-                              {statement.statement_transcript_position ? (
+                              {statement.statementTranscriptPosition ? (
                                 <Link
                                   to={`/admin/sources/${
                                     statement.source.id
@@ -535,8 +528,8 @@ class StatementDetail extends React.Component<IProps, IState> {
                               <div style={{ flex: '2', paddingTop: 6 }}>
                                 {statement.source.expert ? (
                                   <>
-                                    {statement.source.expert.first_name}{' '}
-                                    {statement.source.expert.last_name}
+                                    {statement.source.expert.firstName}{' '}
+                                    {statement.source.expert.lastName}
                                   </>
                                 ) : (
                                   <span className={Classes.TEXT_MUTED}>Nepřiřazený</span>

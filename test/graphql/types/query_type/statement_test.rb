@@ -15,7 +15,7 @@ class QueryTypeStatementTest < GraphQLTestCase
 
     result = execute(query_string)
 
-    assert_equal "#{statement.id}", result["data"]["statement"]["id"]
+    assert_equal "#{statement.id}", result.data.statement.id
   end
 
   test "statement should not return existing unpublished statement" do
@@ -30,7 +30,7 @@ class QueryTypeStatementTest < GraphQLTestCase
 
     result = execute_with_errors(query_string)
 
-    assert_equal "Could not find Statement with id=#{statement.id}", result["errors"][0]["message"]
+    assert_equal "Could not find Statement with id=#{statement.id}", result.errors[0].message
   end
 
   test "statement should fail when trying to include unpublished without auth" do
@@ -38,7 +38,7 @@ class QueryTypeStatementTest < GraphQLTestCase
 
     query_string = "
       query {
-        statement(id: #{statement.id}, include_unpublished: true) {
+        statement(id: #{statement.id}, includeUnpublished: true) {
           id
         }
       }"
@@ -53,13 +53,13 @@ class QueryTypeStatementTest < GraphQLTestCase
 
     query_string = "
       query {
-        statement(id: #{statement.id}, include_unpublished: true) {
+        statement(id: #{statement.id}, includeUnpublished: true) {
           id
         }
       }"
 
     result = execute(query_string, context: authenticated_user_context)
 
-    assert_equal "#{statement.id}", result["data"]["statement"]["id"]
+    assert_equal "#{statement.id}", result.data.statement.id
   end
 end

@@ -1,60 +1,53 @@
 # frozen_string_literal: true
 
-Types::SourceType = GraphQL::ObjectType.define do
-  name "Source"
+module Types
+  class StatementsCountsByEvaluationStatusItemType < BaseObject
+    field :evaluation_status, String, null: false, hash_key: :evaluation_status
+    field :statements_count, Int, null: false, hash_key: :statements_count
+  end
 
-  field :id, !types.ID
-  field :released_at, !types.String
-  field :source_url, types.String
-  field :medium, !Types::MediumType
-  field :media_personalities, !types[!Types::MediaPersonalityType]
-  field :speakers, !types[!Types::SpeakerType]
-  field :expert, Types::UserType
+  class SourceType < BaseObject
+    field :id, ID, null: false
+    field :name, String, null: false
+    field :released_at, String, null: false
+    field :source_url, String, null: true
+    field :transcript, String, null: true
+    field :medium, Types::MediumType, null: false
+    field :media_personalities, [Types::MediaPersonalityType], null: false
+    field :speakers, [Types::SpeakerType], null: false
+    field :expert, Types::UserType, null: true
 
-  field :transcript, types.String do
-    resolve ->(obj, args, ctx) {
+    def transcript
       # Transcript is mostly from Newton Media and cannot be offered publicly
-      raise Errors::AuthenticationNeededError.new unless ctx[:current_user]
+      raise Errors::AuthenticationNeededError.new unless context[:current_user]
 
-      obj.transcript
-    }
-  end
+      object.transcript
+    end
 
-  field :name, !types.String do
-    resolve ->(obj, args, ctx) {
-      # Source name is internal
-      raise Errors::AuthenticationNeededError.new unless ctx[:current_user]
+    field :statements, [Types::StatementType], null: false do
+      argument :include_unpublished, Boolean, required: false, default_value: false
+    end
 
-      obj.name
-    }
-  end
+    def name
+      raise Errors::AuthenticationNeededError.new unless context[:current_user]
 
-  field :statements, !types[!Types::StatementType] do
-    argument :include_unpublished, types.Boolean, default_value: false
+      object.name
+    end
 
-    resolve ->(obj, args, ctx) {
+    def statements(args)
       if args[:include_unpublished]
         # Public cannot access unpublished statements
-        raise Errors::AuthenticationNeededError.new unless ctx[:current_user]
+        raise Errors::AuthenticationNeededError.new unless context[:current_user]
 
-        statements = obj.statements.ordered
+        statements = object.statements.ordered
       else
-        statements = obj.statements.published
+        statements = object.statements.published
       end
 
       statements
-    }
-  end
+    end
 
-  StatementsCountsByEvaluationStatusItemType = GraphQL::ObjectType.define do
-    name "StatementsCountsByEvaluationStatusItemType"
-
-    field :evaluation_status, !types.String, hash_key: :evaluation_status
-    field :statements_count, !types.Int, hash_key: :statements_count
-  end
-
-  field :statements_counts_by_evaluation_status, !types[!StatementsCountsByEvaluationStatusItemType] do
-    resolve ->(obj, args, ctx) {
+    field :statements_counts_by_evaluation_status, [StatementsCountsByEvaluationStatusItemType], null: false, resolve: ->(obj, args, ctx) {
       grouped = obj.statements.includes(:assessment).group_by do |statement|
         statement.assessment.evaluation_status
       end
