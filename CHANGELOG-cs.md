@@ -2,6 +2,9 @@
 
 Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## 7. května 2019
+- Administrace podporuje sliby - jak metodiku pro sliby Sobotkovy vlády, tak tu pro druhou vládu Andreje Babiše ([#368](https://github.com/Demagog2/demagog/pull/368))
+
 ## 29. dubna 2019
 - Technická změna: Migrace na novou verzi GraphQL
 
