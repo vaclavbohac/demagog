@@ -4,8 +4,12 @@ import { Colors } from '@blueprintjs/core';
 import { Query } from 'react-apollo';
 import Select from 'react-select';
 
-import { GetMediaPersonalitiesForSelectQuery } from '../../../operation-result-types';
-import { GetMediaPersonalitiesForSelect } from '../../../queries/queries';
+import {
+  GetTagsForSelectQuery,
+  GetTagsForSelectQueryVariables,
+  StatementType,
+} from '../../../operation-result-types';
+import { GetTagsForSelect } from '../../../queries/queries';
 
 interface ISelectOption {
   label: string;
@@ -16,21 +20,27 @@ interface IProps {
   id?: string;
   value: string[];
   error?: object | false;
+  forStatementType: StatementType;
   onChange(value: string[]): void;
   onBlur?(): void;
 }
 
-export default class MediaPersonalitiesSelect extends React.Component<IProps> {
+export default class TagsSelect extends React.Component<IProps> {
   public render() {
+    const { forStatementType } = this.props;
+
     return (
-      <Query<GetMediaPersonalitiesForSelectQuery> query={GetMediaPersonalitiesForSelect}>
+      <Query<GetTagsForSelectQuery, GetTagsForSelectQueryVariables>
+        query={GetTagsForSelect}
+        variables={{ forStatementType }}
+      >
         {({ data, loading }) => {
           let options: ISelectOption[] = [];
 
           if (data && !loading) {
-            options = data.mediaPersonalities.map((mp) => ({
-              label: mp.name,
-              value: mp.id,
+            options = data.tags.map((t) => ({
+              label: t.name,
+              value: t.id,
             }));
           }
 
@@ -45,13 +55,8 @@ export default class MediaPersonalitiesSelect extends React.Component<IProps> {
                 this.props.onChange(selectedOptions.map((o) => o.value))
               }
               isClearable
-              placeholder="Vyberte moderátory …"
               onBlur={this.props.onBlur}
-              noOptionsMessage={({ inputValue }) =>
-                inputValue
-                  ? `Žádný moderátor jména ${inputValue} nenalezen`
-                  : 'Žádný moderátor nenalezen'
-              }
+              placeholder="Vyberte štítky …"
               styles={{
                 control: (base) => ({
                   ...base,

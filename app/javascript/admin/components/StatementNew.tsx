@@ -17,6 +17,7 @@ import {
   CreateStatementMutationVariables,
   GetSourceQuery,
   GetSourceQueryVariables,
+  StatementType,
 } from '../operation-result-types';
 import { CreateStatement } from '../queries/mutations';
 import { GetSource, GetSourceStatements } from '../queries/queries';
@@ -67,6 +68,7 @@ class StatementNew extends React.Component<IProps> {
           const source = data.source;
 
           const initialValues = {
+            statement_type: StatementType.factual,
             content: '',
             speaker_id: source.speakers[0].id,
             evaluator_id: null,
@@ -93,6 +95,7 @@ class StatementNew extends React.Component<IProps> {
                     const note = values.note.trim();
 
                     const statementInput: CreateStatementInput = {
+                      statementType: values.statement_type,
                       content: values.content,
                       speakerId: values.speaker_id,
                       sourceId: source.id,
@@ -149,15 +152,27 @@ class StatementNew extends React.Component<IProps> {
                                 rows={7}
                               />
                             </FormGroup>
-                            <FormGroup label="Řečník" name="speaker_id">
-                              <SelectField
-                                name="speaker_id"
-                                options={source.speakers.map((s) => ({
-                                  label: `${s.firstName} ${s.lastName}`,
-                                  value: s.id,
-                                }))}
-                              />
-                            </FormGroup>
+                            <div style={{ display: 'flex' }}>
+                              <div style={{ flex: '1 1' }}>
+                                <FormGroup label="Řečník" name="speaker_id">
+                                  <SelectField
+                                    name="speaker_id"
+                                    options={source.speakers.map((s) => ({
+                                      label: `${s.firstName} ${s.lastName}`,
+                                      value: s.id,
+                                    }))}
+                                  />
+                                </FormGroup>
+                              </div>
+                              <div style={{ flex: '1 1' }}>
+                                <FormGroup label="Typ výroku" name="statement_type">
+                                  <SelectField
+                                    name="statement_type"
+                                    options={STATEMENT_TYPE_OPTIONS}
+                                  />
+                                </FormGroup>
+                              </div>
+                            </div>
                           </div>
                         </div>
 
@@ -193,5 +208,16 @@ class StatementNew extends React.Component<IProps> {
     );
   }
 }
+
+const STATEMENT_TYPE_OPTIONS = [
+  {
+    label: 'Faktický',
+    value: StatementType.factual,
+  },
+  {
+    label: 'Slib',
+    value: StatementType.promise,
+  },
+];
 
 export default connect()(withRouter(StatementNew));

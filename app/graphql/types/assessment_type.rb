@@ -8,6 +8,7 @@ module Types
     field :evaluator, Types::UserType, null: true
     field :short_explanation_characters_length, Int, null: false
     field :explanation_characters_length, Int, null: false
+    field :assessment_methodology, Types::AssessmentMethodologyType, null: false
 
     field :veracity, Types::VeracityType, null: true
 
@@ -17,6 +18,16 @@ module Types
       end
 
       object.veracity
+    end
+
+    field :promise_rating, Types::PromiseRatingType, null: true
+
+    def promise_rating
+      unless object.is_user_authorized_to_view_evaluation(context[:current_user])
+        return nil
+      end
+
+      object.promise_rating
     end
 
     field :short_explanation, String, null: true

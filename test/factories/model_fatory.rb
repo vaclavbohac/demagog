@@ -100,7 +100,8 @@ FactoryBot.define do
   factory :assessment do
     statement
     association :evaluator, factory: :user
-    association :veracity, factory: :true
+    veracity { Veracity.find_by(key: Veracity::TRUE) }
+    assessment_methodology { AssessmentMethodology.find_by(name: "Demagog.cz fact-checking metodika") }
 
     evaluation_status Assessment::STATUS_APPROVED
     explanation_html "Lorem ipsum <strong>dolor</strong> sit amet"
@@ -116,33 +117,16 @@ FactoryBot.define do
     trait :proofreading_needed do
       evaluation_status Assessment::STATUS_PROOFREADING_NEEDED
     end
-  end
 
-  factory :veracity do
-    initialize_with { Veracity.find_or_create_by name: name, key: key }
-
-    factory :true do
-      name "True"
-      key Veracity::TRUE
-    end
-
-    factory :untrue do
-      name "Untrue"
-      key Veracity::UNTRUE
-    end
-
-    factory :misleading do
-      name "Misleading"
-      key Veracity::MISLEADING
-    end
-
-    factory :unverifiable do
-      name "Unverifiable"
-      key Veracity::UNVERIFIABLE
+    trait :promise_assessment do
+      veracity nil
+      promise_rating { PromiseRating.find_by(key: PromiseRating::FULFILLED) }
+      assessment_methodology { AssessmentMethodology.find_by(name: "Demagog.cz metodika analýzy slibů druhé vlády Andreje Babiše") }
     end
   end
 
   factory :statement do
+    statement_type Statement::TYPE_FACTUAL
     speaker
     source
     content "Lorem ipsum dolor sit amet"
@@ -152,7 +136,12 @@ FactoryBot.define do
     important false
 
     after(:create) do |statement|
-      create(:assessment, statement: statement, veracity: create(:true))
+      if statement.statement_type == Statement::TYPE_FACTUAL
+        create(:assessment, statement: statement)
+      end
+      if statement.statement_type == Statement::TYPE_PROMISE
+        create(:assessment, :promise_assessment, statement: statement)
+      end
     end
 
     trait :important do
@@ -179,6 +168,11 @@ FactoryBot.define do
           end_offset: evaluator.transcript_position[3],
         )
       end
+    end
+
+    trait :promise_statement do
+      statement_type Statement::TYPE_PROMISE
+      title "Promise title"
     end
 
     factory :important_statement, traits: [:important]

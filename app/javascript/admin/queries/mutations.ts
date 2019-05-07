@@ -415,6 +415,7 @@ export const UpdateStatement = gql`
       statement {
         id
         content
+        title
         important
         published
         excerptedAt
@@ -440,6 +441,11 @@ export const UpdateStatement = gql`
             key
             name
           }
+          promiseRating {
+            id
+            key
+            name
+          }
         }
         source {
           id
@@ -449,6 +455,10 @@ export const UpdateStatement = gql`
           }
         }
         commentsCount
+        tags {
+          id
+          name
+        }
       }
     }
   }

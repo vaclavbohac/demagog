@@ -189,7 +189,9 @@ export const GetSourceStatements = gql`
   query GetSourceStatements($sourceId: Int!, $includeUnpublished: Boolean) {
     statements(limit: 200, source: $sourceId, includeUnpublished: $includeUnpublished) {
       id
+      statementType
       content
+      title
       important
       published
       speaker {
@@ -200,6 +202,11 @@ export const GetSourceStatements = gql`
       }
       assessment {
         id
+        assessmentMethodology {
+          id
+          ratingModel
+          ratingKeys
+        }
         evaluationStatus
         evaluator {
           id
@@ -207,6 +214,11 @@ export const GetSourceStatements = gql`
           lastName
         }
         veracity {
+          id
+          key
+          name
+        }
+        promiseRating {
           id
           key
           name
@@ -221,6 +233,10 @@ export const GetSourceStatements = gql`
         startOffset
         endLine
         endOffset
+      }
+      tags {
+        id
+        name
       }
       commentsCount
       sourceOrder
@@ -364,7 +380,9 @@ export const GetStatement = gql`
   query GetStatement($id: Int!) {
     statement(id: $id, includeUnpublished: true) {
       id
+      statementType
       content
+      title
       important
       published
       excerptedAt
@@ -377,6 +395,11 @@ export const GetStatement = gql`
       }
       assessment {
         id
+        assessmentMethodology {
+          id
+          ratingModel
+          ratingKeys
+        }
         explanationHtml
         explanationSlatejson
         shortExplanation
@@ -387,6 +410,11 @@ export const GetStatement = gql`
           lastName
         }
         veracity {
+          id
+          key
+          name
+        }
+        promiseRating {
           id
           key
           name
@@ -413,6 +441,10 @@ export const GetStatement = gql`
       }
       statementTranscriptPosition {
         id
+      }
+      tags {
+        id
+        name
       }
       commentsCount
     }
@@ -497,6 +529,64 @@ export const GetNotifications = gql`
         createdAt
         readAt
       }
+    }
+  }
+`;
+
+export const GetPromiseRatingsForSelect = gql`
+  query GetPromiseRatingsForSelect {
+    promiseRatings {
+      id
+      key
+      name
+    }
+  }
+`;
+
+export const GetTagsForSelect = gql`
+  query GetTagsForSelect($forStatementType: StatementType!) {
+    tags(limit: 10000, forStatementType: $forStatementType) {
+      id
+      name
+    }
+  }
+`;
+
+export const GetVeracitiesForSelect = gql`
+  query GetVeracitiesForSelect {
+    veracities {
+      id
+      key
+      name
+    }
+  }
+`;
+
+export const GetUsersForSelect = gql`
+  query GetUsersForSelect($roles: [String!]) {
+    users(limit: 200, roles: $roles) {
+      id
+      firstName
+      lastName
+    }
+  }
+`;
+
+export const GetSpeakersForSelect = gql`
+  query GetSpeakersForSelect {
+    speakers(limit: 10000) {
+      id
+      firstName
+      lastName
+    }
+  }
+`;
+
+export const GetMediaPersonalitiesForSelect = gql`
+  query GetMediaPersonalitiesForSelect {
+    mediaPersonalities {
+      id
+      name
     }
   }
 `;

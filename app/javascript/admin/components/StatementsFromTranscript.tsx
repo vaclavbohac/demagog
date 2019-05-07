@@ -25,6 +25,7 @@ import {
   GetSourceQuery,
   GetSourceStatementsQuery,
   GetSourceStatementsQueryVariables,
+  StatementType,
 } from '../operation-result-types';
 import { CreateStatement } from '../queries/mutations';
 import { GetSource, GetSourceStatements } from '../queries/queries';
@@ -336,6 +337,7 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
     const { onRequestClose, onStatementCreated, selection, source } = this.props;
 
     const initialValues = {
+      statement_type: StatementType.factual,
       content: selection.text,
       speaker_id: source.speakers[0].id,
       note: '',
@@ -354,6 +356,7 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
               const note = values.note.trim();
 
               const statementInput: CreateStatementInput = {
+                statementType: values.statement_type,
                 content: values.content,
                 speakerId: values.speaker_id,
                 sourceId: source.id,
@@ -411,15 +414,24 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
                     <FormGroup label="Znění" name="content">
                       <TextareaField name="content" rows={5} autoFocus />
                     </FormGroup>
-                    <FormGroup label="Řečník" name="speaker_id">
-                      <SelectField
-                        name="speaker_id"
-                        options={source.speakers.map((s) => ({
-                          label: `${s.firstName} ${s.lastName}`,
-                          value: s.id,
-                        }))}
-                      />
-                    </FormGroup>
+                    <div style={{ display: 'flex' }}>
+                      <div style={{ flex: '1 1' }}>
+                        <FormGroup label="Řečník" name="speaker_id">
+                          <SelectField
+                            name="speaker_id"
+                            options={source.speakers.map((s) => ({
+                              label: `${s.firstName} ${s.lastName}`,
+                              value: s.id,
+                            }))}
+                          />
+                        </FormGroup>
+                      </div>
+                      <div style={{ flex: '1 1' }}>
+                        <FormGroup label="Typ výroku" name="statement_type">
+                          <SelectField name="statement_type" options={STATEMENT_TYPE_OPTIONS} />
+                        </FormGroup>
+                      </div>
+                    </div>
                     <FormGroup label="Ověřovatel" name="evaluator_id" optional>
                       <SelectComponentField name="evaluator_id">
                         {(renderProps) => <UserSelect {...renderProps} />}
@@ -747,6 +759,17 @@ const removeDecorationsWithMarkType = (
     return !decoration.mark.type.startsWith(markTypeStartsWith);
   }) as Immutable.List<Slate.Decoration>;
 };
+
+const STATEMENT_TYPE_OPTIONS = [
+  {
+    label: 'Faktický',
+    value: StatementType.factual,
+  },
+  {
+    label: 'Slib',
+    value: StatementType.promise,
+  },
+];
 
 const mapStateToProps = (state: ReduxState) => ({
   isAuthorized: isAuthorized(state.currentUser.user),
