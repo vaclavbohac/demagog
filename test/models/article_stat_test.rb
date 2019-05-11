@@ -2,10 +2,8 @@
 
 require "test_helper"
 
-class ArticleStatsBuilderTest < ActiveSupport::TestCase
-  test "building source stats" do
-    stats_builder = Stats::Article::StatsBuilder.new Stats::StatsCache.new Store::HashStore.new
-
+class ArticleStatTest < ActiveSupport::TestCase
+  test "it returns correct stats" do
     expected_stats = {
       true: 3,
       untrue: 0,
@@ -17,22 +15,7 @@ class ArticleStatsBuilderTest < ActiveSupport::TestCase
     speaker = get_speaker(source)
     article = get_article(source)
 
-    assert_equal(expected_stats, stats_builder.build(article, speaker))
-  end
-
-  test "invalidate source stats" do
-    store = Store::HashStore.new
-    stats_builder = Stats::Article::StatsBuilder.new Stats::StatsCache.new store
-
-    source = get_source
-    speaker = get_speaker(source)
-    article = get_article(source)
-
-    stats_builder.build(article, speaker)
-
-    stats_builder.invalidate(article)
-
-    assert_empty store
+    assert_equal(expected_stats, ArticleStat.where(speaker_id: speaker.id, article_id: article.id).normalize)
   end
 
   private
