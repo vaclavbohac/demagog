@@ -2,6 +2,9 @@
 
 Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## 11. května 2019
+- Přidáno: Komentáře u výroků už se zobrazují v odstavcích a se zalomeními ([#383](https://github.com/Demagog2/demagog/pull/383))
+
 ## 10. května 2019
 - Změněno: Stážisti si mohou vrátit výrok ke zpracování ze stavu ke kontrole ([#379](https://github.com/Demagog2/demagog/pull/379))
 
