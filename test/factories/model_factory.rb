@@ -4,7 +4,7 @@ include ActionDispatch::TestProcess
 
 FactoryBot.define do
   factory :attachment, aliases: [:illustration] do
-    file "photo.png"
+    file { "photo.png" }
   end
 
   factory :media_personality
@@ -12,9 +12,10 @@ FactoryBot.define do
   factory :medium
 
   factory :source do
-    name "Source name"
+    name { "Source name" }
     medium
     released_at { 1.week.ago }
+    source_url { "http://example.com" }
 
     after(:create) do |source|
       create(:media_personality, sources: [source])
@@ -28,9 +29,9 @@ FactoryBot.define do
       "Article title #{n}"
     end
 
-    perex "Lorem ipsum"
+    perex { "Lorem ipsum" }
     illustration
-    published true
+    published { true }
     published_at { 1.day.ago }
 
     factory :fact_check do
@@ -44,17 +45,17 @@ FactoryBot.define do
 
   factory :article_segment do
     factory :article_segment_text do
-      segment_type "text"
+      segment_type { "text" }
     end
 
     factory :article_segment_source_statements do
-      segment_type "source_statements"
+      segment_type { "source_statements" }
     end
   end
 
   factory :body do
     transient do
-      member_count 5
+      member_count { 5 }
     end
 
     after(:create) do |party, evaluator|
@@ -62,23 +63,23 @@ FactoryBot.define do
     end
 
     factory :presidential_candidates do
-      name "Presidental candidates"
+      name { "Presidental candidates" }
 
-      is_party false
+      is_party { false }
     end
 
     factory :party do
-      name "Party A"
-      short_name "pa"
+      name { "Party A" }
+      short_name { "pa" }
 
-      is_party true
+      is_party { true }
     end
   end
 
   factory :user do
-    first_name "John"
-    last_name "Doe"
-    active true
+    first_name { "John" }
+    last_name { "Doe" }
+    active { true }
 
     trait :admin do
       role_id { Role.find_by(key: Role::ADMIN).id }
@@ -100,72 +101,61 @@ FactoryBot.define do
   factory :assessment do
     statement
     association :evaluator, factory: :user
-    association :veracity, factory: :true
+    veracity { Veracity.find_by(key: Veracity::TRUE) }
+    assessment_methodology { AssessmentMethodology.find_by(name: "Demagog.cz fact-checking metodika") }
 
-    evaluation_status Assessment::STATUS_APPROVED
-    explanation_html "Lorem ipsum <strong>dolor</strong> sit amet"
+    evaluation_status { Assessment::STATUS_APPROVED }
+    explanation_html { "Lorem ipsum <strong>dolor</strong> sit amet" }
 
     trait :being_evaluated do
-      evaluation_status Assessment::STATUS_BEING_EVALUATED
+      evaluation_status { Assessment::STATUS_BEING_EVALUATED }
     end
 
     trait :approval_needed do
-      evaluation_status Assessment::STATUS_APPROVAL_NEEDED
+      evaluation_status { Assessment::STATUS_APPROVAL_NEEDED }
     end
 
     trait :proofreading_needed do
-      evaluation_status Assessment::STATUS_PROOFREADING_NEEDED
-    end
-  end
-
-  factory :veracity do
-    initialize_with { Veracity.find_or_create_by name: name, key: key }
-
-    factory :true do
-      name "True"
-      key Veracity::TRUE
+      evaluation_status { Assessment::STATUS_PROOFREADING_NEEDED }
     end
 
-    factory :untrue do
-      name "Untrue"
-      key Veracity::UNTRUE
-    end
-
-    factory :misleading do
-      name "Misleading"
-      key Veracity::MISLEADING
-    end
-
-    factory :unverifiable do
-      name "Unverifiable"
-      key Veracity::UNVERIFIABLE
+    trait :promise_assessment do
+      veracity { nil }
+      promise_rating { PromiseRating.find_by(key: PromiseRating::FULFILLED) }
+      assessment_methodology { AssessmentMethodology.find_by(name: "Demagog.cz metodika analýzy slibů druhé vlády Andreje Babiše") }
     end
   end
 
   factory :statement do
+    statement_type { Statement::TYPE_FACTUAL }
     speaker
     source
-    content "Lorem ipsum dolor sit amet"
-    published true
-    count_in_statistics true
+    content { "Lorem ipsum dolor sit amet" }
+    published { true }
+    count_in_statistics { true }
     excerpted_at { 1.month.ago }
-    important false
+    important { false }
 
     after(:create) do |statement|
-      create(:assessment, statement: statement, veracity: create(:true))
+      if statement.statement_type == Statement::TYPE_FACTUAL
+        create(:assessment, statement: statement)
+      end
+      if statement.statement_type == Statement::TYPE_PROMISE
+        create(:assessment, :promise_assessment, statement: statement)
+      end
     end
 
     trait :important do
-      important true
+      important { true }
     end
 
     trait :unpublished do
-      published false
+      published { false }
     end
 
     trait :with_transcript_position do
       transient do
-        transcript_position [0, 0, 0, 20]
+        transcript_position { [0, 0, 0, 20] }
       end
 
       after(:create) do |statement, evaluator|
@@ -181,6 +171,11 @@ FactoryBot.define do
       end
     end
 
+    trait :promise_statement do
+      statement_type { Statement::TYPE_PROMISE }
+      title { "Promise title" }
+    end
+
     factory :important_statement, traits: [:important]
     factory :unpublished_statement, traits: [:unpublished]
   end
@@ -193,12 +188,12 @@ FactoryBot.define do
   end
 
   factory :speaker do
-    first_name "John"
-    last_name  "Doe"
+    first_name { "John" }
+    last_name  { "Doe" }
 
     transient do
-      statement_count 3
-      statement_source nil
+      statement_count { 3 }
+      statement_source { nil }
     end
 
     after(:create) do |speaker, evaluator|
@@ -210,7 +205,7 @@ FactoryBot.define do
 
     factory :speaker_with_party do
       transient do
-        memberships_count 1
+        memberships_count { 1 }
       end
 
       after(:create) do |speaker, evaluator|

@@ -51,8 +51,6 @@
     "immutable": "^3.8.2",
     "intersection-observer": "^0.4.2",
     "is-hotkey": "^0.1.4",
-    "jquery": "^2.2.4",
-    "jquery-ujs": "^1.2.2",
     "lodash": "^4.17.5",
     "luxon": "^1.2.1",
     "memoize-one": "^5.0.2",

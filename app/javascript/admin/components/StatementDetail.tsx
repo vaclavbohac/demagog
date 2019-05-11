@@ -5,7 +5,7 @@ import {
   Callout,
   Classes,
   Colors,
-  FormGroup,
+  FormGroup as BlueprintFormGroup,
   Intent,
   Position,
   Switch,
@@ -30,7 +30,9 @@ import {
   ASSESSMENT_STATUS_PROOFREADING_NEEDED,
 } from '../constants';
 import {
+  AssessmentMethodologyRatingModel,
   GetStatementQuery,
+  StatementType,
   UpdateStatementInput,
   UpdateStatementMutation,
   UpdateStatementMutationVariables,
@@ -39,8 +41,13 @@ import { UpdateStatement } from '../queries/mutations';
 import { GetStatement } from '../queries/queries';
 import { IState as ReduxState } from '../reducers';
 import { displayDate, newlinesToBr } from '../utils';
+import PromiseRatingSelect from './forms/controls/PromiseRatingSelect';
+import SelectComponentField from './forms/controls/SelectComponentField';
+import TagsSelect from './forms/controls/TagsSelect';
+import TextField from './forms/controls/TextField';
 import UserSelect from './forms/controls/UserSelect';
 import VeracitySelect from './forms/controls/VeracitySelect';
+import FormGroup from './forms/FormGroup';
 import FormikAutoSave from './forms/FormikAutoSave';
 import Loading from './Loading';
 import RichTextEditor from './RichTextEditor';
@@ -64,6 +71,14 @@ const VERACITY_COLORS = {
   untrue: Colors.RED3,
   misleading: Colors.GOLD5,
   unverifiable: Colors.BLUE5,
+};
+
+const PROMISE_RATING_COLORS = {
+  fulfilled: Colors.COBALT2,
+  broken: Colors.RED3,
+  in_progress: Colors.BLUE5,
+  partially_fulfilled: Colors.BLUE5,
+  stalled: Colors.GOLD5,
 };
 
 interface IProps extends RouteComponentProps<{ id: string }>, DispatchProp {
@@ -120,12 +135,17 @@ class StatementDetail extends React.Component<IProps, IState> {
           const initialValues = {
             _isEditing: false,
             content: statement.content,
+            title: statement.title,
             published: statement.published,
             important: statement.important,
             count_in_statistics: statement.countInStatistics,
+            tags: statement.tags.map((t) => t.id),
             assessment: {
               evaluation_status: statement.assessment.evaluationStatus,
               veracity_id: statement.assessment.veracity ? statement.assessment.veracity.id : null,
+              promise_rating_id: statement.assessment.promiseRating
+                ? statement.assessment.promiseRating.id
+                : null,
               short_explanation: statement.assessment.shortExplanation,
               explanation_html: statement.assessment.explanationHtml,
               explanation_slatejson: statement.assessment.explanationSlatejson,
@@ -184,6 +204,7 @@ class StatementDetail extends React.Component<IProps, IState> {
                       const statementInput: UpdateStatementInput = {
                         assessment: {
                           veracityId: values.assessment.veracity_id,
+                          promiseRatingId: values.assessment.promise_rating_id,
                           evaluationStatus: values.assessment.evaluation_status,
                           evaluatorId: values.assessment.evaluator_id,
                           explanationHtml: values.assessment.explanation_html,
@@ -192,8 +213,10 @@ class StatementDetail extends React.Component<IProps, IState> {
                         },
                         countInStatistics: values.count_in_statistics,
                         content: values.content,
+                        title: values.title,
                         important: values.important,
                         published: values.published,
+                        tags: values.tags,
                       };
 
                       this.updateStatementPromise = updateStatement({
@@ -248,10 +271,13 @@ class StatementDetail extends React.Component<IProps, IState> {
                     const isProofreadingNeeded =
                       values.assessment.evaluation_status === ASSESSMENT_STATUS_PROOFREADING_NEEDED;
 
-                    const canEditStatementContent =
+                    const canEditStatement =
                       ((canEditEverything || canEditAsProofreader) && !isApproved) ||
                       (canEditAsEvaluator && isBeingEvaluated);
                     const canEditVeracity =
+                      (canEditEverything && !isApproved) ||
+                      (canEditAsEvaluator && isBeingEvaluated);
+                    const canEditPromiseRating =
                       (canEditEverything && !isApproved) ||
                       (canEditAsEvaluator && isBeingEvaluated);
                     const canEditExplanations =
@@ -265,9 +291,12 @@ class StatementDetail extends React.Component<IProps, IState> {
                     const isApprovedAndNotPublished = isApproved && !values.published;
                     const isBeingEvaluatedAndEvaluationFilled =
                       isBeingEvaluated &&
-                      (values.assessment.veracity_id &&
-                        values.assessment.short_explanation &&
-                        values.assessment.explanation_html);
+                      values.assessment.short_explanation &&
+                      values.assessment.explanation_html &&
+                      ((statement.statementType === StatementType.factual &&
+                        values.assessment.veracity_id) ||
+                        (statement.statementType === StatementType.promise &&
+                          values.assessment.promise_rating_id));
 
                     const canEditStatus =
                       (canEditEverything &&
@@ -276,7 +305,32 @@ class StatementDetail extends React.Component<IProps, IState> {
                           isApprovalNeeded ||
                           isProofreadingNeeded)) ||
                       (canEditAsProofreader && isProofreadingNeeded) ||
-                      (canEditAsEvaluator && isBeingEvaluatedAndEvaluationFilled);
+                      (canEditAsEvaluator &&
+                        (isBeingEvaluatedAndEvaluationFilled || isApprovalNeeded));
+
+                    let canEditStatusTo: string[] = [];
+                    if (isBeingEvaluated) {
+                      canEditStatusTo = canEditStatusTo.concat([ASSESSMENT_STATUS_APPROVAL_NEEDED]);
+                    } else if (isApprovalNeeded) {
+                      if (canEditAsEvaluator) {
+                        // Evaluator can only return, not move status forward
+                        canEditStatusTo = canEditStatusTo.concat([
+                          ASSESSMENT_STATUS_BEING_EVALUATED,
+                        ]);
+                      } else {
+                        canEditStatusTo = canEditStatusTo.concat([
+                          ASSESSMENT_STATUS_BEING_EVALUATED,
+                          ASSESSMENT_STATUS_PROOFREADING_NEEDED,
+                        ]);
+                      }
+                    } else if (isProofreadingNeeded) {
+                      canEditStatusTo = canEditStatusTo.concat([
+                        ASSESSMENT_STATUS_BEING_EVALUATED,
+                        ASSESSMENT_STATUS_APPROVED,
+                      ]);
+                    } else if (isApproved) {
+                      canEditStatusTo = canEditStatusTo.concat([ASSESSMENT_STATUS_BEING_EVALUATED]);
+                    }
 
                     let statusTooltipContent: string | null = null;
                     if (canEditEverything && isBeingEvaluated && !canEditStatus) {
@@ -295,8 +349,9 @@ class StatementDetail extends React.Component<IProps, IState> {
                       this.props.isAuthorized(['statements:view-unapproved-evaluation']);
 
                     const canEditSomething =
-                      canEditStatementContent ||
+                      canEditStatement ||
                       canEditVeracity ||
+                      canEditPromiseRating ||
                       canEditExplanations ||
                       canEditEvaluator ||
                       canEditPublished ||
@@ -320,7 +375,12 @@ class StatementDetail extends React.Component<IProps, IState> {
                         </div>
 
                         <div style={{ display: 'flex' }}>
-                          <h2 className={Classes.HEADING}>Detail výroku</h2>
+                          <h2 className={Classes.HEADING}>
+                            Detail výroku{' '}
+                            {statement.statementType === StatementType.promise
+                              ? '(slib)'
+                              : '(faktický)'}
+                          </h2>
 
                           {canEditSomething && (
                             <div
@@ -337,7 +397,7 @@ class StatementDetail extends React.Component<IProps, IState> {
                             <h5 className={Classes.HEADING}>
                               {statement.speaker.firstName} {statement.speaker.lastName}
                             </h5>
-                            {canEditStatementContent ? (
+                            {canEditStatement ? (
                               <textarea
                                 className={classNames(Classes.INPUT, Classes.FILL)}
                                 style={{ marginBottom: 5 }}
@@ -382,6 +442,41 @@ class StatementDetail extends React.Component<IProps, IState> {
                               )}
                             </p>
 
+                            {statement.statementType === StatementType.promise && (
+                              <>
+                                {canEditStatement ? (
+                                  <div style={{ display: 'flex' }}>
+                                    <div style={{ flex: '1 1 0' }}>
+                                      <FormGroup label="Titulek" name="title">
+                                        <TextField name="title" />
+                                      </FormGroup>
+                                    </div>
+                                    <div style={{ flex: '1 1 0', marginLeft: '15px' }}>
+                                      <FormGroup label="Štítky" name="tags">
+                                        <SelectComponentField name="tags">
+                                          {(renderProps) => (
+                                            <TagsSelect
+                                              forStatementType={StatementType.promise}
+                                              {...renderProps}
+                                            />
+                                          )}
+                                        </SelectComponentField>
+                                      </FormGroup>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div style={{ display: 'flex' }}>
+                                    <div style={{ flex: '1 1 0' }}>
+                                      <p>Titulek: {values.title}</p>
+                                    </div>
+                                    <div style={{ flex: '1 1 0', marginLeft: '15px' }}>
+                                      <p>Štítky: {statement.tags.map((t) => t.name).join(', ')}</p>
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            )}
+
                             <hr
                               style={{
                                 borderTop: '2px solid #ccc',
@@ -390,43 +485,101 @@ class StatementDetail extends React.Component<IProps, IState> {
                               }}
                             />
 
-                            {(canEditVeracity || canEditExplanations || canViewEvaluation) && (
+                            {(canEditVeracity ||
+                              canEditPromiseRating ||
+                              canEditExplanations ||
+                              canViewEvaluation) && (
                               <>
-                                {canEditVeracity ? (
-                                  <FormGroup label="Hodnocení" labelFor="veracity">
-                                    <VeracitySelect
-                                      id="veracity"
-                                      disabled={
-                                        values.assessment.evaluation_status ===
-                                        ASSESSMENT_STATUS_APPROVED
-                                      }
-                                      onChange={(value) =>
-                                        setFieldValue('assessment.veracity_id', value)
-                                      }
-                                      onBlur={() => setFieldTouched('assessment.veracity_id')}
-                                      value={values.assessment.veracity_id}
-                                    />
-                                  </FormGroup>
-                                ) : (
-                                  <p>
-                                    {!statement.assessment.veracity && 'Zatím nehodnoceno'}
+                                {statement.assessment.assessmentMethodology.ratingModel ===
+                                  AssessmentMethodologyRatingModel.veracity && (
+                                  <>
+                                    {canEditVeracity ? (
+                                      <BlueprintFormGroup label="Hodnocení" labelFor="veracity">
+                                        <VeracitySelect
+                                          id="veracity"
+                                          disabled={
+                                            values.assessment.evaluation_status ===
+                                            ASSESSMENT_STATUS_APPROVED
+                                          }
+                                          onChange={(value) =>
+                                            setFieldValue('assessment.veracity_id', value)
+                                          }
+                                          onBlur={() => setFieldTouched('assessment.veracity_id')}
+                                          value={values.assessment.veracity_id}
+                                        />
+                                      </BlueprintFormGroup>
+                                    ) : (
+                                      <p>
+                                        {!statement.assessment.veracity && 'Zatím nehodnoceno'}
 
-                                    {statement.assessment.veracity && (
-                                      <span
-                                        className={Classes.TEXT_LARGE}
-                                        style={{
-                                          color: VERACITY_COLORS[statement.assessment.veracity.key],
-                                          fontWeight: 'bold',
-                                        }}
-                                      >
-                                        {statement.assessment.veracity.name}
-                                      </span>
+                                        {statement.assessment.veracity && (
+                                          <span
+                                            className={Classes.TEXT_LARGE}
+                                            style={{
+                                              color:
+                                                VERACITY_COLORS[statement.assessment.veracity.key],
+                                              fontWeight: 'bold',
+                                            }}
+                                          >
+                                            {statement.assessment.veracity.name}
+                                          </span>
+                                        )}
+                                      </p>
                                     )}
-                                  </p>
+                                  </>
+                                )}
+
+                                {statement.assessment.assessmentMethodology.ratingModel ===
+                                  AssessmentMethodologyRatingModel.promise_rating && (
+                                  <>
+                                    {canEditPromiseRating ? (
+                                      <BlueprintFormGroup
+                                        label="Hodnocení slibu"
+                                        labelFor="promise-rating"
+                                      >
+                                        <PromiseRatingSelect
+                                          id="promise-rating"
+                                          disabled={
+                                            values.assessment.evaluation_status ===
+                                            ASSESSMENT_STATUS_APPROVED
+                                          }
+                                          onChange={(value) =>
+                                            setFieldValue('assessment.promise_rating_id', value)
+                                          }
+                                          onBlur={() =>
+                                            setFieldTouched('assessment.promise_rating_id')
+                                          }
+                                          value={values.assessment.promise_rating_id}
+                                          allowedKeys={
+                                            statement.assessment.assessmentMethodology.ratingKeys
+                                          }
+                                        />
+                                      </BlueprintFormGroup>
+                                    ) : (
+                                      <p>
+                                        {!statement.assessment.promiseRating && 'Zatím nehodnoceno'}
+
+                                        {statement.assessment.promiseRating && (
+                                          <span
+                                            className={Classes.TEXT_LARGE}
+                                            style={{
+                                              color:
+                                                PROMISE_RATING_COLORS[
+                                                  statement.assessment.promiseRating.key
+                                                ],
+                                              fontWeight: 'bold',
+                                            }}
+                                          >
+                                            {statement.assessment.promiseRating.name}
+                                          </span>
+                                        )}
+                                      </p>
+                                    )}
+                                  </>
                                 )}
 
                                 {canEditExplanations ? (
-                                  <FormGroup
+                                  <BlueprintFormGroup
                                     label="Odůvodnění zkráceně"
                                     labelFor="assessment-short-explanation"
                                     helperText={
@@ -448,7 +601,7 @@ class StatementDetail extends React.Component<IProps, IState> {
                                       value={values.assessment.short_explanation || ''}
                                       maxLength={280}
                                     />
-                                  </FormGroup>
+                                  </BlueprintFormGroup>
                                 ) : (
                                   <>
                                     <h6 className={Classes.HEADING}>Odůvodnění zkráceně</h6>
@@ -457,7 +610,10 @@ class StatementDetail extends React.Component<IProps, IState> {
                                 )}
 
                                 {canEditExplanations ? (
-                                  <FormGroup label="Odůvodnění" labelFor="assessment-explanation">
+                                  <BlueprintFormGroup
+                                    label="Odůvodnění"
+                                    labelFor="assessment-explanation"
+                                  >
                                     <RichTextEditor
                                       value={values.assessment.explanation_slatejson}
                                       html={values.assessment.explanation_html}
@@ -467,7 +623,7 @@ class StatementDetail extends React.Component<IProps, IState> {
                                       }}
                                       statementExplanation
                                     />
-                                  </FormGroup>
+                                  </BlueprintFormGroup>
                                 ) : (
                                   <>
                                     <h6 className={Classes.HEADING}>Odůvodnění</h6>
@@ -486,6 +642,7 @@ class StatementDetail extends React.Component<IProps, IState> {
                               </>
                             )}
                             {!canEditVeracity &&
+                              !canEditPromiseRating &&
                               !canEditExplanations &&
                               !canViewEvaluation && (
                                 <Callout intent={Intent.PRIMARY} icon={IconNames.INFO_SIGN}>
@@ -512,6 +669,7 @@ class StatementDetail extends React.Component<IProps, IState> {
                                       values.assessment.evaluation_status ||
                                     initialValues.published !== values.published
                                   }
+                                  enabledChanges={canEditStatusTo}
                                   tooltipContent={statusTooltipContent}
                                   value={values.assessment.evaluation_status}
                                   onChange={(value) =>
@@ -586,18 +744,19 @@ class StatementDetail extends React.Component<IProps, IState> {
                                   </Tooltip>
                                 </div>
 
-                                {values.published && (
-                                  <a
-                                    href={`/vyrok/${statement.id}`}
-                                    style={{
-                                      display: 'inline-block',
-                                      marginTop: 6,
-                                      verticalAlign: 'top',
-                                    }}
-                                  >
-                                    Veřejný odkaz
-                                  </a>
-                                )}
+                                {statement.statementType === StatementType.factual &&
+                                  values.published && (
+                                    <a
+                                      href={`/vyrok/${statement.id}`}
+                                      style={{
+                                        display: 'inline-block',
+                                        marginTop: 6,
+                                        verticalAlign: 'top',
+                                      }}
+                                    >
+                                      Veřejný odkaz
+                                    </a>
+                                  )}
                               </div>
                             </div>
 
@@ -671,6 +830,7 @@ class StatementDetail extends React.Component<IProps, IState> {
 
 interface IEvaluationStatusInputProps {
   disabled: boolean;
+  enabledChanges: string[];
   tooltipContent: string | null;
   value: string;
   onChange: (value: string) => void;
@@ -684,7 +844,7 @@ class EvaluationStatusInput extends React.Component<IEvaluationStatusInputProps>
   };
 
   public render() {
-    const { disabled, tooltipContent, value } = this.props;
+    const { disabled, enabledChanges, tooltipContent, value } = this.props;
 
     return (
       <>
@@ -698,7 +858,7 @@ class EvaluationStatusInput extends React.Component<IEvaluationStatusInputProps>
           <>
             {value === ASSESSMENT_STATUS_BEING_EVALUATED && (
               <Button
-                disabled={disabled}
+                disabled={disabled || !enabledChanges.includes(ASSESSMENT_STATUS_APPROVAL_NEEDED)}
                 onClick={this.onChange(ASSESSMENT_STATUS_APPROVAL_NEEDED)}
                 text="Posunout ke kontrole"
               />
@@ -706,12 +866,14 @@ class EvaluationStatusInput extends React.Component<IEvaluationStatusInputProps>
             {value === ASSESSMENT_STATUS_APPROVAL_NEEDED && (
               <>
                 <Button
-                  disabled={disabled}
+                  disabled={disabled || !enabledChanges.includes(ASSESSMENT_STATUS_BEING_EVALUATED)}
                   onClick={this.onChange(ASSESSMENT_STATUS_BEING_EVALUATED)}
                   text="Vrátit ke zpracování"
                 />
                 <Button
-                  disabled={disabled}
+                  disabled={
+                    disabled || !enabledChanges.includes(ASSESSMENT_STATUS_PROOFREADING_NEEDED)
+                  }
                   onClick={this.onChange(ASSESSMENT_STATUS_PROOFREADING_NEEDED)}
                   text="Posunout ke korektuře"
                 />
@@ -720,12 +882,12 @@ class EvaluationStatusInput extends React.Component<IEvaluationStatusInputProps>
             {value === ASSESSMENT_STATUS_PROOFREADING_NEEDED && (
               <>
                 <Button
-                  disabled={disabled}
+                  disabled={disabled || !enabledChanges.includes(ASSESSMENT_STATUS_BEING_EVALUATED)}
                   onClick={this.onChange(ASSESSMENT_STATUS_BEING_EVALUATED)}
                   text="Vrátit ke zpracování"
                 />
                 <Button
-                  disabled={disabled}
+                  disabled={disabled || !enabledChanges.includes(ASSESSMENT_STATUS_APPROVED)}
                   onClick={this.onChange(ASSESSMENT_STATUS_APPROVED)}
                   text="Schválit"
                 />
@@ -733,7 +895,7 @@ class EvaluationStatusInput extends React.Component<IEvaluationStatusInputProps>
             )}
             {value === ASSESSMENT_STATUS_APPROVED && (
               <Button
-                disabled={disabled}
+                disabled={disabled || !enabledChanges.includes(ASSESSMENT_STATUS_BEING_EVALUATED)}
                 onClick={this.onChange(ASSESSMENT_STATUS_BEING_EVALUATED)}
                 text="Vrátit ke zpracování"
               />

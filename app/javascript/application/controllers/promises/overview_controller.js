@@ -1,17 +1,22 @@
 import { Controller } from 'stimulus';
 import * as queryString from 'query-string';
+import debounce from 'lodash/debounce';
 
 export default class extends Controller {
   static targets = [
     'summaryRow',
     'detailRow',
-    'areaFilterOption',
-    'areaFilterClear',
-    'evaluationFilterOption',
-    'evaluationFilterClear',
+    'areaTagFilterOption',
+    'areaTagFilterClear',
+    'promiseRatingFilterOption',
+    'promiseRatingFilterClear',
   ];
 
   initialize() {
+    this.queryParamsFilterKeys = JSON.parse(this.data.get('queryParamsFilterKeys'));
+    this.queryParamsFilterValues = JSON.parse(this.data.get('queryParamsFilterValues'));
+
+    this.measureAllPromiseDetailHeights();
     this.propagateExpandedIdToDom();
     this.propagateFiltersToDom();
   }
@@ -21,9 +26,15 @@ export default class extends Controller {
     this.propagateFiltersToDom();
   }
 
+  handleWindowResize = debounce(() => {
+    this.measureAllPromiseDetailHeights();
+    this.propagateExpandedIdToDom();
+  }, 500);
+
   toggleDetail(e) {
     const id = e.currentTarget.closest('tr.summary').id;
 
+    this.showExpandedWithFullExplanation = false;
     this.expandedId = this.expandedId === id ? null : id;
 
     e.stopPropagation();
@@ -32,15 +43,23 @@ export default class extends Controller {
 
   propagateExpandedIdToDom() {
     this.summaryRowTargets.forEach((el) => {
-      el.classList.toggle('expanded', el.id === this.expandedId);
+      const isExpanded = el.id === this.expandedId;
+      el.classList.toggle('expanded', isExpanded);
     });
     this.detailRowTargets.forEach((el) => {
       const isExpanded = el.dataset.id === this.expandedId;
       el.classList.toggle('expanded', isExpanded);
 
+      const slideAnimationContainer = el.querySelector('.slide-animation-container');
+      const spaceTakingContainerEl = el.querySelector('.space-taking-container');
+      spaceTakingContainerEl.style.height = el.dataset.promiseDetailHeight + 'px';
+      slideAnimationContainer.style.maxHeight = isExpanded
+        ? el.dataset.promiseDetailHeight + 'px'
+        : '0px';
+
       if (isExpanded) {
         // Lazy load iframes
-        el.querySelectorAll('.explanation iframe').forEach((iframeEl) => {
+        el.querySelectorAll('.full-explanation iframe').forEach((iframeEl) => {
           if (
             iframeEl.getAttribute('src') === 'about:blank' &&
             iframeEl.dataset.src !== undefined
@@ -50,7 +69,7 @@ export default class extends Controller {
         });
 
         // Lazy load images
-        el.querySelectorAll('.explanation img').forEach((imgEl) => {
+        el.querySelectorAll('.full-explanation img').forEach((imgEl) => {
           if (imgEl.getAttribute('src') === '' && imgEl.dataset.src !== undefined) {
             imgEl.setAttribute('src', imgEl.dataset.src);
           }
@@ -111,12 +130,15 @@ export default class extends Controller {
 
     const showPromiseIds = this.summaryRowTargets
       .filter((el) => {
-        if (filters.area.length !== 0 && !filters.area.includes(el.dataset.areaFilterValue)) {
+        if (
+          filters.area_tag.length !== 0 &&
+          !filters.area_tag.includes(el.dataset.areaTagFilterValue)
+        ) {
           return false;
         }
         if (
-          filters.evaluation.length !== 0 &&
-          !filters.evaluation.includes(el.dataset.evaluationFilterValue)
+          filters.promise_rating.length !== 0 &&
+          !filters.promise_rating.includes(el.dataset.promiseRatingFilterValue)
         ) {
           return false;
         }
@@ -131,15 +153,18 @@ export default class extends Controller {
       el.classList.toggle('hidden', !showPromiseIds.includes(el.dataset.id));
     });
 
-    this.areaFilterOptionTargets.forEach((el) => {
-      el.classList.toggle('active', filters.area.includes(el.dataset.filterValue));
+    this.areaTagFilterOptionTargets.forEach((el) => {
+      el.classList.toggle('active', filters.area_tag.includes(el.dataset.filterValue));
     });
-    this.evaluationFilterOptionTargets.forEach((el) => {
-      el.classList.toggle('active', filters.evaluation.includes(el.dataset.filterValue));
+    this.promiseRatingFilterOptionTargets.forEach((el) => {
+      el.classList.toggle('active', filters.promise_rating.includes(el.dataset.filterValue));
     });
 
-    this.areaFilterClearTarget.classList.toggle('hidden', filters.area.length === 0);
-    this.evaluationFilterClearTarget.classList.toggle('hidden', filters.evaluation.length === 0);
+    this.areaTagFilterClearTarget.classList.toggle('hidden', filters.area_tag.length === 0);
+    this.promiseRatingFilterClearTarget.classList.toggle(
+      'hidden',
+      filters.promise_rating.length === 0,
+    );
   }
 
   // Filters state is stored in query
@@ -147,24 +172,24 @@ export default class extends Controller {
     const queryParams = queryString.parse(window.location.search, { arrayFormat: 'bracket' });
     const filters = {};
 
-    queryParamsFilterConfigs.forEach((filterConfig) => {
-      const queryParamValues = queryParams[filterConfig.queryParamKey] || [];
+    Object.keys(this.queryParamsFilterKeys).forEach((filterType) => {
+      const queryParamKey = this.queryParamsFilterKeys[filterType];
+
+      const queryParamValues = queryParams[queryParamKey] || [];
       if (!Array.isArray(queryParamValues)) {
         queryParamValues = [];
       }
 
       const filterValues = [];
       queryParamValues.forEach((queryParamValue) => {
-        const filterConfigValue = filterConfig.values.find(
-          (v) => v.queryParamValue === queryParamValue,
-        );
-
-        if (filterConfigValue !== undefined) {
-          filterValues.push(filterConfigValue.id);
+        for (const filterValue in this.queryParamsFilterValues[filterType]) {
+          if (queryParamValue === this.queryParamsFilterValues[filterType][filterValue]) {
+            filterValues.push(filterValue);
+          }
         }
       });
 
-      filters[filterConfig.type] = filterValues;
+      filters[filterType] = filterValues;
     });
 
     return filters;
@@ -173,12 +198,11 @@ export default class extends Controller {
     const queryParams = {};
 
     Object.keys(filters).forEach((type) => {
-      const filterConfig = queryParamsFilterConfigs.find((fc) => fc.type === type);
-      const queryParamValues = filters[type].map(
-        (valueId) => filterConfig.values.find((v) => v.id === valueId).queryParamValue,
-      );
+      const queryParamKey = this.queryParamsFilterKeys[type];
 
-      queryParams[filterConfig.queryParamKey] = queryParamValues;
+      queryParams[queryParamKey] = filters[type].map(
+        (valueId) => this.queryParamsFilterValues[type][valueId],
+      );
     });
 
     let queryParamsAsString = queryString.stringify(queryParams, { arrayFormat: 'bracket' });
@@ -189,29 +213,66 @@ export default class extends Controller {
     history.pushState(undefined, undefined, window.location.pathname + queryParamsAsString);
     this.propagateFiltersToDom();
   }
-}
 
-const queryParamsFilterConfigs = [
-  {
-    type: 'area',
-    queryParamKey: 'oblast',
-    values: [
-      { id: 'hospodarstvi', queryParamValue: 'hospodarstvi' },
-      { id: 'zivotni-prostredi', queryParamValue: 'zivotni-prostredi' },
-      { id: 'socialni-stat', queryParamValue: 'socialni-stat' },
-      { id: 'vzdelanost', queryParamValue: 'vzdelanost' },
-      { id: 'pravni-stat', queryParamValue: 'pravni-stat' },
-      { id: 'bezpecnost', queryParamValue: 'bezpecnost' },
-    ],
-  },
-  {
-    type: 'evaluation',
-    queryParamKey: 'hodnoceni',
-    values: [
-      { id: 'fulfilled', queryParamValue: 'splnene' },
-      { id: 'partially_fulfilled', queryParamValue: 'castecne-splnene' },
-      { id: 'broken', queryParamValue: 'porusene' },
-      { id: 'stalled', queryParamValue: 'nerealizovane' },
-    ],
-  },
-];
+  toggleFullExplanation(e) {
+    this.showExpandedWithFullExplanation = !this.showExpandedWithFullExplanation;
+
+    e.stopPropagation();
+    e.preventDefault();
+  }
+
+  get showExpandedWithFullExplanation() {
+    if (this.expandedId === null) {
+      return false;
+    }
+
+    const expandedDetailRowEl = this.detailRowTargets.find(
+      (el) => el.dataset.id === this.expandedId,
+    );
+    const explanationContainerEl = expandedDetailRowEl.querySelector('.explanation-container');
+    return explanationContainerEl.classList.contains('with-full-explanation');
+  }
+  set showExpandedWithFullExplanation(show) {
+    if (this.expandedId === null) {
+      return;
+    }
+
+    const expandedDetailRowEl = this.detailRowTargets.find(
+      (el) => el.dataset.id === this.expandedId,
+    );
+    const explanationContainerEl = expandedDetailRowEl.querySelector('.explanation-container');
+    explanationContainerEl.classList.toggle('with-full-explanation', show);
+
+    this.measurePromiseDetailHeight(expandedDetailRowEl);
+
+    this.propagateExpandedIdToDom();
+  }
+
+  measurePromiseDetailHeight(detailRowEl) {
+    const spaceTakingContainerEl = detailRowEl.querySelector('.space-taking-container');
+    const promiseDetailEl = detailRowEl.querySelector('.promise-detail');
+
+    const offsetHeight = promiseDetailEl.offsetHeight;
+    detailRowEl.dataset.promiseDetailHeight = offsetHeight + 100; // 40px top margin, 60px bottom margin
+    spaceTakingContainerEl.style.height = detailRowEl.dataset.promiseDetailHeight + 'px';
+  }
+
+  measureAllPromiseDetailHeights() {
+    this.detailRowTargets.forEach((el) => {
+      const slideAnimationContainer = el.querySelector('.slide-animation-container');
+      const hidingContainerEl = el.querySelector('.hiding-container');
+
+      // Make sure all promise details are visible
+      slideAnimationContainer.style.transition = 'none';
+      slideAnimationContainer.style.height = '2000px';
+      hidingContainerEl.style.display = 'block';
+
+      this.measurePromiseDetailHeight(el);
+
+      // Hide them again
+      hidingContainerEl.style.display = null;
+      slideAnimationContainer.style.height = null;
+      slideAnimationContainer.style.transition = null;
+    });
+  }
+}

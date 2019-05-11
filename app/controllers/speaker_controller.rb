@@ -12,18 +12,14 @@ class SpeakerController < ApplicationController
     @speaker = Speaker.find(params[:id])
 
     @statements = get_speaker_statements(@speaker)
-
-    @stats = speaker_stats.build(@speaker)
-
-    @veracities = Veracity.all
   end
 
   private
     def get_speaker_statements(speaker)
       statements = if params[:veracity]
-        speaker.published_statements_by_veracity(params[:veracity])
+        speaker.factual_and_published_statements_by_veracity(params[:veracity])
       else
-        speaker.published_statements
+        speaker.factual_and_published_statements
       end
 
       statements.page(params[:page])

@@ -86,6 +86,7 @@ export interface UserInput {
 };
 
 export interface CreateStatementInput {
+  statementType: StatementType,
   content: string,
   excerptedAt: string,
   important: boolean,
@@ -97,6 +98,12 @@ export interface CreateStatementInput {
   statementTranscriptPosition?: StatementTranscriptPositionInput | null,
   firstCommentContent?: string | null,
 };
+
+export enum StatementType {
+  factual = "factual",
+  promise = "promise",
+}
+
 
 export interface CreateAssessmentInput {
   evaluatorId?: string | null,
@@ -113,10 +120,12 @@ export interface StatementTranscriptPositionInput {
 
 export interface UpdateStatementInput {
   content?: string | null,
+  title?: string | null,
   important?: boolean | null,
   published?: boolean | null,
   countInStatistics?: boolean | null,
   assessment?: UpdateAssessmentInput | null,
+  tags?: Array< string > | null,
 };
 
 export interface UpdateAssessmentInput {
@@ -126,7 +135,17 @@ export interface UpdateAssessmentInput {
   explanationSlatejson?: GraphQLCustomScalar_JSON | null,
   shortExplanation?: string | null,
   veracityId?: string | null,
+  promiseRatingId?: string | null,
 };
+
+export enum PromiseRatingKey {
+  broken = "broken",
+  fulfilled = "fulfilled",
+  in_progress = "in_progress",
+  partially_fulfilled = "partially_fulfilled",
+  stalled = "stalled",
+}
+
 
 export interface CommentInput {
   content: string,
@@ -140,6 +159,12 @@ export interface UpdateSourceStatementsOrderInput {
 export interface UpdateNotificationInput {
   readAt?: string | null,
 };
+
+export enum AssessmentMethodologyRatingModel {
+  promise_rating = "promise_rating",
+  veracity = "veracity",
+}
+
 
 export interface CreateMediaPersonalityMutationVariables {
   mediaPersonalityInput: MediaPersonalityInput,
@@ -651,6 +676,7 @@ export interface UpdateStatementMutation {
     statement:  {
       id: string,
       content: string,
+      title: string | null,
       important: boolean,
       published: boolean,
       excerptedAt: string,
@@ -676,6 +702,11 @@ export interface UpdateStatementMutation {
           key: GraphQLCustomScalar_VeracityKey,
           name: string,
         } | null,
+        promiseRating:  {
+          id: string,
+          key: PromiseRatingKey,
+          name: string,
+        } | null,
       },
       source:  {
         id: string,
@@ -685,6 +716,10 @@ export interface UpdateStatementMutation {
         } >,
       },
       commentsCount: number,
+      tags:  Array< {
+        id: string,
+        name: string,
+      } >,
     },
   } | null,
 };
@@ -998,7 +1033,9 @@ export interface GetSourceStatementsQueryVariables {
 export interface GetSourceStatementsQuery {
   statements:  Array< {
     id: string,
+    statementType: StatementType,
     content: string,
+    title: string | null,
     important: boolean,
     published: boolean,
     speaker:  {
@@ -1009,6 +1046,11 @@ export interface GetSourceStatementsQuery {
     },
     assessment:  {
       id: string,
+      assessmentMethodology:  {
+        id: string,
+        ratingModel: AssessmentMethodologyRatingModel,
+        ratingKeys: Array< string >,
+      },
       evaluationStatus: string,
       evaluator:  {
         id: string,
@@ -1018,6 +1060,11 @@ export interface GetSourceStatementsQuery {
       veracity:  {
         id: string,
         key: GraphQLCustomScalar_VeracityKey,
+        name: string,
+      } | null,
+      promiseRating:  {
+        id: string,
+        key: PromiseRatingKey,
         name: string,
       } | null,
       shortExplanation: string | null,
@@ -1031,6 +1078,10 @@ export interface GetSourceStatementsQuery {
       endLine: number,
       endOffset: number,
     } | null,
+    tags:  Array< {
+      id: string,
+      name: string,
+    } >,
     commentsCount: number,
     sourceOrder: number | null,
   } >,
@@ -1186,7 +1237,9 @@ export interface GetStatementQueryVariables {
 export interface GetStatementQuery {
   statement:  {
     id: string,
+    statementType: StatementType,
     content: string,
+    title: string | null,
     important: boolean,
     published: boolean,
     excerptedAt: string,
@@ -1199,6 +1252,11 @@ export interface GetStatementQuery {
     },
     assessment:  {
       id: string,
+      assessmentMethodology:  {
+        id: string,
+        ratingModel: AssessmentMethodologyRatingModel,
+        ratingKeys: Array< string >,
+      },
       explanationHtml: string | null,
       explanationSlatejson: GraphQLCustomScalar_JSON | null,
       shortExplanation: string | null,
@@ -1211,6 +1269,11 @@ export interface GetStatementQuery {
       veracity:  {
         id: string,
         key: GraphQLCustomScalar_VeracityKey,
+        name: string,
+      } | null,
+      promiseRating:  {
+        id: string,
+        key: PromiseRatingKey,
         name: string,
       } | null,
     },
@@ -1236,6 +1299,10 @@ export interface GetStatementQuery {
     statementTranscriptPosition:  {
       id: string,
     } | null,
+    tags:  Array< {
+      id: string,
+      name: string,
+    } >,
     commentsCount: number,
   },
 };
@@ -1326,4 +1393,58 @@ export interface GetNotificationsQuery {
       readAt: GraphQLCustomScalar_DateTime | null,
     } >,
   },
+};
+
+export interface GetPromiseRatingsForSelectQuery {
+  promiseRatings:  Array< {
+    id: string,
+    key: PromiseRatingKey,
+    name: string,
+  } >,
+};
+
+export interface GetTagsForSelectQueryVariables {
+  forStatementType: StatementType,
+};
+
+export interface GetTagsForSelectQuery {
+  tags:  Array< {
+    id: string,
+    name: string,
+  } >,
+};
+
+export interface GetVeracitiesForSelectQuery {
+  veracities:  Array< {
+    id: string,
+    key: GraphQLCustomScalar_VeracityKey,
+    name: string,
+  } >,
+};
+
+export interface GetUsersForSelectQueryVariables {
+  roles?: Array< string > | null,
+};
+
+export interface GetUsersForSelectQuery {
+  users:  Array< {
+    id: string,
+    firstName: string,
+    lastName: string,
+  } >,
+};
+
+export interface GetSpeakersForSelectQuery {
+  speakers:  Array< {
+    id: string,
+    firstName: string,
+    lastName: string,
+  } >,
+};
+
+export interface GetMediaPersonalitiesForSelectQuery {
+  mediaPersonalities:  Array< {
+    id: string,
+    name: string,
+  } >,
 };

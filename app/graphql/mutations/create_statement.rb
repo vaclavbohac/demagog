@@ -19,6 +19,7 @@ module Mutations
 
       Statement.transaction do
         statement = Statement.new(statement_input)
+        statement.title = "" if statement.statement_type == Statement::TYPE_PROMISE
         statement.save!
 
         if transcript_position_input
@@ -36,6 +37,12 @@ module Mutations
         assessment_input[:evaluation_status] = Assessment::STATUS_BEING_EVALUATED
 
         assessment = Assessment.new(assessment_input)
+        # FIXME: We don't want methodology picking hardcoded, do we set it on source level?
+        if statement.statement_type == Statement::TYPE_PROMISE
+          assessment.assessment_methodology = AssessmentMethodology.find_by!(name: "Demagog.cz metodika analýzy slibů druhé vlády Andreje Babiše")
+        else
+          assessment.assessment_methodology = AssessmentMethodology.find_by!(name: "Demagog.cz fact-checking metodika")
+        end
         assessment.create_notifications(context[:current_user])
         assessment.save!
 
