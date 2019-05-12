@@ -1,26 +1,13 @@
 import * as React from 'react';
 
-import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import Select from 'react-select';
 
-const GET_USERS = gql`
-  query GetUsersForUserSelect($roles: [String!]) {
-    users(limit: 200, roles: $roles) {
-      id
-      first_name
-      last_name
-    }
-  }
-`;
-
-interface IGetUsersForUserSelectQuery {
-  users: Array<{
-    id: string;
-    first_name: string;
-    last_name: string;
-  }>;
-}
+import {
+  GetUsersForSelectQuery,
+  GetUsersForSelectQueryVariables,
+} from '../../../operation-result-types';
+import { GetUsersForSelect } from '../../../queries/queries';
 
 interface ISelectOption {
   label: string;
@@ -39,13 +26,16 @@ interface IProps {
 export default class UserSelect extends React.Component<IProps> {
   public render() {
     return (
-      <Query<IGetUsersForUserSelectQuery> query={GET_USERS} variables={{ roles: this.props.roles }}>
+      <Query<GetUsersForSelectQuery, GetUsersForSelectQueryVariables>
+        query={GetUsersForSelect}
+        variables={{ roles: this.props.roles }}
+      >
         {({ data, loading }) => {
           let options: ISelectOption[] = [];
 
           if (data && !loading) {
             options = data.users.map((user) => ({
-              label: `${user.first_name} ${user.last_name}`,
+              label: `${user.firstName} ${user.lastName}`,
               value: user.id,
             }));
           }

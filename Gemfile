@@ -16,6 +16,8 @@ gem "rails", "~> 5.2"
 gem "bulk_insert"
 # Use Postgresql as the database for Active Record
 gem "pg"
+# Use scenic for materilized views
+gem "scenic"
 # Use Unicorn as the app server
 gem "unicorn"
 # Use SCSS for stylesheets
@@ -36,11 +38,11 @@ gem "rack-cors", require: "rack/cors"
 gem "discard", "~> 1.0"
 
 # Use CoffeeScript for .coffee assets and views
-gem "coffee-rails", "~> 4.2"
-# Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
-gem "turbolinks", "~> 5"
+# gem "coffee-rails", "~> 4.2"
+#  Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
+# gem "turbolinks", "~> 5"
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem "jbuilder", "~> 2.5"
+# gem "jbuilder", "~> 2.5"
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password
@@ -56,7 +58,7 @@ gem "meta-tags"
 gem "config"
 
 # Authentication
-gem "devise"
+gem "devise", ">= 4.6.0"
 
 # Enables devise & omniauth to authenticate against Google OAuth 2
 gem "omniauth-google-oauth2"
@@ -119,8 +121,8 @@ group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem "byebug", platforms: [:mri, :mingw, :x64_mingw]
   # Adds support for Capybara system testing and selenium driver
-  gem "capybara", "~> 2.13"
-  gem "selenium-webdriver"
+  # gem "capybara", "~> 2.13"
+  # gem "selenium-webdriver"
 
   # Tools for autorunning tests
   gem "guard"
@@ -128,6 +130,9 @@ group :development, :test do
 
   # Fixture replacement
   gem "factory_bot_rails"
+
+  # For intellisense in editors
+  gem "solargraph"
 end
 
 group :development do
@@ -142,4 +147,6 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-gem "graphiql-rails", "1.4.4"
+# graphiql-rails 1.5 and up fails in production, see issue:
+# https://github.com/rmosolgo/graphiql-rails/issues/58
+gem "graphiql-rails", "~> 1.4.11"

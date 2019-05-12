@@ -8,11 +8,10 @@ import { addFlashMessage } from '../../actions/flashMessages';
 import {
   CreateMediumMutation,
   CreateMediumMutationVariables,
-  MediumInputType,
+  MediumInput,
 } from '../../operation-result-types';
 import { CreateMedium } from '../../queries/mutations';
-import { GetMedia } from '../../queries/queries';
-import { GET_MEDIA_PERSONALITIES } from '../forms/controls/MediaPersonalitySelect';
+import { GetMedia, GetMediaPersonalitiesForSelect } from '../../queries/queries';
 import { MediumForm } from '../forms/MediumForm';
 
 class CreateMediumMutationComponent extends Mutation<
@@ -37,14 +36,14 @@ export class MediumNew extends React.Component<ISourceNewProps> {
     console.error(error);
   };
 
-  public onSubmit = (createMedium: CreateMediumMutationFn) => (mediumInput: MediumInputType) => {
+  public onSubmit = (createMedium: CreateMediumMutationFn) => (mediumInput: MediumInput) => {
     return createMedium({ variables: { mediumInput } })
       .then((mutationResult) => {
         if (!mutationResult || !mutationResult.data || !mutationResult.data.createMedium) {
           return;
         }
 
-        const mediumId = mutationResult.data.createMedium.id;
+        const mediumId = mutationResult.data.createMedium.medium.id;
 
         this.onSuccess(mediumId);
       })
@@ -59,7 +58,7 @@ export class MediumNew extends React.Component<ISourceNewProps> {
           // TODO: is there a nicer way of updating apollo cache after creating?
           refetchQueries={[
             { query: GetMedia, variables: { name: '' } },
-            { query: GET_MEDIA_PERSONALITIES },
+            { query: GetMediaPersonalitiesForSelect },
           ]}
         >
           {(createMedium) => {

@@ -1,4 +1,4 @@
-<section class="statement-detail <% if @statement.important? %>important-statement<% end %>">
+<section class="container-statement-show <% if @statement.important? %>important-statement<% end %>">
   <a href="<%= speaker_path(@statement.speaker.id) %>" class="speaker">
     <%= render(partial: 'shared/portrait', object: @statement.speaker, as: :speaker) %>
     <span class="name"><%= @statement.speaker.full_name %></span>
@@ -15,7 +15,7 @@
         </span>
       <% end %>
     </blockquote>
-    <cite><%= @statement.source.medium.name %>, <%= raw(l(@statement.source.released_at, format: :long)) %></cite>
+    <cite><%= @statement.source.medium.name %>, <%= raw(l(@statement.source.released_at, format: :long, locale: :cs)) %></cite>
 
     <h1>
       Tento výrok byl ověřen jako

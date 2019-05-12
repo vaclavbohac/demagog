@@ -1,25 +1,21 @@
 # frozen_string_literal: true
 
-require "json"
-
 class GraphqlController < ApplicationController
   protect_from_forgery except: :execute
-
-  # https://github.com/jaydenseric/apollo-upload-client
-  # sends params[:operations] on multipart submission
-  # fix query and variables before the #execute
 
   def execute
     variables = ensure_hash(params[:variables])
     query = params[:query]
     operation_name = params[:operationName]
     context = {
-      # Query context goes here, for example:
-      # current_user: current_user,
-      current_user: current_user
+      current_user: current_user,
     }
     result = DemagogSchema.execute(query, variables: variables, context: context, operation_name: operation_name)
+    log_public_api_access(query, variables) unless current_user
     render json: result
+  rescue => e
+    raise e unless Rails.env.development?
+    handle_error_in_development e
   end
 
   private
@@ -40,5 +36,17 @@ class GraphqlController < ApplicationController
       else
         raise ArgumentError, "Unexpected parameter: #{ambiguous_param}"
       end
+    end
+
+
+    def handle_error_in_development(e)
+      logger.error e.message
+      logger.error e.backtrace.join("\n")
+
+      render json: { error: { message: e.message, backtrace: e.backtrace }, data: {} }, status: 500
+    end
+
+    def log_public_api_access(query, variables)
+      PublicApiAccess.log(request.remote_ip, request.user_agent, query, variables)
     end
 end

@@ -6,13 +6,12 @@ import { addFlashMessage } from '../../actions/flashMessages';
 import {
   GetMediumQuery,
   GetMediumQueryVariables,
-  MediumInputType,
+  MediumInput,
   UpdateMediumMutation,
   UpdateMediumMutationVariables,
 } from '../../operation-result-types';
 import { UpdateMedium } from '../../queries/mutations';
-import { GetMedia, GetMedium } from '../../queries/queries';
-import { GET_MEDIA_PERSONALITIES } from '../forms/controls/MediaPersonalitySelect';
+import { GetMedia, GetMediaPersonalitiesForSelect, GetMedium } from '../../queries/queries';
 import { MediumForm } from '../forms/MediumForm';
 import Loading from '../Loading';
 
@@ -37,7 +36,7 @@ class MediumEdit extends React.Component<IMediumEditProps> {
     console.error(error);
   };
 
-  public onSubmit = (updateMedium: UpdateMediumMutationFn) => (mediumInput: MediumInputType) => {
+  public onSubmit = (updateMedium: UpdateMediumMutationFn) => (mediumInput: MediumInput) => {
     const id = this.getParamId();
 
     return updateMedium({ variables: { id, mediumInput } })
@@ -68,7 +67,7 @@ class MediumEdit extends React.Component<IMediumEditProps> {
                 refetchQueries={[
                   { query: GetMedia, variables: { name: '' } },
                   { query: GetMedium, variables: { id } },
-                  { query: GET_MEDIA_PERSONALITIES },
+                  { query: GetMediaPersonalitiesForSelect },
                 ]}
               >
                 {(updateMedium) => {

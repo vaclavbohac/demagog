@@ -10,7 +10,7 @@ import { Mutation, Query } from 'react-apollo';
 import { Mention, MentionsInput } from 'react-mentions';
 
 import {
-  CommentInputType,
+  CommentInput,
   CreateCommentMutation,
   CreateCommentMutationVariables,
   GetStatementCommentsQuery,
@@ -65,23 +65,27 @@ class StatementComments extends React.PureComponent<IProps> {
               {data.statement.comments.map((comment) => (
                 <div key={comment.id} style={{ marginBottom: 15 }}>
                   <strong>
-                    {comment.user.first_name} {comment.user.last_name}
+                    {comment.user.firstName} {comment.user.lastName}
                   </strong>
                   <small className={Classes.TEXT_MUTED} style={{ marginLeft: 10 }}>
-                    {formatCreatedAt(comment.created_at)}
+                    {formatCreatedAt(comment.createdAt)}
                   </small>
-                  <p
+                  <div
                     style={{ marginTop: 3 }}
                     className={css`
-                      margin-top: 3px;
-                      word-break: break-word;
+                      p {
+                        margin: 3px 0 5px 0;
+                        word-break: break-word;
 
-                      span.highlight {
-                        background-color: rgb(206, 230, 249);
+                        span.highlight {
+                          background-color: rgb(206, 230, 249);
+                        }
                       }
                     `}
                     dangerouslySetInnerHTML={{
-                      __html: highlightMentions(nicerLinks(comment.content)),
+                      __html: newlinesToParagraphsAndBreaks(
+                        highlightMentions(nicerLinks(comment.content)),
+                      ),
                     }}
                   />
                 </div>
@@ -117,6 +121,18 @@ const nicerLinks = (commentContent: string) =>
     },
   });
 
+const newlinesToParagraphsAndBreaks = (commentContent: string): string => {
+  let paragraphs = commentContent.split(/(?:\r\n|\r|\n){2,}/);
+
+  paragraphs = paragraphs.map((paragraph) => {
+    const lines = paragraph.split(/(?:\r\n|\r|\n)/);
+
+    return lines.join('<br>');
+  });
+
+  return paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('');
+};
+
 interface IAddCommentFormProps {
   statementId: string;
   onCommentAdded: () => void;
@@ -133,9 +149,9 @@ const AddCommentForm = (props: IAddCommentFormProps) => {
         <Formik
           initialValues={initialValues}
           onSubmit={(values, { setSubmitting, resetForm }) => {
-            const commentInput: CommentInputType = {
+            const commentInput: CommentInput = {
               content: values.content.trim(),
-              statement_id: props.statementId,
+              statementId: props.statementId,
             };
 
             createComment({ variables: { commentInput } })
@@ -207,7 +223,7 @@ const CommentInput = (props: ICommentInputProps) => {
 
         const suggestions = data.users.map((u) => ({
           id: u.id,
-          display: `${u.first_name} ${u.last_name}`,
+          display: `${u.firstName} ${u.lastName}`,
         }));
 
         return (

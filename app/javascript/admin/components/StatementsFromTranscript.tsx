@@ -19,12 +19,13 @@ import { Editor, RenderMarkProps } from 'slate-react';
 
 import { isAuthorized } from '../authorization';
 import {
-  CreateStatementInputType,
+  CreateStatementInput,
   CreateStatementMutation,
   CreateStatementMutationVariables,
   GetSourceQuery,
   GetSourceStatementsQuery,
   GetSourceStatementsQueryVariables,
+  StatementType,
 } from '../operation-result-types';
 import { CreateStatement } from '../queries/mutations';
 import { GetSource, GetSourceStatements } from '../queries/queries';
@@ -140,19 +141,19 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
                 <h2 className={Classes.HEADING}>{source.name}</h2>
 
                 <span>
-                  {source.medium.name} ze dne {displayDate(source.released_at)}
-                  {source.media_personalities.length > 0 && (
-                    <>, {source.media_personalities.map((p) => p.name).join(' & ')}</>
+                  {source.medium.name} ze dne {displayDate(source.releasedAt)}
+                  {source.mediaPersonalities.length > 0 && (
+                    <>, {source.mediaPersonalities.map((p) => p.name).join(' & ')}</>
                   )}
-                  {source.source_url && (
+                  {source.sourceUrl && (
                     <>
-                      , <a href={source.source_url}>odkaz</a>
+                      , <a href={source.sourceUrl}>odkaz</a>
                     </>
                   )}
                   {source.expert && (
                     <>
                       <br />
-                      Expert: {source.expert.first_name} {source.expert.last_name}
+                      Expert: {source.expert.firstName} {source.expert.lastName}
                     </>
                   )}
                 </span>
@@ -188,7 +189,7 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
           const statements = data.statements;
 
           const statementsWithPositions = statements.filter(
-            (s) => s.statement_transcript_position !== null,
+            (s) => s.statementTranscriptPosition !== null,
           );
 
           let statementsToDisplay = statementsWithPositions;
@@ -205,10 +206,10 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
               (s) => s.id === queryParams.highlightStatementId,
             );
 
-            if (highlightStatement && highlightStatement.statement_transcript_position) {
+            if (highlightStatement && highlightStatement.statementTranscriptPosition) {
               startCursor = {
-                line: highlightStatement.statement_transcript_position.start_line,
-                offset: highlightStatement.statement_transcript_position.start_offset,
+                line: highlightStatement.statementTranscriptPosition.startLine,
+                offset: highlightStatement.statementTranscriptPosition.startOffset,
               };
             }
           }
@@ -336,6 +337,7 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
     const { onRequestClose, onStatementCreated, selection, source } = this.props;
 
     const initialValues = {
+      statement_type: StatementType.factual,
       content: selection.text,
       speaker_id: source.speakers[0].id,
       note: '',
@@ -353,24 +355,25 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
             onSubmit={(values, { setSubmitting }) => {
               const note = values.note.trim();
 
-              const statementInput: CreateStatementInputType = {
+              const statementInput: CreateStatementInput = {
+                statementType: values.statement_type,
                 content: values.content,
-                speaker_id: values.speaker_id,
-                source_id: source.id,
+                speakerId: values.speaker_id,
+                sourceId: source.id,
                 important: false,
                 published: false,
-                count_in_statistics: true,
-                excerpted_at: DateTime.utc().toISO(),
+                countInStatistics: true,
+                excerptedAt: DateTime.utc().toISO(),
                 assessment: {
-                  evaluator_id: values.evaluator_id,
+                  evaluatorId: values.evaluator_id,
                 },
-                statement_transcript_position: {
-                  start_line: selection.startLine,
-                  start_offset: selection.startOffset,
-                  end_line: selection.endLine,
-                  end_offset: selection.endOffset,
+                statementTranscriptPosition: {
+                  startLine: selection.startLine,
+                  startOffset: selection.startOffset,
+                  endLine: selection.endLine,
+                  endOffset: selection.endOffset,
                 },
-                first_comment_content: note !== '' ? note : null,
+                firstCommentContent: note !== '' ? note : null,
               };
 
               createStatement({ variables: { statementInput } })
@@ -411,15 +414,24 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
                     <FormGroup label="Znění" name="content">
                       <TextareaField name="content" rows={5} autoFocus />
                     </FormGroup>
-                    <FormGroup label="Řečník" name="speaker_id">
-                      <SelectField
-                        name="speaker_id"
-                        options={source.speakers.map((s) => ({
-                          label: `${s.first_name} ${s.last_name}`,
-                          value: s.id,
-                        }))}
-                      />
-                    </FormGroup>
+                    <div style={{ display: 'flex' }}>
+                      <div style={{ flex: '1 1' }}>
+                        <FormGroup label="Řečník" name="speaker_id">
+                          <SelectField
+                            name="speaker_id"
+                            options={source.speakers.map((s) => ({
+                              label: `${s.firstName} ${s.lastName}`,
+                              value: s.id,
+                            }))}
+                          />
+                        </FormGroup>
+                      </div>
+                      <div style={{ flex: '1 1' }}>
+                        <FormGroup label="Typ výroku" name="statement_type">
+                          <SelectField name="statement_type" options={STATEMENT_TYPE_OPTIONS} />
+                        </FormGroup>
+                      </div>
+                    </div>
                     <FormGroup label="Ověřovatel" name="evaluator_id" optional>
                       <SelectComponentField name="evaluator_id">
                         {(renderProps) => <UserSelect {...renderProps} />}
@@ -747,6 +759,17 @@ const removeDecorationsWithMarkType = (
     return !decoration.mark.type.startsWith(markTypeStartsWith);
   }) as Immutable.List<Slate.Decoration>;
 };
+
+const STATEMENT_TYPE_OPTIONS = [
+  {
+    label: 'Faktický',
+    value: StatementType.factual,
+  },
+  {
+    label: 'Slib',
+    value: StatementType.promise,
+  },
+];
 
 const mapStateToProps = (state: ReduxState) => ({
   isAuthorized: isAuthorized(state.currentUser.user),

@@ -1,19 +1,12 @@
 # frozen_string_literal: true
 
 class ApplicationController < ActionController::Base
+  before_action :ensure_user_is_active
   before_action :set_raven_context
   protect_from_forgery with: :exception
 
   def menu_items
     MenuItem.order(order: :asc)
-  end
-
-  def speaker_stats
-    Stats::Speaker::StatsBuilderFactory.new.create(Settings)
-  end
-
-  def article_stats
-    Stats::Article::StatsBuilderFactory.new.create(Settings)
   end
 
   protected
@@ -23,6 +16,13 @@ class ApplicationController < ActionController::Base
 
     def after_sign_out_path_for(resource)
       admin_path
+    end
+
+    def ensure_user_is_active
+      # Make sure that we sign out the deactivated user if they are still logged in
+      if current_user && !current_user.active
+        sign_out
+      end
     end
 
     def set_raven_context
