@@ -1,4 +1,4 @@
-FROM ruby:2.5.3-slim
+FROM ruby:2.6.3-slim
 MAINTAINER Vaclav Bohac <bohac.v@gmail.com>
 
 RUN apt-get -y update && \
@@ -6,7 +6,7 @@ RUN apt-get -y update && \
         build-essential \
         curl gnupg \
         git-all \
-        default-libmysqlclient-dev && \
+        libpq-dev && \
       curl -sL https://deb.nodesource.com/setup_10.x | bash -  && \
       apt-get update  && \
       apt-get install -y nodejs && \
