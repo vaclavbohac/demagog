@@ -7,8 +7,10 @@ config = {
   }
 }
 
-if File.exists?("config/elasticsearch.yml")
-  config.merge!(YAML.load_file("config/elasticsearch.yml")[Rails.env].symbolize_keys)
+config_file = Rails.root.join("config", "elasticsearch.yml")
+
+if config_file.exist?
+  config.merge!(YAML.load(ERB.new(config_file.read).result)[Rails.env].symbolize_keys)
 end
 
 Elasticsearch::Model.client = Elasticsearch::Client.new(config)
