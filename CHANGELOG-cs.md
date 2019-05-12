@@ -3,6 +3,7 @@
 Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
 ## 12. května 2019
+- Přidáno: Sliby jdou vkládat jako segment do článku ([#386](https://github.com/Demagog2/demagog/pull/386))
 - Přidáno: Vladní sliby na homepage ([#385](https://github.com/Demagog2/demagog/pull/385))
 
 ## 11. května 2019
