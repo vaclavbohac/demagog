@@ -73,6 +73,7 @@ Rails.application.routes.draw do
 
   # Shortcut redirect
   get "workshopy", to: redirect("/diskuze/workshopy-demagogcz")
+  get "tips", to: redirect("/diskuze/3-kroky-pro-rozpoznani-fake-news")
 
   # Dynamic error pages
   get "/404", to: "error#not_found"
