@@ -56,6 +56,7 @@ class PromisesController < ApplicationController
 
           Statement
             .where(source_id: [439, 440, 441, 442, 443, 444])
+            .where(published: true)
             .includes(:assessment, assessment: [:promise_rating, :assessment_methodology])
             .order(
               Arel.sql("title COLLATE \"#{collation}\" ASC")
@@ -80,6 +81,7 @@ class PromisesController < ApplicationController
 
           Statement
             .where(source_id: [562])
+            .where(published: true)
             .where(assessments: {
               evaluation_status: Assessment::STATUS_APPROVED,
             })
@@ -108,14 +110,22 @@ class PromisesController < ApplicationController
     definition = @promises_definitions.fetch(params[:slug], nil)
     raise ActionController::RoutingError.new("Not Found") if definition.nil?
 
-    # Preview only for users signed in to admin. Remove when launching.
-    raise ActionController::RoutingError.new("Not Found") if params[:slug] == "druha-vlada-andreje-babise" && !user_signed_in?
+    # Preview only for users signed in to admin & ones with the access key. Remove when launching.
+    if params[:slug] == "druha-vlada-andreje-babise"
+      unless user_signed_in? || (!ENV["PROMISES_ACCESS_KEY"].nil? && ENV["PROMISES_ACCESS_KEY"] == params[:access])
+        raise ActionController::RoutingError.new("Not Found")
+      end
+    end
+
+    ENV["DB_PER_COLUMN_COLLATION"]
 
     @slug = params[:slug]
     @all = definition[:get_statements].call
     @get_statement_source_url = definition[:get_statement_source_url]
     @get_statement_source_label = definition[:get_statement_source_label]
     @intro_partial = definition[:intro_partial]
+
+    @allow_embed = @slug == "druha-vlada-andreje-babise"
 
     @promise_rating_keys = @all.first.assessment.assessment_methodology.rating_keys
     @all_count = @all.count
@@ -149,7 +159,7 @@ class PromisesController < ApplicationController
 
   def methodology
     definition = @promises_definitions.fetch(params[:slug], nil)
-    raise ActionController::RoutingError.new("Not Found") if definition.nil?
+    raise ActionController::RoutingError.new("Not Found") if definition.nil? || params[:slug] != "sobotkova-vlada"
 
     @slug = params[:slug]
     @methodology_partial = definition[:methodology_partial]
@@ -158,6 +168,9 @@ class PromisesController < ApplicationController
   def promise_embed
     definition = @promises_definitions.fetch(params[:slug], nil)
     raise ActionController::RoutingError.new("Not Found") if definition.nil? || params[:slug] != "druha-vlada-andreje-babise"
+
+    @display = params[:display] == "short" ? "short" : "full"
+    @logo = params[:logo] == "hide" ? "hide" : "show"
 
     @get_statement_source_url = definition[:get_statement_source_url]
     @get_statement_source_label = definition[:get_statement_source_label]
@@ -173,8 +186,6 @@ class PromisesController < ApplicationController
     statements = definition[:get_statements].call
     @statement = statements.where(id: params[:promise_id]).first
     raise ActionController::RoutingError.new("Not Found") if @statement.nil?
-
-    raise ActionController::RoutingError.new("Not Found") if !@statement.published && !user_signed_in?
 
     response.headers["X-FRAME-OPTIONS"] = "ALLOWALL"
     render(layout: "layouts/embed")

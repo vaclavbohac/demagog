@@ -1,8 +1,7 @@
 <article
   class="container-promises-overview"
   data-controller="promises--overview promises--embed-modal"
-  data-action="resize@window->promises--overview#handleWindowResize"
-  data-action="popstate@window->promises--overview#handleWindowPopstate"
+  data-action="resize@window->promises--overview#handleWindowResize popstate@window->promises--overview#handleWindowPopstate"
   data-promises--overview-query-params-filter-keys="<%= @params_filter_keys.to_json %>"
   data-promises--overview-query-params-filter-values="<%= @params_filter_values.to_json %>"
 >
@@ -167,7 +166,9 @@
                         <div class="evaluation-and-permalink">
                           <span class="promise-evaluation <%= statement.assessment.promise_rating.key.dasherize %>"> <%= @promises_list_rating_labels[statement.assessment.promise_rating.key] %></span>
                           <a class="permalink" href="<%= promise_permalink(statement) %>">trvalý odkaz</a>
-                          <button class="embed-button" type="button" data-action="promises--embed-modal#showModal" data-statement-id="<%= statement.id %>">embed</button>
+                          <% if @allow_embed %>
+                            <button class="embed-button" type="button" data-action="promises--embed-modal#showModal" data-statement-id="<%= statement.id %>">embed</button>
+                          <% end %>
                         </div>
                         <div class="explanation-container <% if statement.assessment.short_explanation.nil? %>full-explanation-only<% end %>">
                           <% unless statement.assessment.short_explanation.nil? %>
@@ -207,6 +208,22 @@
           </h2>
         </div>
         <div class="embed-modal-content" id="embed-modal-content">
+          <div class="embed-display-picker">
+            <button
+              type="button"
+              data-target="promises--embed-modal.displayFullButton"
+              data-action="promises--embed-modal#setDisplayFull"
+            >
+              Plné zobrazení
+            </button>
+            <button
+              type="button"
+              data-target="promises--embed-modal.displayShortButton"
+              data-action="promises--embed-modal#setDisplayShort"
+            >
+              Zkrácené zobrazení
+            </button>
+          </div>
           <h3>Kód</h3>
           <textarea class="embed-code" readonly rows="4" data-target="promises--embed-modal.code"></textarea>
           <h3>Náhled vloženého slibu</h3>
