@@ -136,11 +136,11 @@ GEM
       elasticsearch-transport (= 7.0.0)
     elasticsearch-api (7.0.0)
       multi_json
-    elasticsearch-model (6.0.0)
+    elasticsearch-model (7.0.0.pre)
       activesupport (> 3)
       elasticsearch (> 1)
       hashie
-    elasticsearch-rails (6.0.0)
+    elasticsearch-rails (7.0.0.pre)
     elasticsearch-transport (7.0.0)
       faraday
       multi_json
@@ -234,7 +234,7 @@ GEM
     minitest (5.11.3)
     multi_json (1.13.1)
     multi_xml (0.6.0)
-    multipart-post (2.1.0)
+    multipart-post (2.1.1)
     nenv (0.3.0)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
@@ -419,8 +419,8 @@ DEPENDENCIES
   devise (>= 4.6.0)
   discard (~> 1.0)
   dotenv-rails
-  elasticsearch-model
-  elasticsearch-rails
+  elasticsearch-model (~> 7.0.0.pre)
+  elasticsearch-rails (~> 7.0.0.pre)
   factory_bot_rails
   ffi (~> 1.9.24)
   friendly_id (~> 5.1.0)
