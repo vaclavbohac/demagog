@@ -25,7 +25,7 @@ module SearchHelper
   end
 
   def render_speakers(record)
-    render(partial: "speaker/listed", collection: record, as: :speaker, locals: { showLatest: false })
+    render(partial: "speaker/listed", collection: record, as: :speaker, locals: { show_latest: false })
   end
 
   def render_articles(record)
