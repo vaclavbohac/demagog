@@ -127,6 +127,7 @@ export interface UpdateStatementInput {
   countInStatistics?: boolean | null,
   assessment?: UpdateAssessmentInput | null,
   tags?: Array< string > | null,
+  speaker?: string | null,
 };
 
 export interface UpdateAssessmentInput {
@@ -1299,6 +1300,11 @@ export interface GetStatementQuery {
         firstName: string,
         lastName: string,
       } | null,
+      speakers:  Array< {
+        id: string,
+        firstName: string,
+        lastName: string,
+      } >,
     },
     statementTranscriptPosition:  {
       id: string,
