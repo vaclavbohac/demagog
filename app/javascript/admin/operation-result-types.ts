@@ -34,6 +34,7 @@ export interface ArticleSegmentInput {
   textHtml?: string | null,
   textSlatejson?: GraphQLCustomScalar_JSON | null,
   sourceId?: string | null,
+  promiseUrl?: string | null,
 };
 
 export interface SourceInput {
@@ -126,6 +127,7 @@ export interface UpdateStatementInput {
   countInStatistics?: boolean | null,
   assessment?: UpdateAssessmentInput | null,
   tags?: Array< string > | null,
+  speaker?: string | null,
 };
 
 export interface UpdateAssessmentInput {
@@ -315,6 +317,7 @@ export interface CreateArticleMutation {
         segmentType: string,
         textHtml: string | null,
         textSlatejson: GraphQLCustomScalar_JSON | null,
+        promiseUrl: string | null,
         statements:  Array< {
           id: string,
         } >,
@@ -348,6 +351,7 @@ export interface UpdateArticleMutation {
         segmentType: string,
         textHtml: string | null,
         textSlatejson: GraphQLCustomScalar_JSON | null,
+        promiseUrl: string | null,
         statements:  Array< {
           id: string,
         } >,
@@ -871,6 +875,7 @@ export interface GetArticleQuery {
       segmentType: string,
       textHtml: string | null,
       textSlatejson: GraphQLCustomScalar_JSON | null,
+      promiseUrl: string | null,
       source:  {
         id: string,
       } | null,
@@ -1295,6 +1300,11 @@ export interface GetStatementQuery {
         firstName: string,
         lastName: string,
       } | null,
+      speakers:  Array< {
+        id: string,
+        firstName: string,
+        lastName: string,
+      } >,
     },
     statementTranscriptPosition:  {
       id: string,

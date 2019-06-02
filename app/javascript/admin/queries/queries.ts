@@ -40,6 +40,7 @@ export const GetArticle = gql`
         segmentType
         textHtml
         textSlatejson
+        promiseUrl
         source {
           id
         }
@@ -434,6 +435,11 @@ export const GetStatement = gql`
           name
         }
         expert {
+          id
+          firstName
+          lastName
+        }
+        speakers {
           id
           firstName
           lastName
