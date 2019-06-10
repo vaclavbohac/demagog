@@ -26,39 +26,5 @@ services:
       - 5432:5432
     restart: always
     
-  webpacker:
-    image: ${DOCKER_IMAGE_NAME-demagog}
-    command: ["bin/webpack-dev-server"]
-    env_file:
-      - .env.webpacker
-    volumes:
-      - ./app:/app/app
-      - ./public:/app/public
-    ports:
-      - 3035:3035
-
-  web:
-    image: ${DOCKER_IMAGE_NAME-demagog}
-    build:
-      context: .
-      args:
-        precompileassets: 'not'
-    depends_on:
-      - db
-      - redis
-      - elasticsearch
-      - webpacker
-    ports:
-      - 3000:3000
-    environment:
-      ES_URL: elasticsearch:9200
-      DB_HOST: db
-      WEBPACKER_DEV_SERVER_HOST: webpacker
-
-    command: bundle exec rails s -b 0.0.0.0
-    volumes:
-      - ./app:/app/app
-      - ./public:/app/public
-
 volumes:
     db-data-volume:

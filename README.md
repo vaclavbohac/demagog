@@ -10,26 +10,15 @@ Political fact checking website. For more information see http://demagog.cz/o-na
 
 Demagog can be run, tested and fully developed in the [docker](https://www.docker.com/) environment
 
-## First run
-```
-docker-compose build
-docker-compose up
-```
-
 ## Setting up database
 ```
-docker-compose exec web rails db:create db:migrate db:seed
+rails db:create db:migrate db:seed
 ```
 
 ## Running tests
 ```
-docker-compose exec web rails test
-docker-compose exec web yarn jest
-```
-
-## Rebuilding single service
-```
-docker-compose up -d --no-deps --build <service_name>
+rails test
+yarn jest
 ```
 
 ## Elasticsearch integration
@@ -39,15 +28,12 @@ Elasticsearch server is installed by docker-compose and will be running on http:
 First run:
 ```
 # It's necessary to use the parameters FORCE=y as it creates the elasticsearch indexes
-docker-compose exec web rails environment elasticsearch:import:all FORCE=y
-
-# If you are not using docker for development run:
 rails environment elasticsearch:import:all FORCE=y
 ```
 
 Regular data refresh:
 ```
-docker-compose exec web rails environment elasticsearch:import:all
+rails environment elasticsearch:import:all
 ```
 
 ## Configuration
@@ -97,7 +83,7 @@ Run guard-livereload server with `guard`.
 ## Generating Apollo flow types
 
 ```sh
-docker-compose exec web rails apollo:types
+rails apollo:types
 ```
 
 ### Services (job queues, cache servers, search engines, etc.)
