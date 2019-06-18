@@ -96,6 +96,18 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select ".s-statement", 2
   end
 
+  test "should not find unpublished statements" do
+    create(:unpublished_statement, content: "Integer vulputate sem a nibh rutrum consequat.")
+
+    elasticsearch_index MODELS
+
+    get search_index_path(query: "rutrum")
+
+    assert_response :success
+    assert_select ".s-section-statements", 0
+    assert_select ".s-statement", 0
+  end
+
   test "should render show more button if more than two statements matches" do
     create_list(:statement, 3, content: "Integer vulputate sem a nibh rutrum consequat.")
 

@@ -8,7 +8,7 @@ class SearchController < ApplicationController
 
     @speakers = Speaker.search(query)
     @articles = Article.search(query)
-    @statements = Statement.search(query)
+    @statements = Statement.search_published(query)
   end
 
   def show
@@ -27,6 +27,7 @@ class SearchController < ApplicationController
   end
 
   private
+
     def escape_query(query)
       escaped_characters = Regexp.escape('\\/+-&|!(){}[]^~*?:')
       query.gsub(/([#{escaped_characters}])/, '\\\\\1')

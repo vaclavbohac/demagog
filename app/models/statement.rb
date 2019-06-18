@@ -8,9 +8,9 @@ class Statement < ApplicationRecord
   include Searchable
   include Discardable
 
-  after_create  { ElasticsearchWorker.perform_async(:statement, :index,  self.id) }
-  after_update  { ElasticsearchWorker.perform_async(:statement, :update,  self.id) }
-  after_discard { ElasticsearchWorker.perform_async(:statement, :destroy,  self.id) }
+  after_create { ElasticsearchWorker.perform_async(:statement, :index, self.id) }
+  after_update { ElasticsearchWorker.perform_async(:statement, :update, self.id) }
+  after_discard { ElasticsearchWorker.perform_async(:statement, :destroy, self.id) }
 
   belongs_to :speaker
   belongs_to :source, optional: true
@@ -68,6 +68,19 @@ class Statement < ApplicationRecord
     order(important: :desc).published
   }
 
+  def self.search_published(query)
+    search(
+      query: {
+        bool: {
+          must: {
+            match: { content: query },
+          },
+          filter: [{ term: { published: true } }]
+        }
+      },
+    )
+  end
+
   def self.interesting_statements
     order(excerpted_at: :desc)
       .where(statement_type: Statement::TYPE_FACTUAL)
@@ -100,7 +113,7 @@ class Statement < ApplicationRecord
     evaluator_allowed_attributes = ["content", "title", "tags"]
     evaluator_allowed_changes =
       assessment.evaluation_status == Assessment::STATUS_BEING_EVALUATED &&
-      (changed_attributes.keys - evaluator_allowed_attributes).empty?
+        (changed_attributes.keys - evaluator_allowed_attributes).empty?
 
     if evaluator_allowed_changes && permissions.include?("statements:edit-as-evaluator") && assessment.user_id == user.id
       return true
@@ -109,7 +122,7 @@ class Statement < ApplicationRecord
     texts_allowed_attributes = ["content", "title"]
     texts_allowed_changes =
       [Assessment::STATUS_BEING_EVALUATED, Assessment::STATUS_APPROVAL_NEEDED, Assessment::STATUS_PROOFREADING_NEEDED].include?(assessment.evaluation_status) &&
-      (changed_attributes.keys - texts_allowed_attributes).empty?
+        (changed_attributes.keys - texts_allowed_attributes).empty?
 
     if texts_allowed_changes && permissions.include?("statements:edit-as-proofreader")
       return true
