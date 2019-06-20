@@ -57,6 +57,19 @@ class Article < ApplicationRecord
     ArticleStat.where(article_id: id, speaker_id: speaker.id).normalize
   end
 
+  def self.search_published(query)
+    search(
+      query: {
+        bool: {
+          must: {
+            match: { title: query },
+          },
+          filter: [{ term: { published: true } }]
+        }
+      },
+      )
+  end
+
   def self.cover_story
     published
       .order(published_at: :desc)
