@@ -6,8 +6,8 @@ class SearchController < ApplicationController
   def index
     query = escape_query(params[:query])
 
-    @speakers = Speaker.search(query)
     @articles = Article.search(query)
+    @speakers = Speaker.search(query)
     @statements = Statement.search_published(query)
   end
 

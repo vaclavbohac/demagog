@@ -18,10 +18,16 @@ COPY Gemfile.lock .
 
 RUN bundle install --without development test
 
+RUN npm install -g yarn
+
+COPY package.json .
+COPY yarn.lock .
+
+RUN yarn install
+
 COPY . .
 
-RUN npm install -g yarn && yarn install && \
-  DATABASE_URL=postgresql:doesnt_exist SECRET_KEY_BASE=does-not-matter bundle exec rails assets:precompile && \
+RUN DATABASE_URL=postgresql:doesnt_exist SECRET_KEY_BASE=does-not-matter bundle exec rails assets:precompile && \
   yarn cache clean && \
   rm -rf node_modules
 
