@@ -18,7 +18,7 @@ class SearchController < ApplicationController
                when :articles
                  Article.search(query)
                when :statements
-                 Statement.search(query)
+                 Statement.search_published(query)
                when :speakers
                  Speaker.search(query)
                else

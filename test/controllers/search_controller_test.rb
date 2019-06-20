@@ -194,4 +194,22 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select "h2"
     assert_select ".s-statement", 10
   end
+
+  test "should not render include unpublished statements" do
+    create_list(:statement, 4, content: "Integer vulputate sem a nibh rutrum consequat.")
+    create_list(:unpublished_statement, 8, content: "Integer vulputate sem a nibh rutrum consequat.")
+
+    elasticsearch_index MODELS
+
+    get search_show_path(query: "vulputate", type: :statements)
+
+    assert_response :success
+
+    assert_select ".s-search-field", 1 do
+      assert_select "[value=?]", "vulputate"
+    end
+    assert_select "a.s-back-link[href=?]", search_index_path(query: "vulputate")
+    assert_select "h2"
+    assert_select ".s-statement", 4
+  end
 end
