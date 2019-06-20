@@ -6,7 +6,7 @@ class SearchController < ApplicationController
   def index
     query = escape_query(params[:query])
 
-    @articles = Article.search(query)
+    @articles = Article.search_published(query)
     @speakers = Speaker.search(query)
     @statements = Statement.search_published(query)
   end
@@ -16,7 +16,7 @@ class SearchController < ApplicationController
 
     @results = case params[:type].to_s.to_sym
                when :articles
-                 Article.search(query)
+                 Article.search_published(query)
                when :statements
                  Statement.search_published(query)
                when :speakers

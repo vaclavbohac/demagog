@@ -60,6 +60,18 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select ".s-article", 1
   end
 
+  test "should not find unpublished articles" do
+    create(:fact_check, title: "Lorem ipsum sit dolor", published: false)
+
+    elasticsearch_index MODELS
+
+    get search_index_path(query: "ipsum")
+
+    assert_response :success
+    assert_select ".s-section-articles", 0
+    assert_select ".s-article", 0
+  end
+
   test "should render show more button if more than two articles matches" do
     create_list(:fact_check, 3, title: "Lorem ipsum sit dolor")
 
@@ -176,6 +188,24 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.s-back-link[href=?]", search_index_path(query: "lorem")
     assert_select "h2"
     assert_select ".s-article", 10
+  end
+
+  test "should not render paginated list of unpublished articles" do
+    create_list(:fact_check, 4, title: "Lorem ipsum", published: false)
+    create_list(:fact_check, 8, title: "Lorem ipsum")
+
+    elasticsearch_index MODELS
+
+    get search_show_path(query: "lorem", type: :articles)
+
+    assert_response :success
+
+    assert_select ".s-search-field", 1 do
+      assert_select "[value=?]", "lorem"
+    end
+    assert_select "a.s-back-link[href=?]", search_index_path(query: "lorem")
+    assert_select "h2"
+    assert_select ".s-article", 8
   end
 
   test "should render paginated list of statements" do
