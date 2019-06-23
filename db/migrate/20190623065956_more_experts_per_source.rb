@@ -9,12 +9,20 @@ class MoreExpertsPerSource < ActiveRecord::Migration[5.2]
     # Migrate from expert_id to sources_experts
     reversible do |dir|
       dir.up do
-        Source.unscoped.all.each do |source|
-          source.experts = (source.expert ? [source.expert] : [])
+        select_all("SELECT * FROM sources").each do |source|
+          if source["expert_id"]
+            execute "INSERT INTO sources_experts (source_id, user_id) VALUES (#{source['id']}, #{source['expert_id']})"
+          end
         end
       end
       dir.down do
-        # Not implemented
+        select_all("SELECT * FROM sources").each do |source|
+          experts = select_all("SELECT * FROM sources_experts WHERE source_id = #{source['id']}")
+
+          if experts.length > 0
+            execute "UPDATE sources SET expert_id = #{experts.first['user_id']} WHERE id = #{source['id']}"
+          end
+        end
       end
     end
 
