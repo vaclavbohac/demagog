@@ -67,6 +67,18 @@ class Article < ApplicationRecord
           filter: [{ term: { published: true } }]
         }
       },
+      sort: [
+        {
+          _score: {
+            order: "desc"
+          }
+        },
+        {
+          created_at: {
+            "order": "desc"
+          }
+        }
+      ]
       )
   end
 

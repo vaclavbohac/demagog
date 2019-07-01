@@ -72,6 +72,26 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select ".s-article", 0
   end
 
+  test "should sort articles by date published if the score is equal" do
+    create(:fact_check, title: "Lorem ipsum sit dolor 1", created_at: 1.year.ago)
+    create(:fact_check, title: "Lorem ipsum sit dolor 2", created_at: 1.second.ago)
+
+    elasticsearch_index MODELS
+
+    get search_index_path(query: "ipsum")
+
+    assert_response :success
+    assert_select ".s-section-articles", 1 do
+      assert_select ".s-article", 2 do |elements|
+        TITLES = ["Lorem ipsum sit dolor 2", "Lorem ipsum sit dolor 1"]
+
+        elements.each_with_index do |element, i|
+          assert_select element, ".s-title", TITLES[i]
+        end
+      end
+    end
+  end
+
   test "should render show more button if more than two articles matches" do
     create_list(:fact_check, 3, title: "Lorem ipsum sit dolor")
 
