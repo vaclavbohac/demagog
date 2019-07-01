@@ -28,9 +28,9 @@ class Article < ApplicationRecord
   }
 
   mapping do
-    indexes :title, type: 'text'
-    indexes :perex, type: 'text'
-    indexes :created_at, type: 'date'
+    indexes :title, type: "text"
+    indexes :perex, type: "text"
+    indexes :created_at, type: "date"
   end
 
   def set_defaults
