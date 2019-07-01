@@ -60,6 +60,18 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select ".s-article", 1
   end
 
+  test "should find articles by perex" do
+    create(:fact_check, perex: "Lorem ipsum sit dolor")
+
+    elasticsearch_index MODELS
+
+    get search_index_path(query: "ipsum")
+
+    assert_response :success
+    assert_select ".s-section-articles", 1
+    assert_select ".s-article", 1
+  end
+
   test "should not find unpublished articles" do
     create(:fact_check, title: "Lorem ipsum sit dolor", published: false)
 

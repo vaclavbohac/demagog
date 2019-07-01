@@ -68,7 +68,7 @@ class Article < ApplicationRecord
       query: {
         bool: {
           must: {
-            match: { title: query },
+            multi_match: { query: query, fields: ["title", "perex"] },
           },
           filter: [{ term: { published: true } }]
         }
