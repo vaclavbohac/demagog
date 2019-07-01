@@ -69,6 +69,8 @@ Rails.application.routes.draw do
   get "sliby/:slug/embed/:promise_id" => "promises#promise_embed"
 
   # get "sliby-sobotkovy-vlady/programove-prohlaseni" => "promises#document"
+  get "sliby/:slug/programove-prohlaseni" => "promises#document"
+
   get "search/index"
   get "search/show"
 

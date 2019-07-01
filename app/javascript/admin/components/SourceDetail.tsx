@@ -300,10 +300,13 @@ class SourceDetail extends React.Component<IProps, IState> {
                       , <a href={source.sourceUrl}>odkaz</a>
                     </>
                   )}
-                  {source.expert && (
+                  {source.experts.length > 0 && (
                     <>
                       <br />
-                      Expert: {source.expert.firstName} {source.expert.lastName}
+                      {source.experts.length === 1 ? 'Expert: ' : 'Experti: '}
+                      {source.experts
+                        .map((expert) => `${expert.firstName} ${expert.lastName}`)
+                        .join(', ')}
                     </>
                   )}
                 </span>
@@ -435,6 +438,13 @@ class SourceDetail extends React.Component<IProps, IState> {
 
           const statementsToDisplay = data.statements.filter((statement) => {
             if (statementsFilter !== null) {
+              if (statementsFilter.field === 'verifiedAndUnpublished') {
+                return (
+                  statement.assessment.evaluationStatus === ASSESSMENT_STATUS_APPROVED &&
+                  statement.published === false
+                );
+              }
+
               return get(statement, statementsFilter.field, null) === statementsFilter.value;
             } else {
               return true;
@@ -533,6 +543,22 @@ class SourceDetail extends React.Component<IProps, IState> {
                         onClick={this.onStatementsFilterClick('published', option.value)}
                       />
                     ))}
+
+                    <MenuItem
+                      text={`Nezveřejněné, schválené (${
+                        data.statements.filter(
+                          (statement) =>
+                            statement.assessment.evaluationStatus === ASSESSMENT_STATUS_APPROVED &&
+                            statement.published === false,
+                        ).length
+                      })`}
+                      active={
+                        statementsFilter !== null &&
+                        statementsFilter.field === 'verifiedAndUnpublished' &&
+                        statementsFilter.value === true
+                      }
+                      onClick={this.onStatementsFilterClick('verifiedAndUnpublished', true)}
+                    />
 
                     <MenuDivider title="Filtrovat dle ověřovatele" />
                     {evaluatorFilterOptions.map((option) => (

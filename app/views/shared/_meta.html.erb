@@ -2,21 +2,17 @@
   title: content_for?(:title) ? yield(:title) : 'Demagog.cz — Factcheck politických diskuzí',
   separator: "&mdash;".html_safe,
   reverse: true,
-  description: (defined?(@article) and @article.perex.present?) ?
-    strip_tags(@article.perex).truncate(230) :
-    'Politici operují s informacemi, které jsou zkreslené, účelově vytrhávané z původních kontextů, neúplné anebo přímo lživé. Moderátor o tom často nevědí, protože jim chybějí informace a nedokážou efektivně a jednoznačně oponovat. Projekt Demagog.cz má za cíl kontrolu těchto tvrzení.',
+  description: content_for?(:description) ? yield(:description) : 'Politici operují s informacemi, které jsou zkreslené, účelově vytrhávané z původních kontextů, neúplné anebo přímo lživé. Moderátor o tom často nevědí, protože jim chybějí informace a nedokážou efektivně a jednoznačně oponovat. Projekt Demagog.cz má za cíl kontrolu těchto tvrzení.',
   keywords: %w[factcheck politics truth ověřování politika pravda],
   author: 'Demagog.cz',
   web_author: 'Demagog2 Dev Team — github.com/Demagog2',
-  viewport: 'width=device-width, initial-scale=1',
+  viewport: content_for?(:viewport) ? yield(:viewport) : 'width=device-width, initial-scale=1',
   'theme-color': '#f04124',
   charset: 'utf-8',
   alternate: [
     { href: rss_index_path(format: :atom), type: 'application/rss+xml', title: 'RSS' },
   ],
-  image_src: defined?(@article) ?
-      @article.illustration.attached? ? polymorphic_url(@article.illustration) : nil :
-      asset_path("apple-touch-icon.png"),
+  image_src: content_for?(:image_src) ? yield(:image_src) : asset_url("apple-touch-icon.png"),
   icon: [
     { href: asset_path('favicon.png'), sizes: '64x64', type: 'image/png' },
     { href: asset_path('apple-touch-icon.png'), rel: 'apple-touch-icon-precomposed', sizes: '114x114', type: 'image/png' },
@@ -31,7 +27,10 @@
     author: :author
   },
   twitter: {
-    card: 'summary',
-    site: '@DemagogCZ'
+    card: 'summary_large_image',
+    site: '@DemagogCZ',
+    title: :title,
+    description: :description,
+    image: :image_src
   }
 %>

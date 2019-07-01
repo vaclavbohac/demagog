@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_12_140722) do
+ActiveRecord::Schema.define(version: 2019_06_29_122524) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -262,8 +262,14 @@ ActiveRecord::Schema.define(version: 2019_05_12_140722) do
     t.datetime "updated_at", null: false
     t.string "name", null: false
     t.datetime "deleted_at"
-    t.bigint "expert_id"
     t.index ["medium_id"], name: "index_sources_on_medium_id"
+  end
+
+  create_table "sources_experts", id: false, force: :cascade do |t|
+    t.bigint "source_id"
+    t.bigint "user_id"
+    t.index ["source_id"], name: "index_sources_experts_on_source_id"
+    t.index ["user_id"], name: "index_sources_experts_on_user_id"
   end
 
   create_table "sources_media_personalities", id: false, force: :cascade do |t|
@@ -371,6 +377,17 @@ ActiveRecord::Schema.define(version: 2019_05_12_140722) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "key"
+  end
+
+  create_table "versions", force: :cascade do |t|
+    t.string "item_type", null: false
+    t.bigint "item_id", null: false
+    t.string "event", null: false
+    t.string "whodunnit"
+    t.text "object"
+    t.datetime "created_at"
+    t.text "object_changes"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
   add_foreign_key "article_segments", "articles"
