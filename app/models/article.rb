@@ -27,6 +27,12 @@ class Article < ApplicationRecord
       .where("published_at <= NOW()")
   }
 
+  mapping do
+    indexes :title, type: 'text'
+    indexes :perex, type: 'text'
+    indexes :created_at, type: 'date'
+  end
+
   def set_defaults
     self.published ||= false
   end
