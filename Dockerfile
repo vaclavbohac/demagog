@@ -1,31 +1,49 @@
-FROM ruby:2.5.3-slim
-MAINTAINER Vaclav Bohac <bohac.v@gmail.com>
+FROM ruby:2.6.3-alpine3.9
 
-RUN apt-get -y update && \
-      apt-get install --fix-missing --no-install-recommends -qq -y \
-        build-essential \
-        curl gnupg \
-        git-all \
-        default-libmysqlclient-dev && \
-      curl -sL https://deb.nodesource.com/setup_10.x | bash -  && \
-      apt-get update  && \
-      apt-get install -y nodejs && \
-      apt-get clean && \
-      rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ENV RAILS_ENV production
+
+RUN apk add --no-cache --update build-base \
+                                linux-headers \
+                                git \
+                                postgresql-dev \
+                                nodejs \
+                                nodejs-npm \
+                                tzdata && \
+                                gem install bundler
 
 WORKDIR /app
-
-RUN gem install bundler
 
 COPY Gemfile .
 COPY Gemfile.lock .
 
-RUN bundle install
+RUN bundle install --without development test
+
+RUN npm install -g yarn
 
 COPY package.json .
 COPY yarn.lock .
 
-RUN npm install -g yarn
 RUN yarn install
 
 COPY . .
+
+RUN DATABASE_URL=postgresql:doesnt_exist SECRET_KEY_BASE=does-not-matter bundle exec rails assets:precompile && \
+  yarn cache clean && \
+  rm -rf node_modules
+
+FROM ruby:2.6.3-alpine3.9
+LABEL maintainer="bohac.v@gmail.com"
+
+ENV RAILS_ENV production
+ENV RAILS_SERVE_STATIC_FILES true
+ENV RAILS_LOG_TO_STDOUT true
+
+RUN apk --no-cache add ca-certificates postgresql-dev nodejs tzdata
+
+WORKDIR /app
+
+COPY --from=0 /usr/local/bundle/ /usr/local/bundle/
+COPY --from=0 /app .
+
+EXPOSE 3000
+CMD ["bin/rails", "server", "-b", "0.0.0.0"]

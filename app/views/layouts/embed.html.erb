@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <%= csrf_meta_tags %>
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <% if content_for?(:stylesheets) %><%= yield :stylesheets %><% end %>
+    <meta name="robots" content="noindex,nofollow">
+  </head>
+
+  <body>
+    <%= yield %>
+
+    <%= javascript_pack_tag 'application'  %>
+    <%= render partial: "shared/ga" %>
+  </body>
+</html>

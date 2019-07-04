@@ -54,6 +54,7 @@
     "lodash": "^4.17.5",
     "luxon": "^1.2.1",
     "memoize-one": "^5.0.2",
+    "micromodal": "^0.4.0",
     "pdfjs-dist": "^2.0.943",
     "postcss-cssnext": "^3.1.0",
     "prop-types": "^15.6.0",
@@ -73,6 +74,8 @@
     "react-router-dom": "^4.3.1",
     "react-select": "^2.1.1",
     "react-transition-group": "^2.3.1",
+    "react-virtualized-auto-sizer": "^1.0.2",
+    "react-window": "^1.8.3",
     "redux": "^4.0.1",
     "redux-observable": "^1.0.0",
     "rxjs": "^6.3.3",
@@ -104,6 +107,9 @@
     "tslint-plugin-prettier": "^2.0.0",
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14"
+  },
+  "resolutions": {
+    "fstream": "1.0.12"
   },
   "jest": {
     "setupFilesAfterEnv": [

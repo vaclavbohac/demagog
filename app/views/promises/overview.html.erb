@@ -1,8 +1,9 @@
+<% content_for(:image_src, @slug == "druha-vlada-andreje-babise" ? asset_url("vladni-sliby-og-image.jpg") : nil) %>
+
 <article
   class="container-promises-overview"
-  data-controller="promises--overview"
-  data-action="resize@window->promises--overview#handleWindowResize"
-  data-action="popstate@window->promises--overview#handleWindowPopstate"
+  data-controller="promises--overview promises--embed-modal"
+  data-action="resize@window->promises--overview#handleWindowResize popstate@window->promises--overview#handleWindowPopstate"
   data-promises--overview-query-params-filter-keys="<%= @params_filter_keys.to_json %>"
   data-promises--overview-query-params-filter-values="<%= @params_filter_values.to_json %>"
 >
@@ -11,7 +12,7 @@
   </section>
 
   <section class="overall-stats">
-    <h2><%= @all.size %> ověřených slibů</h2>
+    <h2><%= @all.size %> sledovaných slibů</h2>
     <div class="stats-lines-container">
       <% @promise_rating_keys.each do |promise_rating_key| %>
         <div class="stats-line">
@@ -20,11 +21,12 @@
               <span class="stats-line-amount-number"><%= @promise_rating_counts[promise_rating_key] %></span>
               <%= (
                 {
-                  PromiseRating::FULFILLED => "splněných",
-                  PromiseRating::IN_PROGRESS => "průběžně plněných",
-                  PromiseRating::PARTIALLY_FULFILLED => "částečně splněných",
-                  PromiseRating::BROKEN => "porušených",
-                  PromiseRating::STALLED => "nerealizovaných"
+                  PromiseRating::FULFILLED => cs_pluralize(@promise_rating_counts[promise_rating_key], "splněný", "splněné", "splněných"),
+                  PromiseRating::IN_PROGRESS => cs_pluralize(@promise_rating_counts[promise_rating_key], "průběžně plněný", "průběžně plněné", "průběžně plněných"),
+                  PromiseRating::PARTIALLY_FULFILLED => cs_pluralize(@promise_rating_counts[promise_rating_key], "částečně splněný", "částečně splněné", "částečně splněných"),
+                  PromiseRating::BROKEN => cs_pluralize(@promise_rating_counts[promise_rating_key], "porušený", "porušené", "porušených"),
+                  PromiseRating::STALLED => cs_pluralize(@promise_rating_counts[promise_rating_key], "nerealizovaný", "nerealizované", "nerealizovaných")
+
                 }[promise_rating_key]
               ) %>
             </span>
@@ -166,6 +168,9 @@
                         <div class="evaluation-and-permalink">
                           <span class="promise-evaluation <%= statement.assessment.promise_rating.key.dasherize %>"> <%= @promises_list_rating_labels[statement.assessment.promise_rating.key] %></span>
                           <a class="permalink" href="<%= promise_permalink(statement) %>">trvalý odkaz</a>
+                          <% if @allow_embed %>
+                            <button class="embed-button" type="button" data-action="promises--embed-modal#showModal" data-statement-id="<%= statement.id %>">embed</button>
+                          <% end %>
                         </div>
                         <div class="explanation-container <% if statement.assessment.short_explanation.nil? %>full-explanation-only<% end %>">
                           <% unless statement.assessment.short_explanation.nil? %>
@@ -194,5 +199,47 @@
       </tbody>
     </table>
   </section>
+
+  <section class="credits">
+    <p>Sliby vlády Andreje Babiše ověřujeme díky grantové podpoře Nadačního fondu nezávislé žurnalistiky.</p>
+    <a class="logo" title="Nadační fond nezávislé žurnalistiky" href="https://www.nfnz.cz/">
+      <img src="<%= asset_path("partners/nfnz.svg") %>" alt="Nadační fond nezávislé žurnalistiky" />
+    </a>
+  </section>
+
+  <div class="embed-modal" id="embed-modal" aria-hidden="true" data-target="promises--embed-modal.modal">
+    <div class="embed-modal-overlay" tabindex="-1" data-micromodal-close>
+      <div class="embed-modal-container" role="dialog" aria-modal="true" aria-labelledby="embed-modal-title" >
+        <div class="embed-modal-header" role="header">
+          <button class="close-button" aria-label="Close modal" data-micromodal-close>×</button>
+          <h2 class="embed-modal-title" id="embed-modal-title">
+            Vložte slib do vlastních stránek (embed)
+          </h2>
+        </div>
+        <div class="embed-modal-content" id="embed-modal-content">
+          <div class="embed-display-picker">
+            <button
+              type="button"
+              data-target="promises--embed-modal.displayFullButton"
+              data-action="promises--embed-modal#setDisplayFull"
+            >
+              Plné zobrazení
+            </button>
+            <button
+              type="button"
+              data-target="promises--embed-modal.displayShortButton"
+              data-action="promises--embed-modal#setDisplayShort"
+            >
+              Zkrácené zobrazení
+            </button>
+          </div>
+          <h3>Kód</h3>
+          <textarea class="embed-code" readonly rows="4" data-target="promises--embed-modal.code"></textarea>
+          <h3>Náhled vloženého slibu</h3>
+          <div class="embed-preview-container" data-target="promises--embed-modal.previewContainer"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </article>
