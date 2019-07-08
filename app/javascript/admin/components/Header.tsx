@@ -16,7 +16,10 @@ import { Query } from 'react-apollo';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 
-import { GetNotificationsQuery, GetNotificationsQueryVariables } from '../operation-result-types';
+import {
+  GetNotifications as GetNotificationsQuery,
+  GetNotificationsVariables as GetNotificationsQueryVariables,
+} from '../operation-result-types';
 import { GetNotifications } from '../queries/queries';
 import { IState as ReduxState } from '../reducers';
 import Authorize from './Authorize';
@@ -78,8 +81,8 @@ class Header extends React.Component<IProps, IState> {
               variables={{ includeRead: false, offset: 0, limit: 0 }}
               pollInterval={20100} // Little more than 20s so it does not sync with other polls
             >
-              {({ data, loading, error }) => {
-                if (loading || !data) {
+              {({ data, error }) => {
+                if (!data || !data.notifications) {
                   return null;
                 }
 
