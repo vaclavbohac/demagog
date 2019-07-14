@@ -74,6 +74,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   test "should not find unpublished articles" do
     create(:fact_check, title: "Lorem ipsum sit dolor", published: false)
+    create(:fact_check, title: "Lorem ipsum sit dolor", published: true, published_at: 1.day.from_now)
 
     elasticsearch_index MODELS
 
