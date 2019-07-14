@@ -10,6 +10,7 @@
   <div class="statement-content">
     <blockquote>
       <%= content_to_html(statement.content) %>
+      <cite><%= statement.source.medium.name -%>, <span class="date"><%= raw(l(statement.source.released_at, format: :long, locale: :cs)) %></span></cite>
 
       <% if statement.important? %>
         <span class="important-statement-icon" title="Důležitý výrok">!</span>
