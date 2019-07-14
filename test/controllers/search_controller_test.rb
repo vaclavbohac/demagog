@@ -15,7 +15,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_index_path(query: "Doe")
+    get search_path(q: "Doe")
 
     assert_response :success
     assert_select ".s-section-speakers", 1 do
@@ -30,19 +30,19 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_index_path(query: "John")
+    get search_path(q: "John")
 
     assert_response :success
     assert_select ".s-section-speakers", 1 do
       assert_select ".s-speaker", 2
-      assert_select "a.s-more[href=?]", search_show_path(query: "John", type: :speakers)
+      assert_select "a.s-more[href=?]", search_path(q: "John", type: "speakers")
     end
   end
 
   test "should not show speaker section if no speaker found"  do
     elasticsearch_index MODELS
 
-    get search_index_url(query: "Doe")
+    get search_path(q: "Doe")
 
     assert_response :success
     assert_select ".s-section-speakers", 0
@@ -53,7 +53,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_index_path(query: "ipsum")
+    get search_path(q: "ipsum")
 
     assert_response :success
     assert_select ".s-section-articles", 1
@@ -65,7 +65,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_index_path(query: "ipsum")
+    get search_path(q: "ipsum")
 
     assert_response :success
     assert_select ".s-section-articles", 1
@@ -77,7 +77,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_index_path(query: "ipsum")
+    get search_path(q: "ipsum")
 
     assert_response :success
     assert_select ".s-section-articles", 0
@@ -90,7 +90,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_index_path(query: "ipsum")
+    get search_path(q: "ipsum")
 
     assert_response :success
     assert_select ".s-section-articles", 1 do
@@ -109,19 +109,19 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_index_path(query: "ipsum")
+    get search_path(q: "ipsum")
 
     assert_response :success
     assert_select ".s-section-articles", 1 do
       assert_select ".s-article", 2
-      assert_select "a.s-more[href=?]", search_show_path(query: "ipsum", type: :articles)
+      assert_select "a.s-more[href=?]", search_path(q: "ipsum", type: "articles")
     end
   end
 
   test "should not show articles section if no articles found"  do
     elasticsearch_index MODELS
 
-    get search_index_path(query: "ipsum")
+    get search_path(q: "ipsum")
 
     assert_response :success
     assert_select ".s-section-articles", 0
@@ -133,7 +133,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_index_path(query: "rutrum")
+    get search_path(q: "rutrum")
 
     assert_response :success
     assert_select ".s-section-statements", 1
@@ -145,7 +145,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_index_path(query: "rutrum")
+    get search_path(q: "rutrum")
 
     assert_response :success
     assert_select ".s-section-statements", 0
@@ -157,20 +157,20 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_index_path(query: "rutrum")
+    get search_path(q: "rutrum")
 
     assert_response :success
     assert_select ".s-section-statements", 1 do
       assert_select "h3"
       assert_select ".s-statement", 2
-      assert_select "a.s-more[href=?]", search_show_path(query: "rutrum", type: :statements)
+      assert_select "a.s-more[href=?]", search_path(q: "rutrum", type: "statements")
     end
   end
 
   test "should not show statements section if no statements found"  do
     elasticsearch_index MODELS
 
-    get search_index_path(query: "ipsum")
+    get search_path(q: "ipsum")
 
     assert_response :success
     assert_select ".s-section-statements", 0
@@ -179,7 +179,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   test "SRP should have search field pre-filled with query" do
     elasticsearch_index MODELS
 
-    get search_index_path(query: "My query")
+    get search_path(q: "My query")
 
     assert_response :success
 
@@ -193,14 +193,14 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_show_path(query: "Doe", type: :speakers)
+    get search_path(q: "Doe", type: "speakers")
 
     assert_response :success
 
     assert_select ".s-search-field", 1 do
       assert_select "[value=?]", "Doe"
     end
-    assert_select "a.s-back-link[href=?]", search_index_path(query: "Doe")
+    assert_select "a.s-back-link[href=?]", search_path(q: "Doe")
     assert_select "h2"
     assert_select ".s-speaker", 10
   end
@@ -210,14 +210,14 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_show_path(query: "lorem", type: :articles)
+    get search_path(q: "lorem", type: "articles")
 
     assert_response :success
 
     assert_select ".s-search-field", 1 do
       assert_select "[value=?]", "lorem"
     end
-    assert_select "a.s-back-link[href=?]", search_index_path(query: "lorem")
+    assert_select "a.s-back-link[href=?]", search_path(q: "lorem")
     assert_select "h2"
     assert_select ".s-article", 10
   end
@@ -228,14 +228,14 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_show_path(query: "lorem", type: :articles)
+    get search_path(q: "lorem", type: "articles")
 
     assert_response :success
 
     assert_select ".s-search-field", 1 do
       assert_select "[value=?]", "lorem"
     end
-    assert_select "a.s-back-link[href=?]", search_index_path(query: "lorem")
+    assert_select "a.s-back-link[href=?]", search_path(q: "lorem")
     assert_select "h2"
     assert_select ".s-article", 8
   end
@@ -245,14 +245,14 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_show_path(query: "vulputate", type: :statements)
+    get search_path(q: "vulputate", type: "statements")
 
     assert_response :success
 
     assert_select ".s-search-field", 1 do
       assert_select "[value=?]", "vulputate"
     end
-    assert_select "a.s-back-link[href=?]", search_index_path(query: "vulputate")
+    assert_select "a.s-back-link[href=?]", search_path(q: "vulputate")
     assert_select "h2"
     assert_select ".s-statement", 10
   end
@@ -263,14 +263,14 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     elasticsearch_index MODELS
 
-    get search_show_path(query: "vulputate", type: :statements)
+    get search_path(q: "vulputate", type: "statements")
 
     assert_response :success
 
     assert_select ".s-search-field", 1 do
       assert_select "[value=?]", "vulputate"
     end
-    assert_select "a.s-back-link[href=?]", search_index_path(query: "vulputate")
+    assert_select "a.s-back-link[href=?]", search_path(q: "vulputate")
     assert_select "h2"
     assert_select ".s-statement", 4
   end

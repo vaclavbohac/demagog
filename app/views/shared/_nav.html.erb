@@ -54,10 +54,7 @@
       </li>
     <% end %>
     <li>
-      <%= form_tag search_index_path, method: :get, class: 'search' do |t| %>
-        <%= text_field_tag :query, params[:query] %>
-        <%= submit_tag 'Hledat', name: nil %>
-      <% end %>
+      <a href="<%= search_path %>">Hledat</a>
     </li>
   </ul>
 </nav>

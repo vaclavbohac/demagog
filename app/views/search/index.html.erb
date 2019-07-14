@@ -1,46 +1,58 @@
-<% content_for(:title, "Přehled výsledků vyhledávání pro '#{params[:query]}'") %>
+<% content_for(:title, "Přehled výsledků vyhledávání pro '#{@query}'") %>
 
 <div class="search-result-page">
-  <div>Výsledky pro: "<%= params[:query] %>"</div>
-
-  <%= form_tag search_index_path, method: :get, class: "search" do %>
-    <%= text_field_tag :query, params[:query], class: "s-search-field" %>
+  <%= form_tag search_path, method: :get, class: "search" do %>
+    <%= text_field_tag :q, @query, class: "s-search-field", autofocus: @query.empty? %>
     <%= submit_tag "Hledat", name: nil %>
   <% end %>
 
-  <% unless @speakers.empty? %>
-    <div class="s-section-speakers">
-      <h3>Nalezení politici:</h3>
+  <% if @type.nil? %>
 
-      <%= render_records(:speakers, @speakers.records.first(2).to_a) %>
+    <% unless @speakers.empty? %>
+      <div class="s-section-speakers">
+        <h3>Nalezení politici:</h3>
 
-      <% if @speakers.total_count > 2 %>
-        <%= show_more_link(:speakers, @speakers.total_count) %>
-      <% end %>
-    </div>
-  <% end %>
+        <%= render_records(:speakers, @speakers.records.first(2).to_a) %>
 
-  <% unless @articles.empty? %>
-    <div class="s-section-articles">
-      <h3>Nalezené články:</h3>
+        <% if @speakers.total_count > 2 %>
+          <%= show_more_link(:speakers, @speakers.total_count) %>
+        <% end %>
+      </div>
+    <% end %>
 
-      <%= render_records(:articles, @articles.records.first(2).to_a) %>
+    <% unless @articles.empty? %>
+      <div class="s-section-articles">
+        <h3>Nalezené články:</h3>
 
-      <% if @articles.total_count > 2 %>
-        <%= show_more_link(:articles, @articles.total_count) %>
-      <% end %>
-    </div>
-  <% end %>
+        <%= render_records(:articles, @articles.records.first(2).to_a) %>
 
-  <% unless @statements.empty? %>
-    <div class="s-section-statements">
-      <h3>Nalezené výroky:</h3>
+        <% if @articles.total_count > 2 %>
+          <%= show_more_link(:articles, @articles.total_count) %>
+        <% end %>
+      </div>
+    <% end %>
 
-      <%= render_records(:statements, @statements.records.first(2).to_a) %>
+    <% unless @statements.empty? %>
+      <div class="s-section-statements">
+        <h3>Nalezené výroky:</h3>
 
-      <% if @statements.total_count > 2 %>
-        <%= show_more_link(:statements, @statements.total_count) %>
-      <% end %>
-    </div>
+        <%= render_records(:statements, @statements.records.first(2).to_a) %>
+
+        <% if @statements.total_count > 2 %>
+          <%= show_more_link(:statements, @statements.total_count) %>
+        <% end %>
+      </div>
+    <% end %>
+
+  <% else %>
+
+    <%= link_to("\u2190 Zpět na souhrn výsledků hledání", search_path(q: params[:q]), class: "s-back-link") %>
+
+    <h2>Nalezené výsledky:</h2>
+
+    <%= render_records(@type, @type_results.page(params[:page]).records.to_a) %>
+
+    <%= paginate(@type_results) %>
+
   <% end %>
 </div>

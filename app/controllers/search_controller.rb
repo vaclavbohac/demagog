@@ -4,25 +4,21 @@ require "elasticsearch/model"
 
 class SearchController < ApplicationController
   def index
-    query = escape_query(params[:query])
+    @query = params[:q] || ""
+    @type = params[:type]
+    @type = nil unless ["articles", "speakers", "statements"].include?(@type)
 
-    @articles = Article.search_published(query)
-    @speakers = Speaker.search(query)
-    @statements = Statement.search_published(query)
-  end
+    @articles = Article.search_published(escape_query(@query))
+    @speakers = Speaker.search(escape_query(@query))
+    @statements = Statement.search_published(escape_query(@query))
 
-  def show
-    query = escape_query(params[:query])
-
-    @results = case params[:type].to_s.to_sym
-               when :articles
-                 Article.search_published(query)
-               when :speakers
-                 Speaker.search(query)
-               when :statements
-                 Statement.search_published(query)
-               else
-                 raise "Unknown type #{params[:type]}"
+    @type_results = case @type
+                    when "articles"
+                      @articles
+                    when "speakers"
+                      @speakers
+                    when "statements"
+                      @statements
     end
   end
 

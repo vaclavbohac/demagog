@@ -75,13 +75,17 @@ class Statement < ApplicationRecord
     indexes :source do
       indexes :released_at, type: "date"
     end
+    indexes :speaker do
+      indexes :full_name, type: "text", analyzer: "czech"
+    end
   end
 
   def as_indexed_json(options = {})
     as_json(
       only: [:id, :content, :published],
       include: {
-        source: { only: :released_at }
+        source: { only: :released_at },
+        speaker: { only: :full_name, methods: :full_name }
       }
     )
   end
