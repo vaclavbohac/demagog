@@ -71,10 +71,35 @@ class Statement < ApplicationRecord
   mapping do
     indexes :id, type: "long"
     indexes :content, type: "text", analyzer: "czech"
+    indexes :published, type: "boolean"
+    indexes :source do
+      indexes :released_at, type: "date"
+    end
   end
 
   def as_indexed_json(options = {})
-    as_json(only: [:id, :content])
+    as_json(
+      only: [:id, :content, :published],
+      include: {
+        source: { only: :released_at }
+      }
+    )
+  end
+
+  def self.search_published(query)
+    search(
+      query: {
+        bool: {
+          must: { query_string: { query: query } },
+          filter: [
+            { term: { published: true } }
+          ]
+        }
+      },
+      sort: [
+        { 'source.released_at': { order: "desc" } }
+      ]
+    )
   end
 
   def self.interesting_statements

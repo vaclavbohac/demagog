@@ -12,10 +12,10 @@
     <div class="s-section-speakers">
       <h3>Nalezení politici:</h3>
 
-      <%= render_records(:speakers, @speakers.records.limit(2).to_a) %>
+      <%= render_records(:speakers, @speakers.records.first(2).to_a) %>
 
       <% if @speakers.total_count > 2 %>
-        <%= show_more_link(:speakers, @speakers.total_count - 2) %>
+        <%= show_more_link(:speakers, @speakers.total_count) %>
       <% end %>
     </div>
   <% end %>
@@ -24,10 +24,10 @@
     <div class="s-section-articles">
       <h3>Nalezené články:</h3>
 
-      <%= render_records(:articles, @articles.records.limit(2).to_a) %>
+      <%= render_records(:articles, @articles.records.first(2).to_a) %>
 
       <% if @articles.total_count > 2 %>
-        <%= show_more_link(:articles, @articles.total_count - 2) %>
+        <%= show_more_link(:articles, @articles.total_count) %>
       <% end %>
     </div>
   <% end %>
@@ -36,10 +36,10 @@
     <div class="s-section-statements">
       <h3>Nalezené výroky:</h3>
 
-      <%= render_records(:statements, @statements.records.limit(2).to_a) %>
+      <%= render_records(:statements, @statements.records.first(2).to_a) %>
 
       <% if @statements.total_count > 2 %>
-        <%= show_more_link(:statements, @statements.total_count - 2) %>
+        <%= show_more_link(:statements, @statements.total_count) %>
       <% end %>
     </div>
   <% end %>

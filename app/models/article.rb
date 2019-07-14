@@ -32,10 +32,32 @@ class Article < ApplicationRecord
     indexes :title, type: "text", analyzer: "czech"
     indexes :perex, type: "text", analyzer: "czech"
     indexes :segments_text, type: "text", analyzer: "czech"
+    indexes :published, type: "boolean"
+    indexes :published_at, type: "date"
   end
 
   def as_indexed_json(options = {})
-    as_json(only: [:id, :title, :perex, :segments_text], methods: [:segments_text])
+    as_json(
+      only: [:id, :title, :perex, :segments_text, :published, :published_at],
+      methods: [:segments_text]
+    )
+  end
+
+  def self.search_published(query)
+    search(
+      query: {
+        bool: {
+          must: { query_string: { query: query } },
+          filter: [
+            { term: { published: true } },
+            { range: { published_at: { lte: "now" } } }
+          ]
+        }
+      },
+      sort: [
+        { published_at: { order: "desc" } }
+      ]
+    )
   end
 
   def segments_text
@@ -74,31 +96,6 @@ class Article < ApplicationRecord
 
   def speaker_stats(speaker)
     ArticleStat.where(article_id: id, speaker_id: speaker.id).normalize
-  end
-
-  def self.search_published(query)
-    search(
-      query: {
-        bool: {
-          must: {
-            multi_match: { query: query, fields: ["title", "perex"] },
-          },
-          filter: [{ term: { published: true } }]
-        }
-      },
-      sort: [
-        {
-          _score: {
-            order: "desc"
-          }
-        },
-        {
-          created_at: {
-            "order": "desc"
-          }
-        }
-      ]
-      )
   end
 
   def self.cover_story
