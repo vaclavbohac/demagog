@@ -28,9 +28,22 @@ class Article < ApplicationRecord
   }
 
   mapping do
-    indexes :title, type: "text"
-    indexes :perex, type: "text"
-    indexes :created_at, type: "date"
+    indexes :id, type: "long"
+    indexes :title, type: "text", analyzer: "czech"
+    indexes :perex, type: "text", analyzer: "czech"
+    indexes :segments_text, type: "text", analyzer: "czech"
+  end
+
+  def as_indexed_json(options = {})
+    as_json(only: [:id, :title, :perex, :segments_text], methods: [:segments_text])
+  end
+
+  def segments_text
+    result = ""
+    segments.text_type_only.each do |segment|
+      result += Nokogiri::HTML(segment.text_html).text
+    end
+    result
   end
 
   def set_defaults

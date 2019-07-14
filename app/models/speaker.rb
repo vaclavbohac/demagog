@@ -17,6 +17,15 @@ class Speaker < ApplicationRecord
 
   has_one_attached :avatar
 
+  mapping do
+    indexes :id, type: "long"
+    indexes :full_name, type: "text", analyzer: "czech"
+  end
+
+  def as_indexed_json(options = {})
+    as_json(only: [:id, :full_name], methods: [:full_name])
+  end
+
   def self.top_speakers
     joins(:statements)
       .select("speakers.*, COUNT(statements.id) as statements_count")
