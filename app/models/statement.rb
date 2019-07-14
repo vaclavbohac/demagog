@@ -68,17 +68,13 @@ class Statement < ApplicationRecord
     order(important: :desc).published
   }
 
-  def self.search_published(query)
-    search(
-      query: {
-        bool: {
-          must: {
-            match: { content: query },
-          },
-          filter: [{ term: { published: true } }]
-        }
-      },
-    )
+  mapping do
+    indexes :id, type: "long"
+    indexes :content, type: "text", analyzer: "czech"
+  end
+
+  def as_indexed_json(options = {})
+    as_json(only: [:id, :content])
   end
 
   def self.interesting_statements
