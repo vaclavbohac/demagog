@@ -61,11 +61,9 @@ class Article < ApplicationRecord
   end
 
   def segments_text
-    result = ""
-    segments.text_type_only.each do |segment|
-      result += Nokogiri::HTML(segment.text_html).text
+    segments.text_type_only.reduce("") do |result, segment|
+      result + Nokogiri::HTML(segment.text_html).text
     end
-    result
   end
 
   def set_defaults

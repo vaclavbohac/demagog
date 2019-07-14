@@ -48,7 +48,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_select ".s-section-speakers", 0
   end
 
-  test "should find articles" do
+  test "should find articles by title" do
     create(:fact_check, title: "Lorem ipsum sit dolor")
 
     elasticsearch_index MODELS
@@ -62,6 +62,20 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   test "should find articles by perex" do
     create(:fact_check, perex: "Lorem ipsum sit dolor")
+
+    elasticsearch_index MODELS
+
+    get search_path(q: "ipsum")
+
+    assert_response :success
+    assert_select ".s-section-articles", 1
+    assert_select ".s-article", 1
+  end
+
+  test "should find articles by segment text" do
+    segment = create(:article_segment_text, text_html: "<p>Lorem ipsum sit dolor</p>")
+
+    create(:static, segments: [segment])
 
     elasticsearch_index MODELS
 
