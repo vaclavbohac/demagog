@@ -100,6 +100,7 @@
     "zurb-foundation-5": "^5.4.7"
   },
   "devDependencies": {
+    "@prettier/plugin-ruby": "^0.14.0",
     "apollo": "^2.15.0",
     "enzyme": "3.8.0",
     "enzyme-adapter-react-16": "1.9.1",
