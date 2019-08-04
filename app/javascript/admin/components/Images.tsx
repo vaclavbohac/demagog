@@ -200,9 +200,7 @@ class Images extends React.Component<IProps, IState> {
                 <>
                   {confirmDeleteModalContentImage && (
                     <ConfirmDeleteModal
-                      message={`Opravdu chcete smazat obrázek ${
-                        confirmDeleteModalContentImage.name
-                      }?`}
+                      message={`Opravdu chcete smazat obrázek ${confirmDeleteModalContentImage.name}?`}
                       onCancel={this.hideConfirmDeleteModal}
                       mutation={DeleteContentImage}
                       mutationProps={{

@@ -444,11 +444,8 @@ class StatementDetail extends React.Component<IProps, IState> {
                               {' — '}
                               {statement.statementTranscriptPosition ? (
                                 <Link
-                                  to={`/admin/sources/${
-                                    statement.source.id
-                                  }/statements-from-transcript?highlightStatementId=${
-                                    statement.id
-                                  }`}
+                                  // tslint:disable-next-line:max-line-length
+                                  to={`/admin/sources/${statement.source.id}/statements-from-transcript?highlightStatementId=${statement.id}`}
                                 >
                                   Ukázat výrok v kontextu přepisu
                                 </Link>
@@ -600,9 +597,7 @@ class StatementDetail extends React.Component<IProps, IState> {
                                     helperText={
                                       'Maximálně na dlouhý tweet, tj. 280 znaků' +
                                       (values.assessment.short_explanation
-                                        ? `. Aktuálně ${
-                                            values.assessment.short_explanation.length
-                                          } znaků.`
+                                        ? `. Aktuálně ${values.assessment.short_explanation.length} znaků.`
                                         : '')
                                     }
                                   >

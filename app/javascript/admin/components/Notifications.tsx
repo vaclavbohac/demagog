@@ -275,7 +275,8 @@ const UnreadNotificationsPanel = ({ handleUnreadStatementClick }) => {
                       <td style={{ width: '50%' }}>
                         <strong>
                           {statement.speaker.firstName} {statement.speaker.lastName}
-                        </strong>: {statement.content}
+                        </strong>
+                        : {statement.content}
                         <br />
                         <small
                           className={cx(

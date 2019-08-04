@@ -251,10 +251,9 @@ class Articles extends React.Component<IProps, IState> {
                   </React.Fragment>
                 )}
 
-                {articlesLength === 0 &&
-                  this.state.search !== '' && (
-                    <p>Nenašli jsme žádný článek s názvem „{this.state.search}‟.</p>
-                  )}
+                {articlesLength === 0 && this.state.search !== '' && (
+                  <p>Nenašli jsme žádný článek s názvem „{this.state.search}‟.</p>
+                )}
               </div>
             );
           }}

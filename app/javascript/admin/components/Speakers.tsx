@@ -108,17 +108,15 @@ class Speakers extends React.Component<IProps, IState> {
               return null;
             }
 
-            const confirmDeleteModalSpeaker = props.data.speakers.find(
+            const deletedSpeaker = props.data.speakers.find(
               (s) => s.id === confirmDeleteModalSpeakerId,
             );
 
             return (
               <div style={{ marginTop: 15 }}>
-                {confirmDeleteModalSpeaker && (
+                {deletedSpeaker && (
                   <ConfirmDeleteModal
-                    message={`Opravdu chcete smazat osobu ${confirmDeleteModalSpeaker.firstName} ${
-                      confirmDeleteModalSpeaker.lastName
-                    }?`}
+                    message={`Opravdu chcete smazat osobu ${deletedSpeaker.firstName} ${deletedSpeaker.lastName}?`}
                     onCancel={this.hideConfirmDeleteModal}
                     mutation={DeleteSpeaker}
                     mutationProps={{
@@ -206,10 +204,9 @@ class Speakers extends React.Component<IProps, IState> {
                   </Card>
                 ))}
 
-                {props.data.speakers.length === 0 &&
-                  this.state.search !== '' && (
-                    <p>Nenašli jsme žádnou osobu se jménem „{this.state.search}‟.</p>
-                  )}
+                {props.data.speakers.length === 0 && this.state.search !== '' && (
+                  <p>Nenašli jsme žádnou osobu se jménem „{this.state.search}‟.</p>
+                )}
               </div>
             );
           }}

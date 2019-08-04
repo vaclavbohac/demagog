@@ -211,9 +211,7 @@ class SourceDetail extends React.Component<IProps, IState> {
             <div style={{ padding: '15px 0 40px 0' }}>
               {this.state.showConfirmDeleteModal && (
                 <ConfirmDeleteModal
-                  message={`Opravdu chcete smazat diskuzi ${
-                    source.name
-                  } se všemi výroky, které k ní patří?`}
+                  message={`Opravdu chcete smazat diskuzi ${source.name} se všemi výroky, které k ní patří?`}
                   onCancel={this.toggleConfirmDeleteModal}
                   mutation={DeleteSource}
                   mutationProps={{

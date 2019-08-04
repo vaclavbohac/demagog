@@ -123,9 +123,7 @@ class Media extends React.Component<IProps, IState> {
               <div style={{ marginTop: 15 }}>
                 {confirmDeleteModalMediaPersonality && (
                   <ConfirmDeleteModal
-                    message={`Opravdu chcete smazat moderátora/ku „${
-                      confirmDeleteModalMediaPersonality.name
-                    }‟?`}
+                    message={`Opravdu chcete smazat moderátora/ku „${confirmDeleteModalMediaPersonality.name}‟?`}
                     onCancel={this.hideConfirmDeleteModal}
                     mutation={DeleteMediaPersonality}
                     mutationProps={{
@@ -186,10 +184,9 @@ class Media extends React.Component<IProps, IState> {
                   </React.Fragment>
                 )}
 
-                {mediaLength === 0 &&
-                  this.state.search !== '' && (
-                    <p>Nenašli jsme žádné moderátory jména či příjmení „{this.state.search}‟.</p>
-                  )}
+                {mediaLength === 0 && this.state.search !== '' && (
+                  <p>Nenašli jsme žádné moderátory jména či příjmení „{this.state.search}‟.</p>
+                )}
               </div>
             );
           }}
