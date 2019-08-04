@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "elasticsearch/rails/tasks/import"
+
 namespace :elasticsearch do
   desc "Reindex everything"
   task reindex: %w[elasticsearch:reindex_articles elasticsearch:reindex_speakers elasticsearch:reindex_statements]
