@@ -71,6 +71,7 @@ class Statement < ApplicationRecord
   mapping do
     indexes :id, type: "long"
     indexes :content, type: "text", analyzer: "czech"
+    indexes :assessment_text, type: "text", analyzer: "czech"
     indexes :published, type: "boolean"
     indexes :source do
       indexes :released_at, type: "date"
@@ -82,12 +83,19 @@ class Statement < ApplicationRecord
 
   def as_indexed_json(options = {})
     as_json(
-      only: [:id, :content, :published],
+      only: [:id, :content, :published, :assessment_text],
       include: {
         source: { only: :released_at },
         speaker: { only: :full_name, methods: :full_name }
-      }
+      },
+      methods: [:assessment_text]
     )
+  end
+
+  def assessment_text
+    return "" if approved_assessment.nil?
+
+    Nokogiri::HTML(approved_assessment.explanation_html).text
   end
 
   def self.search_published(query)

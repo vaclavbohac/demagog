@@ -5,9 +5,7 @@ require "test_helper"
 class SearchControllerTest < ActionDispatch::IntegrationTest
   MODELS = [Article, Page, Statement, Speaker, Body]
 
-  teardown do
-    elasticsearch_cleanup MODELS
-  end
+  teardown { elasticsearch_cleanup MODELS }
 
   test "should find speakers" do
     create(:speaker, first_name: "John", last_name: "Doe")
@@ -39,7 +37,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "should not show speaker section if no speaker found"  do
+  test "should not show speaker section if no speaker found" do
     elasticsearch_index MODELS
 
     get search_path(q: "Doe")
@@ -88,7 +86,10 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   test "should not find unpublished articles" do
     create(:fact_check, title: "Lorem ipsum sit dolor", published: false)
-    create(:fact_check, title: "Lorem ipsum sit dolor", published: true, published_at: 1.day.from_now)
+    create(
+      :fact_check,
+      title: "Lorem ipsum sit dolor", published: true, published_at: 1.day.from_now
+    )
 
     elasticsearch_index MODELS
 
@@ -112,9 +113,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
       assert_select ".s-article", 2 do |elements|
         TITLES = ["Lorem ipsum sit dolor 2", "Lorem ipsum sit dolor 1"]
 
-        elements.each_with_index do |element, i|
-          assert_select element, ".s-title", TITLES[i]
-        end
+        elements.each_with_index { |element, i| assert_select element, ".s-title", TITLES[i] }
       end
     end
   end
@@ -133,7 +132,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "should not show articles section if no articles found"  do
+  test "should not show articles section if no articles found" do
     elasticsearch_index MODELS
 
     get search_path(q: "ipsum")
@@ -153,6 +152,26 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".s-section-statements", 1
     assert_select ".s-statement", 2
+  end
+
+  test "should find statements by assessment" do
+    create(
+      :statement,
+      assessment:
+        build(
+          :assessment,
+          statement: nil,
+          explanation_html: "<h1>Integer vulputate sem a nibh rutrum consequat.</h1>"
+        )
+    )
+
+    elasticsearch_index MODELS
+
+    get search_path(q: "rutrum")
+
+    assert_response :success
+    assert_select ".s-section-statements", 1
+    assert_select ".s-statement", 1
   end
 
   test "should not find unpublished statements" do
@@ -182,7 +201,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "should not show statements section if no statements found"  do
+  test "should not show statements section if no statements found" do
     elasticsearch_index MODELS
 
     get search_path(q: "ipsum")
@@ -274,7 +293,11 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   test "should not render include unpublished statements" do
     create_list(:statement, 4, content: "Integer vulputate sem a nibh rutrum consequat.")
-    create_list(:unpublished_statement, 8, content: "Integer vulputate sem a nibh rutrum consequat.")
+    create_list(
+      :unpublished_statement,
+      8,
+      content: "Integer vulputate sem a nibh rutrum consequat."
+    )
 
     elasticsearch_index MODELS
 
