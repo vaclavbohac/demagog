@@ -19,11 +19,28 @@ class Speaker < ApplicationRecord
 
   mapping do
     indexes :id, type: "long"
-    indexes :full_name, type: "text", analyzer: "czech"
+    indexes :full_name, type: "text", analyzer: "czech_lowercase"
+    indexes :factual_and_published_statements_count, type: "long"
   end
 
   def as_indexed_json(options = {})
-    as_json(only: [:id, :full_name], methods: [:full_name])
+    as_json(
+      only: [:id, :full_name, :factual_and_published_statements_count],
+      methods: [:full_name, :factual_and_published_statements_count]
+    )
+  end
+
+  def self.query_search(query)
+    search(
+      query: {
+        bool: {
+          must: { simple_query_string: { query: query, default_operator: "AND", flags: "AND|NOT|OR|PHRASE|PRECEDENCE|WHITESPACE" } }
+        }
+      },
+      sort: [
+        { factual_and_published_statements_count: { order: "desc" } }
+      ]
+    )
   end
 
   def self.top_speakers
@@ -52,6 +69,10 @@ class Speaker < ApplicationRecord
 
   def factual_and_published_statements
     statements.factual_and_published
+  end
+
+  def factual_and_published_statements_count
+    factual_and_published_statements.count
   end
 
   def full_name

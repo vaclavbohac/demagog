@@ -8,9 +8,9 @@ class SearchController < ApplicationController
     @type = params[:type]
     @type = nil unless ["articles", "speakers", "statements"].include?(@type)
 
-    @articles = Article.search_published(escape_query(@query))
-    @speakers = Speaker.search(escape_query(@query))
-    @statements = Statement.search_published(escape_query(@query))
+    @articles = Article.query_search_published(@query)
+    @speakers = Speaker.query_search(@query)
+    @statements = Statement.query_search_published_factual(@query)
 
     @type_results = case @type
                     when "articles"
@@ -21,11 +21,4 @@ class SearchController < ApplicationController
                       @statements
     end
   end
-
-  private
-
-    def escape_query(query)
-      escaped_characters = Regexp.escape('\\/+-&|!(){}[]^~*?:')
-      query.gsub(/([#{escaped_characters}])/, '\\\\\1')
-    end
 end

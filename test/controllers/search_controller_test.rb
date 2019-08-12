@@ -155,15 +155,9 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should find statements by assessment" do
-    create(
-      :statement,
-      assessment:
-        build(
-          :assessment,
-          statement: nil,
-          explanation_html: "<h1>Integer vulputate sem a nibh rutrum consequat.</h1>"
-        )
-    )
+    statement = create(:statement)
+    statement.assessment.explanation_html = "<h1>Integer vulputate sem a nibh rutrum consequat.</h1>"
+    statement.assessment.save!
 
     elasticsearch_index MODELS
 

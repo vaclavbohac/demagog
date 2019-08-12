@@ -16,10 +16,10 @@ class ActiveSupport::TestCase
       models.each do |model|
         model.__elasticsearch__.create_index!
         model.__elasticsearch__.import
-      end
 
-      # Let the elasticsearch server process the indexed documents
-      Kernel.sleep(1)
+        # Call refresh to make sure the indexed documents are searchable
+        model.__elasticsearch__.refresh_index!
+      end
     end
 
     def elasticsearch_cleanup(models)

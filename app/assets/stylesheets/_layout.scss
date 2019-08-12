@@ -66,6 +66,10 @@
         margin-top: 0;
       }
     }
+
+    &.without-illustration .rest {
+      margin-left: 0;
+    }
   }
 
   .box {

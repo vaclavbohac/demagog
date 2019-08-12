@@ -70,41 +70,57 @@ class Statement < ApplicationRecord
 
   mapping do
     indexes :id, type: "long"
-    indexes :content, type: "text", analyzer: "czech"
-    indexes :assessment_text, type: "text", analyzer: "czech"
+    indexes :statement_type, type: "keyword"
+    indexes :content, type: "text", analyzer: "czech_stemmer"
     indexes :published, type: "boolean"
+    indexes :assessment do
+      indexes :short_explanation, type: "text", analyzer: "czech_stemmer"
+      indexes :explanation_text, type: "text", analyzer: "czech_stemmer"
+      indexes :veracity do
+        indexes :name, type: "text", analyzer: "czech_lowercase"
+      end
+    end
     indexes :source do
       indexes :released_at, type: "date"
+      indexes :medium do
+        indexes :name, type: "text", analyzer: "czech_lowercase"
+      end
     end
     indexes :speaker do
-      indexes :full_name, type: "text", analyzer: "czech"
+      indexes :full_name, type: "text", analyzer: "czech_lowercase"
     end
   end
 
   def as_indexed_json(options = {})
     as_json(
-      only: [:id, :content, :published, :assessment_text],
+      only: [:id, :statement_type, :content, :published],
       include: {
-        source: { only: :released_at },
+        assessment: {
+          only: [:short_explanation, :explanation_text],
+          methods: [:explanation_text],
+          include: {
+            veracity: { only: :name }
+          }
+        },
+        source: {
+          only: :released_at,
+          include: {
+            medium: { only: :name }
+          }
+        },
         speaker: { only: :full_name, methods: :full_name }
-      },
-      methods: [:assessment_text]
+      }
     )
   end
 
-  def assessment_text
-    return "" if approved_assessment.nil?
-
-    Nokogiri::HTML(approved_assessment.explanation_html).text
-  end
-
-  def self.search_published(query)
+  def self.query_search_published_factual(query)
     search(
       query: {
         bool: {
-          must: { query_string: { query: query } },
+          must: { simple_query_string: { query: query, default_operator: "AND", flags: "AND|NOT|OR|PHRASE|PRECEDENCE|WHITESPACE" } },
           filter: [
-            { term: { published: true } }
+            { term: { published: true } },
+            { term: { statement_type: TYPE_FACTUAL } }
           ]
         }
       },

@@ -14,18 +14,39 @@ module Searchable
     settings index: {
       analysis: {
         analyzer: {
-          # Czech analyzer based on https://www.ludekvesely.cz/serial-elasticsearch-4-fulltextove-vyhledavani-v-cestine/
-          czech: {
+          # Czech analyzers based on
+          # https://www.ludekvesely.cz/serial-elasticsearch-4-fulltextove-vyhledavani-v-cestine/
+          # and https://www.ludekvesely.cz/serial-elasticsearch-5-pokrocile-fulltextove-vyhledavani/
+          #
+          # Note: We are not using icu_folding and hunspell-based stemming now, because those are
+          # not in elasticsearch out of the box. So to have simpler installation at least for now,
+          # we are using just the asciifolding and Czech stemmer, which seem to be good enough.
+          #
+          # Analyzer czech_stemmer converts meaningful words into their lowercase and unaccented
+          # stems so it can match words even when they are declensed. It is useful for
+          # sentence-based texts.
+          czech_stemmer: {
             type: "custom",
             tokenizer: "standard",
             filter: [
               "czech_stop",
-              "czech_stemmer",
               "lowercase",
+              "czech_stemmer", # Not using hunspell-based stemming now so we have simpler installation
               "czech_stop",
-              "asciifolding",
+              "asciifolding", # Not using icu_folding now so we have simpler installation
               "unique_on_same_position"
             ],
+          },
+          # Analyzer czech_lowercase just transforms to lowercase and removes accents.
+          # It is useful for strings where their exact form is important like names
+          # (of people, media, etc.).
+          czech_lowercase: {
+            type: "custom",
+            tokenizer: "standard",
+            filter: [
+              "lowercase",
+              "asciifolding"
+            ]
           }
         },
         filter: {

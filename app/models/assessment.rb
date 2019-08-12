@@ -77,6 +77,11 @@ class Assessment < ApplicationRecord
     short_explanation.length
   end
 
+  def explanation_text
+    return "" if explanation_html.nil?
+    Nokogiri::HTML(explanation_html).text
+  end
+
   def explanation_characters_length
     return 0 if explanation_html.nil?
     fragment = Nokogiri::HTML.fragment(explanation_html)
