@@ -3,8 +3,13 @@
 class Article < ApplicationRecord
   extend FriendlyId
   include Discardable
+  include Searchable
 
   default_scope { kept }
+
+  after_create  { ElasticsearchWorker.perform_async(:article, :index,  self.id) }
+  after_update  { ElasticsearchWorker.perform_async(:article, :update,  self.id) }
+  after_discard { ElasticsearchWorker.perform_async(:article, :destroy,  self.id) }
 
   after_initialize :set_defaults
 
@@ -21,6 +26,77 @@ class Article < ApplicationRecord
     where(published: true)
       .where("published_at <= NOW()")
   }
+
+  mapping do
+    indexes :id, type: "long"
+    indexes :title, type: "keyword" do
+      # Using both analyzers as titles could be both specific names and sentences
+      indexes :czech_stemmer, type: "text", analyzer: "czech_stemmer"
+      indexes :czech_lowercase, type: "text", analyzer: "czech_lowercase"
+    end
+    indexes :perex, type: "text", analyzer: "czech_stemmer"
+    indexes :segments_text, type: "text", analyzer: "czech_stemmer"
+    indexes :published, type: "boolean"
+    indexes :published_at, type: "date"
+
+    # Special types for factcheck articles, so they are searchable also by medium or moderators
+    indexes :article_type_default_indexed_context do
+      indexes :medium do
+        indexes :name, type: "text", analyzer: "czech_lowercase"
+      end
+      indexes :media_personalities do
+        indexes :name, type: "text", analyzer: "czech_lowercase"
+      end
+    end
+  end
+
+  def as_indexed_json(options = {})
+    as_json(
+      only: [:id, :title, :perex, :segments_text, :published, :published_at, :article_type_default_indexed_context],
+      methods: [:segments_text, :article_type_default_indexed_context]
+    )
+  end
+
+  def self.query_search_published(query)
+    search(
+      query: {
+        bool: {
+          must: { simple_query_string: { query: query, default_operator: "AND", flags: "AND|NOT|OR|PHRASE|PRECEDENCE|WHITESPACE" } },
+          filter: [
+            { term: { published: true } },
+            { range: { published_at: { lte: "now" } } }
+          ]
+        }
+      },
+      sort: [
+        { published_at: { order: "desc" } }
+      ]
+    )
+  end
+
+  def segments_text
+    segments.text_type_only.reduce("") do |result, segment|
+      result + Nokogiri::HTML(segment.text_html).text
+    end
+  end
+
+  def article_type_default_indexed_context
+    return {} if article_type.name != "default" || !source
+
+    medium = nil
+    if source.medium
+      medium = source.medium.slice("name")
+    end
+
+    media_personalities = source.media_personalities.map do |media_personality|
+      media_personality.slice("name")
+    end
+
+    {
+      medium: medium,
+      media_personalities: media_personalities
+    }
+  end
 
   def set_defaults
     self.published ||= false

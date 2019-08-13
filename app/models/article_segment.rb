@@ -16,6 +16,10 @@ class ArticleSegment < ApplicationRecord
     where(segment_type: ArticleSegment::TYPE_SOURCE_STATEMENTS)
   }
 
+  scope :text_type_only, -> {
+    where(segment_type: ArticleSegment::TYPE_TEXT)
+  }
+
   def is_text?
     segment_type == ArticleSegment::TYPE_TEXT
   end

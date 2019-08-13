@@ -117,7 +117,8 @@ class Sources extends React.Component<{}, IState> {
                         </th>
                         <th scope="col">Experti</th>
                         <th scope="col">
-                          Výroky<br />
+                          Výroky
+                          <br />
                           <small className={Classes.TEXT_MUTED}>
                             ve zpracování/ke kontrole/ke korektuře/schválené
                           </small>

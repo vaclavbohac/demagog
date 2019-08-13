@@ -5,7 +5,12 @@ class Statement < ApplicationRecord
   TYPE_PROMISE = "promise"
 
   include ActiveModel::Dirty
+  include Searchable
   include Discardable
+
+  after_create { ElasticsearchWorker.perform_async(:statement, :index, self.id) }
+  after_update { ElasticsearchWorker.perform_async(:statement, :update, self.id) }
+  after_discard { ElasticsearchWorker.perform_async(:statement, :destroy, self.id) }
 
   belongs_to :speaker
   belongs_to :source, optional: true
@@ -63,6 +68,68 @@ class Statement < ApplicationRecord
     order(important: :desc).published
   }
 
+  mapping do
+    indexes :id, type: "long"
+    indexes :statement_type, type: "keyword"
+    indexes :content, type: "text", analyzer: "czech_stemmer"
+    indexes :published, type: "boolean"
+    indexes :assessment do
+      indexes :short_explanation, type: "text", analyzer: "czech_stemmer"
+      indexes :explanation_text, type: "text", analyzer: "czech_stemmer"
+      indexes :veracity do
+        indexes :name, type: "text", analyzer: "czech_lowercase"
+      end
+    end
+    indexes :source do
+      indexes :released_at, type: "date"
+      indexes :medium do
+        indexes :name, type: "text", analyzer: "czech_lowercase"
+      end
+    end
+    indexes :speaker do
+      indexes :full_name, type: "text", analyzer: "czech_lowercase"
+    end
+  end
+
+  def as_indexed_json(options = {})
+    as_json(
+      only: [:id, :statement_type, :content, :published],
+      include: {
+        assessment: {
+          only: [:short_explanation, :explanation_text],
+          methods: [:explanation_text],
+          include: {
+            veracity: { only: :name }
+          }
+        },
+        source: {
+          only: :released_at,
+          include: {
+            medium: { only: :name }
+          }
+        },
+        speaker: { only: :full_name, methods: :full_name }
+      }
+    )
+  end
+
+  def self.query_search_published_factual(query)
+    search(
+      query: {
+        bool: {
+          must: { simple_query_string: { query: query, default_operator: "AND", flags: "AND|NOT|OR|PHRASE|PRECEDENCE|WHITESPACE" } },
+          filter: [
+            { term: { published: true } },
+            { term: { statement_type: TYPE_FACTUAL } }
+          ]
+        }
+      },
+      sort: [
+        { 'source.released_at': { order: "desc" } }
+      ]
+    )
+  end
+
   def self.interesting_statements
     order(excerpted_at: :desc)
       .where(statement_type: Statement::TYPE_FACTUAL)
@@ -95,7 +162,7 @@ class Statement < ApplicationRecord
     evaluator_allowed_attributes = ["content", "title", "tags"]
     evaluator_allowed_changes =
       assessment.evaluation_status == Assessment::STATUS_BEING_EVALUATED &&
-      (changed_attributes.keys - evaluator_allowed_attributes).empty?
+        (changed_attributes.keys - evaluator_allowed_attributes).empty?
 
     if evaluator_allowed_changes && permissions.include?("statements:edit-as-evaluator") && assessment.user_id == user.id
       return true
@@ -104,7 +171,7 @@ class Statement < ApplicationRecord
     texts_allowed_attributes = ["content", "title"]
     texts_allowed_changes =
       [Assessment::STATUS_BEING_EVALUATED, Assessment::STATUS_APPROVAL_NEEDED, Assessment::STATUS_PROOFREADING_NEEDED].include?(assessment.evaluation_status) &&
-      (changed_attributes.keys - texts_allowed_attributes).empty?
+        (changed_attributes.keys - texts_allowed_attributes).empty?
 
     if texts_allowed_changes && permissions.include?("statements:edit-as-proofreader")
       return true

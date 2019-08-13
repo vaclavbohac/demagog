@@ -307,18 +307,17 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
                     />
                   )}
 
-                {canAddStatements &&
-                  newStatementSelection !== null && (
-                    <NewStatementForm
-                      onStatementCreated={() => {
-                        refetch({ sourceId: parseInt(source.id, 10) });
-                        this.closeNewStatementForm();
-                      }}
-                      onRequestClose={this.closeNewStatementForm}
-                      selection={newStatementSelection}
-                      source={source}
-                    />
-                  )}
+                {canAddStatements && newStatementSelection !== null && (
+                  <NewStatementForm
+                    onStatementCreated={() => {
+                      refetch({ sourceId: parseInt(source.id, 10) });
+                      this.closeNewStatementForm();
+                    }}
+                    onRequestClose={this.closeNewStatementForm}
+                    selection={newStatementSelection}
+                    source={source}
+                  />
+                )}
               </div>
             </div>
           );

@@ -103,6 +103,10 @@ figure {
 }
 
 
+header h1 {
+  margin-right: 4rem;
+}
+
 header h1 img {
   max-width: 250px;
   max-height: 52px;
@@ -116,17 +120,6 @@ blockquote {
     font-size: 90%;
     font-style: normal;
     text-transform: uppercase;
-  }
-}
-
-cite {
-  display: block;
-  font-size: inherit;
-  color: #3c325c;
-  font-style: italic;
-
-  &::before {
-    content: '— ';
   }
 }
 
@@ -230,6 +223,18 @@ p.lead {
     padding: 8px 15px 11px;
     margin: 0;
     letter-spacing: 0;
+
+    cite {
+      opacity: 0.6;
+
+      &::before {
+        content: '— ';
+      }
+
+      .date {
+        white-space: nowrap;
+      }
+    }
 
     // CSS-only arrow pointing to the portrait
     &:after {

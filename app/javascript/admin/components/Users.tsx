@@ -124,17 +124,13 @@ class Users extends React.Component<IProps, IUsersState> {
               return <h1>{props.error}</h1>;
             }
 
-            const confirmDeleteModalUser = props.data.users.find(
-              (s) => s.id === confirmDeleteModalUserId,
-            );
+            const deletedUser = props.data.users.find((s) => s.id === confirmDeleteModalUserId);
 
             return (
               <div style={{ marginTop: 15 }}>
-                {confirmDeleteModalUser && (
+                {deletedUser && (
                   <ConfirmDeleteModal
-                    message={`Opravdu chcete smazat uživatele ${confirmDeleteModalUser.firstName} ${
-                      confirmDeleteModalUser.lastName
-                    }?`}
+                    message={`Opravdu chcete smazat uživatele ${deletedUser.firstName} ${deletedUser.lastName}?`}
                     onCancel={this.hideConfirmDeleteModal}
                     mutation={DeleteUser}
                     mutationProps={{
@@ -288,10 +284,9 @@ class Users extends React.Component<IProps, IUsersState> {
                   </Card>
                 ))}
 
-                {props.data.users.length === 0 &&
-                  this.state.search !== '' && (
-                    <p>Nenašli jsme žádného člena týmu se jménem „{this.state.search}‟.</p>
-                  )}
+                {props.data.users.length === 0 && this.state.search !== '' && (
+                  <p>Nenašli jsme žádného člena týmu se jménem „{this.state.search}‟.</p>
+                )}
               </div>
             );
           }}

@@ -21,9 +21,11 @@
       
     <%= render partial: "shared/footer" %>
 
-    <%= javascript_pack_tag 'application'  %>
-    <%= javascript_pack_tag 'widget'  %>
-    <%= render partial: "shared/ga" %>
-    <%= render partial: "shared/hotjar" %>
+    <% unless Rails.env.test? %>
+      <%= javascript_pack_tag 'application'  %>
+      <%= javascript_pack_tag 'widget'  %>
+      <%= render partial: "shared/ga" %>
+      <%= render partial: "shared/hotjar" %>
+    <% end %>
   </body>
 </html>

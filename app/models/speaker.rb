@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 class Speaker < ApplicationRecord
+  include Searchable
+
+  after_create  { ElasticsearchWorker.perform_async(:speaker, :index,  self.id) }
+  after_update  { ElasticsearchWorker.perform_async(:speaker, :update,  self.id) }
+  after_destroy { ElasticsearchWorker.perform_async(:speaker, :destroy,  self.id) }
+
   has_many :memberships, dependent: :destroy
   has_one :current_membership, -> { current }, class_name: "Membership"
   has_one :body, through: :current_membership
@@ -10,6 +16,32 @@ class Speaker < ApplicationRecord
   has_and_belongs_to_many :sources
 
   has_one_attached :avatar
+
+  mapping do
+    indexes :id, type: "long"
+    indexes :full_name, type: "text", analyzer: "czech_lowercase"
+    indexes :factual_and_published_statements_count, type: "long"
+  end
+
+  def as_indexed_json(options = {})
+    as_json(
+      only: [:id, :full_name, :factual_and_published_statements_count],
+      methods: [:full_name, :factual_and_published_statements_count]
+    )
+  end
+
+  def self.query_search(query)
+    search(
+      query: {
+        bool: {
+          must: { simple_query_string: { query: query, default_operator: "AND", flags: "AND|NOT|OR|PHRASE|PRECEDENCE|WHITESPACE" } }
+        }
+      },
+      sort: [
+        { factual_and_published_statements_count: { order: "desc" } }
+      ]
+    )
+  end
 
   def self.top_speakers
     joins(:statements)
@@ -37,6 +69,10 @@ class Speaker < ApplicationRecord
 
   def factual_and_published_statements
     statements.factual_and_published
+  end
+
+  def factual_and_published_statements_count
+    factual_and_published_statements.count
   end
 
   def full_name

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RedirectController < ApplicationController
+class RedirectController < FrontendController
   def index
     article = Article.published.friendly.find_by(slug: params[:slug])
     if article

@@ -7,6 +7,7 @@
   <div class="statement-content">
     <blockquote>
       <%= content_to_html(@statement.content) %>
+      <cite><%= @statement.source.medium.name %>, <span class="date"><%= raw(l(@statement.source.released_at, format: :long)) %></span></cite>
 
       <% if @statement.important? %>
         <span class="important-statement-sign">
@@ -15,7 +16,6 @@
         </span>
       <% end %>
     </blockquote>
-    <cite><%= @statement.source.medium.name %>, <%= raw(l(@statement.source.released_at, format: :long, locale: :cs)) %></cite>
 
     <h1>
       Tento výrok byl ověřen jako

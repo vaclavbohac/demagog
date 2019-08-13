@@ -186,10 +186,9 @@ class Media extends React.Component<IProps, IState> {
                   </React.Fragment>
                 )}
 
-                {mediaLength === 0 &&
-                  this.state.search !== '' && (
-                    <p>Nenašli jsme žádný pořad s názvem „{this.state.search}‟.</p>
-                  )}
+                {mediaLength === 0 && this.state.search !== '' && (
+                  <p>Nenašli jsme žádný pořad s názvem „{this.state.search}‟.</p>
+                )}
               </div>
             );
           }}

@@ -3,6 +3,7 @@
 class Page < ApplicationRecord
   extend FriendlyId
   include Discardable
+  include Searchable
 
   default_scope { kept }
 

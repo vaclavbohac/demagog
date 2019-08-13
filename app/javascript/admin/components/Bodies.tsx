@@ -189,10 +189,9 @@ class Bodies extends React.Component<IProps, IState> {
                   </Card>
                 ))}
 
-                {props.data.bodies.length === 0 &&
-                  this.state.search !== '' && (
-                    <p>Nenašli jsme žádnou stranu či skupinu s názvem „{this.state.search}‟.</p>
-                  )}
+                {props.data.bodies.length === 0 && this.state.search !== '' && (
+                  <p>Nenašli jsme žádnou stranu či skupinu s názvem „{this.state.search}‟.</p>
+                )}
               </div>
             );
           }}

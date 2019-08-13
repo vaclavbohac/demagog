@@ -693,7 +693,8 @@ const HeaderBar = () => {
             color: #3c325c;
           `}
         >
-          Programové prohlášení druhé vlády Andreje Babiše (<a
+          Programové prohlášení druhé vlády Andreje Babiše (
+          <a
             href={
               // tslint:disable-next-line:max-line-length
               'https://www.vlada.cz/assets/jednani-vlady/programove-prohlaseni/Programove-prohlaseni-vlady-cerven-2018.pdf'
@@ -701,7 +702,8 @@ const HeaderBar = () => {
             target="_blank"
           >
             zdroj
-          </a>)
+          </a>
+          )
         </h1>
         <h2
           className={css`
@@ -724,7 +726,8 @@ const HeaderBar = () => {
           font-size: 14px;
         `}
       >
-        Vzniklo díky<br /> podpoře:
+        Vzniklo díky
+        <br /> podpoře:
       </div>
 
       <a

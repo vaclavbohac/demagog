@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ErrorController < ApplicationController
+class ErrorController < FrontendController
   def internal_server_error
     respond_to do |format|
       format.html { render status: 500 }

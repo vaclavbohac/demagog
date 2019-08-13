@@ -46,9 +46,8 @@ jobs:
 
       - save_cache:
           paths:
-          key: v1-yarn-dependencies-{{ checksum "yarn.lock" }}
-          paths:
             - ~/.cache/yarn
+          key: v1-yarn-dependencies-{{ checksum "yarn.lock" }}
 
       - persist_to_workspace:
           root: /tmp
@@ -68,6 +67,11 @@ jobs:
         environment:
           POSTGRES_USER: circleci-demo-go
           POSTGRES_DB: demagog_test
+
+      - image: elasticsearch:7.0.1
+        environment:
+          - discovery.type=single-node
+          - bootstrap.memory_lock=true
 
     working_directory: /tmp/build
 

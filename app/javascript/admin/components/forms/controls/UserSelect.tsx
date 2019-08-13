@@ -59,11 +59,8 @@ export default class UserSelect extends React.Component<
           return (
             <Select<ISelectOption>
               id={this.props.id}
-              value={options.filter(
-                ({ value }) =>
-                  this.props.isMulti
-                    ? this.props.value.includes(value)
-                    : value === this.props.value,
+              value={options.filter(({ value }) =>
+                this.props.isMulti ? this.props.value.includes(value) : value === this.props.value,
               )}
               isLoading={loading}
               isMulti={this.props.isMulti}

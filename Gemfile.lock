@@ -89,6 +89,7 @@ GEM
       activesupport (>= 3.0)
       deep_merge (~> 1.2.1)
       dry-validation (>= 0.10.4)
+    connection_pool (2.2.2)
     crass (1.0.4)
     deep_merge (1.2.1)
     devise (4.6.2)
@@ -130,6 +131,19 @@ GEM
       dry-equalizer (~> 0.2)
       dry-logic (~> 0.4, >= 0.4.0)
       dry-types (~> 0.12.0)
+    elasticsearch (7.1.0)
+      elasticsearch-api (= 7.1.0)
+      elasticsearch-transport (= 7.1.0)
+    elasticsearch-api (7.1.0)
+      multi_json
+    elasticsearch-model (7.0.0.pre)
+      activesupport (> 3)
+      elasticsearch (> 1)
+      hashie
+    elasticsearch-rails (7.0.0.pre)
+    elasticsearch-transport (7.1.0)
+      faraday
+      multi_json
     em-websocket (0.5.1)
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0.6.0)
@@ -220,7 +234,7 @@ GEM
     minitest (5.11.3)
     multi_json (1.13.1)
     multi_xml (0.6.0)
-    multipart-post (2.0.0)
+    multipart-post (2.1.1)
     nenv (0.3.0)
     net-scp (1.2.1)
       net-ssh (>= 2.6.5)
@@ -264,6 +278,8 @@ GEM
     quantile (0.2.1)
     rack (2.0.7)
     rack-cors (1.0.2)
+    rack-protection (2.0.5)
+      rack
     rack-proxy (0.6.5)
       rack
     rack-test (1.1.0)
@@ -335,6 +351,11 @@ GEM
     sentry-raven (2.7.4)
       faraday (>= 0.7.6, < 1.0)
     shellany (0.0.1)
+    sidekiq (5.2.5)
+      connection_pool (~> 2.2, >= 2.2.2)
+      rack (>= 1.5.0)
+      rack-protection (>= 1.5.0)
+      redis (>= 3.3.5, < 5)
     solargraph (0.31.3)
       backport (~> 0.3)
       htmlentities (~> 4.3, >= 4.3.4)
@@ -406,6 +427,8 @@ DEPENDENCIES
   devise (>= 4.6.0)
   discard (~> 1.0)
   dotenv-rails
+  elasticsearch-model (~> 7.0.0.pre)
+  elasticsearch-rails (~> 7.0.0.pre)
   factory_bot_rails
   ffi (~> 1.9.24)
   friendly_id (~> 5.1.0)
@@ -434,6 +457,7 @@ DEPENDENCIES
   sass-rails (~> 5.0)
   scenic
   sentry-raven
+  sidekiq
   solargraph
   spring
   spring-watcher-listen (~> 2.0.0)

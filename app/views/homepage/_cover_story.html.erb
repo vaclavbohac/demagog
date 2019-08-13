@@ -22,11 +22,11 @@
         </span>
 
         <% if @cover_story.article_type.name == "default" && @cover_story.source %>
-            <i><%= @cover_story.source.medium.name %>, <%= raw(l(@cover_story.source.released_at, format: :long, locale: :cs)) %></i>
+            <i><%= @cover_story.source.medium.name %>, <%= raw(l(@cover_story.source.released_at, format: :long)) %></i>
         <% end %>
 
         <% if @cover_story.article_type.name == "static" %>
-          <i><%= raw(l(@cover_story.published_at, format: :long, locale: :cs)) %></i>
+          <i><%= raw(l(@cover_story.published_at, format: :long)) %></i>
         <% end %>
       </section>
 

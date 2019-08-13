@@ -1,5 +1,5 @@
 <article
-  class="statement <% if statement.important? %>important-statement<% end %>"
+  class="statement <% if statement.important? %>important-statement<% end %> s-statement"
   id="<%= statement.id %>"
 >
   <a href="<%= speaker_path(statement.speaker.id) %>" class="speaker">
@@ -10,6 +10,9 @@
   <div class="statement-content">
     <blockquote>
       <%= content_to_html(statement.content) %>
+      <% if show_when_and_where %>
+        <cite><%= statement.source.medium.name -%>, <span class="date"><%= raw(l(statement.source.released_at, format: :long)) %></span></cite>
+      <% end %>
 
       <% if statement.important? %>
         <span class="important-statement-icon" title="Důležitý výrok">!</span>

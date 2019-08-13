@@ -101,10 +101,15 @@
     }
 
     cite {
-      margin: 0.8rem 25px;
+      opacity: 0.6;
 
-      font-size: 18px;
-      color: #6E658A;
+      &::before {
+        content: '— ';
+      }
+
+      .date {
+        white-space: nowrap;
+      }
     }
 
     & > h1 {
