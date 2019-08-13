@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PageController < ApplicationController
+class PageController < FrontendController
   def show
     @page = Page.published.friendly.find(params[:slug])
 

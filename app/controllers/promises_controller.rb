@@ -2,7 +2,7 @@
 
 require "nokogiri"
 
-class PromisesController < ApplicationController
+class PromisesController < FrontendController
   def initialize
     super
 

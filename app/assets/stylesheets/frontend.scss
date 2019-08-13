@@ -7,7 +7,6 @@
 
 @import "base";
 @import "layout";
-@import "search";
 
 @import "homepage/cover_story";
 @import "homepage/promises";
@@ -17,6 +16,8 @@
 @import "promises/methodology";
 @import "promises/overview";
 @import "promises/promise_embed";
+
+@import "search/index";
 
 @import "shared/nav";
 @import "shared/partners";

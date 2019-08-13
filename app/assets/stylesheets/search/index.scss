@@ -1,0 +1,95 @@
+.container-search-index {
+  min-height: 400px;
+
+  flex: 1 0 100%;
+
+  .search-box {
+    display: flex;
+    position: relative;
+
+    .search-field {
+      width: 100%;
+      margin: 0;
+      padding: 0.5rem 0.9rem;
+      border: 1px solid var(--violet);
+      border-radius: 0;
+      font-size: var(--large-typesize);
+      font-family: var(--font-family);
+      line-height: 1.4;
+      font-weight: bolder;
+      color: var(--violet);
+
+      &::-ms-clear {
+        display: none;
+      }
+    }
+
+    .submit-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: .85rem;
+      margin: 0;
+      background: none;
+      border: 0;
+      cursor: pointer;
+
+      svg {
+        display: block;
+        width: 20px;
+        height: 20px;
+      }
+
+      &:hover, &:focus {
+        svg path {
+          fill: var(--orange);
+        }
+      }
+    }
+  }
+
+  .section-title {
+    font-size: var(--large-typesize);
+    font-weight: bolder;
+    margin: 4rem 0 1.5rem;
+  }
+
+  .more-link {
+    display: block;
+    clear: both;
+  }
+
+  .speaker {
+    margin-bottom: 1.2rem;
+  }
+
+  .preview {
+    clear: both;
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+  }
+
+  .section-single-type {
+    .back-link {
+      display: block;
+      margin-top: 3rem;
+    }
+
+    .title {
+      font-size: var(--large-typesize);
+      font-weight: bolder;
+      margin: 0.8rem 0 1.5rem;
+    }
+  }
+
+  .no-results {
+    margin-top: 4rem;
+  }
+
+  @media only screen and (min-width: 900px) {
+    flex: 1 0 66.66666667%;
+    margin-left: 16.66666667%;
+    margin-right: 16.66666667%;
+    margin-top: 3rem;
+  }
+}

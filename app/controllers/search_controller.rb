@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require "elasticsearch/model"
-
-class SearchController < ApplicationController
+class SearchController < FrontendController
   def index
     @query = params[:q] || ""
     @type = params[:type]

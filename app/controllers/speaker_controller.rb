@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class SpeakerController < ApplicationController
+class SpeakerController < FrontendController
   def index
     @speakers = Speaker.top_speakers
     @parties = Body.min_members(3)

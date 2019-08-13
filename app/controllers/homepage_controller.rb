@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HomepageController < ApplicationController
+class HomepageController < FrontendController
   def index
     unless params[:page].present?
       @cover_story = Article.cover_story
@@ -23,7 +23,7 @@ class HomepageController < ApplicationController
     # expires_in 1.hour, public: true
   end
 
-  private
+  protected
     def get_promises_stats
       keys = [PromiseRating::FULFILLED, PromiseRating::IN_PROGRESS, PromiseRating::BROKEN, PromiseRating::STALLED]
 

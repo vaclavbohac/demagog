@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ArticleController < ApplicationController
+class ArticleController < FrontendController
   def index
     # Redirect pages to new url
     page = Page.published.friendly.find_by(slug: params[:slug])
