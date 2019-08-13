@@ -71,7 +71,7 @@ Rails.application.routes.draw do
   # get "sliby-sobotkovy-vlady/programove-prohlaseni" => "promises#document"
   get "sliby/:slug/programove-prohlaseni" => "promises#document"
 
-  get "hledani" => "search#index", as: "search"
+  get "vyhledavani" => "search#index", as: "search"
 
   root to: "homepage#index"
 
