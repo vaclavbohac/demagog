@@ -101,7 +101,7 @@
             <% end %>
             <%= segment.all_published_statements.count %> ověřených výroků
           </h2>
-          <%= render(partial: "statement/detail", collection: filtered_statements, as: :statement) %>
+          <%= render(partial: "statement/detail", collection: filtered_statements, as: :statement, locals: { show_when_and_where: false }) %>
         </div>
       <% end %>
     </section>

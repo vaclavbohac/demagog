@@ -33,6 +33,6 @@ module SearchHelper
   end
 
   def render_statements(record)
-    render(partial: "statement/detail", collection: record, as: :statement)
+    render(partial: "statement/detail", collection: record, as: :statement, locals: { show_when_and_where: true })
   end
 end

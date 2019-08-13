@@ -13,7 +13,7 @@
   <section>
     <h2 id="statements">Výroky</h2>
 
-    <%= render(partial: 'statement/detail', collection: @statements, as: :statement) %>
+    <%= render(partial: 'statement/detail', collection: @statements, as: :statement, locals: { show_when_and_where: true }) %>
 
     <%= paginate(@statements) %>
   </section>
