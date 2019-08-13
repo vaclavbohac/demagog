@@ -24,3 +24,7 @@
 every 5.minutes do
   runner "Notification.email_unread_notifications"
 end
+
+every 30.minutes do
+  rake "elasticsearch:reindex"
+end
