@@ -4,6 +4,7 @@ Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [K
 
 ## 25. srpna 2019
 - Změněno: Odkazy v odůvodnění se otevírají v novém okně/tabu ([#438](https://github.com/Demagog2/demagog/pull/438))
+- Změněno: Administrace se nesnaží zmenšit pro mobil, ale zůstává jak kdyby ji člověk otevíral na počítači ([#439](https://github.com/Demagog2/demagog/pull/439))
 
 ## 31. července 2019
 - Opraveno: Výrok jde měnit i když není vybraný ověřovatel ([#428](https://github.com/Demagog2/demagog/pull/428))
