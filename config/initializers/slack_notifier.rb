@@ -7,7 +7,7 @@ module SlackNotifier
     end
   end
 
-  ProofreadingNotifier = Rails.env.production? ?
+  ProofreadingNotifier = (Rails.env.production? && ENV["SLACK_PROOFREADING_NOTIFICATIONS_WEBHOOK"]) ?
     Slack::Notifier.new(ENV["SLACK_PROOFREADING_NOTIFICATIONS_WEBHOOK"]) :
     Slack::Notifier.new("WEBHOOK_URL") do
       http_client NoOpHTTPClient
