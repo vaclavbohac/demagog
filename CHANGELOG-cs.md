@@ -2,6 +2,9 @@
 
 Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## 19. července 2019
+- Změněno: Experti už nedostávají upozornění na změnu ověřovatele expertovaných výroků ([#441](https://github.com/Demagog2/demagog/pull/441))
+
 ## 25. srpna 2019
 - Změněno: Odkazy v odůvodnění se otevírají v novém okně/tabu ([#438](https://github.com/Demagog2/demagog/pull/438))
 - Změněno: Administrace se nesnaží zmenšit pro mobil, ale zůstává jak kdyby ji člověk otevíral na počítači ([#439](https://github.com/Demagog2/demagog/pull/439))
