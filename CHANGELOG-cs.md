@@ -2,7 +2,8 @@
 
 Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
-## 19. července 2019
+## 19. září 2019
+- Přidáno: Notifikace do Slack kanálů korektur při 5, 10, atd. nevyřízených výrocích ke kontrole ([#442](https://github.com/Demagog2/demagog/pull/442))
 - Změněno: Experti už nedostávají upozornění na změnu ověřovatele expertovaných výroků ([#441](https://github.com/Demagog2/demagog/pull/441))
 
 ## 25. srpna 2019
