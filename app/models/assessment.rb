@@ -230,7 +230,7 @@ class Assessment < ApplicationRecord
 
       if proofreading_needed_count > 0 && proofreading_needed_count % 5 == 0
         source_url = "https://demagog.cz/admin/sources/#{statement.source.id}?filter=%7B%22field%22%3A%22assessment.evaluationStatus%22%2C%22value%22%3A%22proofreading_needed%22%7D"
-        SlackNotifier::ProofreadingNotifier.post text: "Ahoj, máme tu v diskuzi *#{statement.source.name}* už #{proofreading_needed_count} výroků ke korektuře. Prosíme o projití. Díky!\n#{source_url}"
+        SlackNotifier::ProofreadingNotifier.post text: "<!channel> Ahoj, máme tu v diskuzi *#{statement.source.name}* už #{proofreading_needed_count} výroků ke korektuře. Prosíme o projití. Díky!\n#{source_url}"
       end
     end
   end
