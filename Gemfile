@@ -11,9 +11,9 @@ end
 gem "dotenv-rails"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem "rails", "~> 5.2"
+gem "rails", "~> 6.0"
 # Add possibility for bulk insert to Active Record models
-gem "bulk_insert"
+# gem "bulk_insert"
 # Use Postgresql as the database for Active Record
 gem "pg"
 # Use scenic for materilized views
@@ -29,7 +29,7 @@ gem "uglifier", ">= 1.3.0"
 # Add gem for paging
 gem "kaminari"
 # Add webpack support
-gem "webpacker", ">= 4.0.x"
+gem "webpacker", "~> 4.0.7"
 # Add graphql support
 gem "graphql"
 # Allow CORS setup
@@ -63,7 +63,7 @@ gem "prometheus-client"
 gem "config"
 
 # Authentication
-gem "devise", ">= 4.6.0"
+gem "devise", "~> 4.7.1"
 
 # Enables devise & omniauth to authenticate against Google OAuth 2
 gem "omniauth-google-oauth2"
@@ -137,7 +137,7 @@ group :development, :test do
   gem "guard-minitest"
 
   # Fixture replacement
-  gem "factory_bot_rails"
+  gem "factory_bot_rails", "~> 5.1.0"
 
   # For intellisense in editors
   gem "solargraph"
