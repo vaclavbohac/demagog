@@ -43,10 +43,10 @@ namespace :deploy do
           execute "rm -rf node_modules && yarn install"
 
           # Remove all compiled assets
-          execute "rake assets:clobber"
+          execute "PRODUCTION_DATABASE_URL=postgresql:doesnt_exist SECRET_KEY_BASE=random rake assets:clobber"
 
           # And compile fresh new assets (includes JS apps)
-          execute "RAILS_ENV=production rake assets:precompile"
+          execute "RAILS_ENV=production PRODUCTION_DATABASE_URL=postgresql:doesnt_exist SECRET_KEY_BASE=random rake assets:precompile"
         end
       end
 
