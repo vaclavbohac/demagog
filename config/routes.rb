@@ -46,6 +46,8 @@ Rails.application.routes.draw do
       get "/test-login/:id" => "admin#test_login", as: :test_login
     end
 
+    resources :users
+
     get "(/*all)" => "admin#index"
   end
 
