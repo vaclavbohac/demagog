@@ -3,12 +3,9 @@
   <head>
     <title>Administrace ᗧ··•··ᗣ·· Demagog.cz</title>
     <%= csrf_meta_tags %>
-    <%= stylesheet_link_tag 'admin', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= stylesheet_link_tag 'experimental_admin', media: 'all', 'data-turbolinks-track': 'reload' %>
 
     <link rel="shortcut icon" href="<%= asset_path("favicon.png") %>" type="image/x-icon" />
-    <!-- Add apple touch icon -->
-
-    <%= stylesheet_pack_tag 'admin'  %>
   </head>
 
   <body>
@@ -24,7 +21,13 @@
       </div>
     <% end %>
 
-    <%= yield %>
+    <div class="page">
+      <%= render(partial: "experimental/admin/sidebar", locals: { categories: controller.categories }) %>
+
+      <div class="content">
+        <%= yield %>
+      </div>
+    </div>
   </body>
 </html>
 </body>

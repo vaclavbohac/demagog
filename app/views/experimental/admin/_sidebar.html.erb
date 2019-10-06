@@ -1,0 +1,15 @@
+<div class="sidebar">
+  <% categories.each do |category| %>
+    <div class="section">
+      <h6 class="bp3-heading category">
+        <%= category.title %>
+      </h6>
+
+      <ul class="bp3-list-unstyled">
+        <% category.links.each do |link| %>
+          <li><%= link_to link.title, link.to %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+</div>
