@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Admin Users</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @users.each do |user| %>
+      <tr>
+        <td><%= link_to 'Show', experimental_admin_user_path(user) %></td>
+        <td><%= link_to 'Edit', edit_experimental_admin_user_path(user) %></td>
+        <td><%= link_to 'Destroy', experimental_admin_user_path(user), method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Admin User', new_experimental_admin_user_path %>

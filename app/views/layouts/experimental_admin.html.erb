@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="cs">
+  <head>
+    <title>Administrace ᗧ··•··ᗣ·· Demagog.cz</title>
+    <%= csrf_meta_tags %>
+    <%= stylesheet_link_tag 'admin', media: 'all', 'data-turbolinks-track': 'reload' %>
+
+    <link rel="shortcut icon" href="<%= asset_path("favicon.png") %>" type="image/x-icon" />
+    <!-- Add apple touch icon -->
+
+    <%= stylesheet_pack_tag 'admin'  %>
+  </head>
+
+  <body>
+    <% if notice %>
+      <div class="bp3-callout bp3-intent-success">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <% if alert %>
+      <div class="bp3-callout bp3-intent-warning">
+        <strong>Upozornění:</strong> <%= alert %>
+      </div>
+    <% end %>
+
+    <%= yield %>
+  </body>
+</html>
+</body>
+</html>

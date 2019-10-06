@@ -11,14 +11,23 @@ Rails.application.routes.draw do
 
   get "rss/index"
 
+  namespace :experimental do
+    namespace :admin do
+      resources :users
+    end
+  end
+
   namespace :admin do
     # Imare uploading of article illustrations
-    post "/article-illustration/:id" => "file_upload#upload_article_illustration", as: :upload_article_illustration
-    delete "/article-illustration/:id" => "file_upload#delete_article_illustration", as: :delete_article_illustration
+    post "/article-illustration/:id" => "file_upload#upload_article_illustration",
+         as: :upload_article_illustration
+    delete "/article-illustration/:id" => "file_upload#delete_article_illustration",
+           as: :delete_article_illustration
 
     # Image uploading of speaker portraits
     post "/profile-picture/:id" => "file_upload#upload_profile_picture", as: :upload_profile_picture
-    delete "/profile-picture/:id" => "file_upload#delete_profile_picture", as: :delete_profile_picture
+    delete "/profile-picture/:id" => "file_upload#delete_profile_picture",
+           as: :delete_profile_picture
 
     # Image uploading of user avatars
     post "/user-avatar/:id" => "file_upload#upload_user_avatar", as: :upload_user_avatar
@@ -42,11 +51,7 @@ Rails.application.routes.draw do
 
     # For development and testing we need a way to login as somebody even when
     # we don't have access to their Google account
-    unless Rails.env.production?
-      get "/test-login/:id" => "admin#test_login", as: :test_login
-    end
-
-    resources :users
+    get "/test-login/:id" => "admin#test_login", as: :test_login unless Rails.env.production?
 
     get "(/*all)" => "admin#index"
   end
