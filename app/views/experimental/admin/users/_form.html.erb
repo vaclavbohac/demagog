@@ -11,6 +11,51 @@
     </div>
   <% end %>
 
+
+  <h4 class="bp3-heading">Základní údaje</h4>
+
+  <div class="bp3-form-group">
+    <%= label(:user, :first_name) %>
+
+    <div class="bp3-form-content">
+      <div class="bp3-input-group">
+        <%= text_field(:user, :first_name, class: "bp3-input") %>
+      </div>
+    </div>
+  </div>
+
+  <div class="bp3-form-group">
+    <%= label(:user, :last_name) %>
+
+    <div class="bp3-form-content">
+      <div class="bp3-input-group">
+        <%= text_field(:user, :last_name, class: "bp3-input") %>
+      </div>
+    </div>
+  </div>
+
+  <h4 class="bp3-heading">Přístup do aplikace</h4>
+
+  <div class="bp3-form-group">
+    <%= label(:user, :email) %>
+
+    <div class="bp3-form-content">
+      <div class="bp3-input-group">
+        <%= text_field(:user, :email, class: "bp3-input") %>
+      </div>
+    </div>
+  </div>
+
+  <div class="bp3-form-group">
+    <%= label(:user, :role) %>
+
+    <div class="bp3-form-content">
+      <div class="bp3-input-group">
+        <%= select(:user, :role, options_from_collection_for_select(Role.all, :id, :name)) %>
+      </div>
+    </div>
+  </div>
+
   <div class="actions">
     <%= form.submit %>
   </div>
