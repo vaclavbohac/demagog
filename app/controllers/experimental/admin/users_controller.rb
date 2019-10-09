@@ -23,7 +23,8 @@ class Experimental::Admin::UsersController < ApplicationController
 
   # POST /experimental/admin/users
   def create
-    @user = User.new(user_params)
+    @user = User.new(user_params.except(:role))
+    @user.roles << Role.find(user_params[:role])
 
     if @user.save
       redirect_to experimental_admin_user_path(@user), notice: "User was successfully created."
@@ -56,6 +57,6 @@ class Experimental::Admin::UsersController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def user_params
-    params.fetch(:user, {}).permit(:first_name, :last_name, :email, roles: %i[id])
+    params.fetch(:user, {}).permit(:first_name, :last_name, :email, :role)
   end
 end

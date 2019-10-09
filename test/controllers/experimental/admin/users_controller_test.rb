@@ -16,8 +16,11 @@ class Experimental::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should create admin_user" do
+    user = build(:user)
+    role = create(:role)
+
     assert_difference("User.count") do
-      post experimental_admin_users_url, params: { admin_user: {} }
+      post experimental_admin_users_url, params: { user: { email: user.email, role: role.id } }
     end
 
     assert_redirected_to experimental_admin_user_url(User.last)

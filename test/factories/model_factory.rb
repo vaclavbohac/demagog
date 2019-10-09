@@ -3,6 +3,10 @@
 include ActionDispatch::TestProcess
 
 FactoryBot.define do
+  sequence :email do |n|
+    "person#{n}@example.com"
+  end
+
   factory :media_personality
 
   factory :medium
@@ -79,6 +83,7 @@ FactoryBot.define do
     first_name { "John" }
     last_name { "Doe" }
     active { true }
+    email
 
     trait :admin do
       role_id { Role.find_by(key: Role::ADMIN).id }
