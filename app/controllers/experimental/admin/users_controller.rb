@@ -35,7 +35,9 @@ class Experimental::Admin::UsersController < ApplicationController
 
   # PATCH/PUT /experimental/admin/users/1
   def update
-    if @user.update(user_params)
+    @user.role_id = user_params[:role]
+
+    if @user.update(user_params.except(:role))
       redirect_to experimental_admin_user_path(@user), notice: "User was successfully updated."
     else
       render :edit

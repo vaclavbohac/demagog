@@ -37,7 +37,10 @@ class Experimental::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update admin_user" do
-    patch experimental_admin_user_url(@user), params: { admin_user: {} }
+    user = build(:user)
+    role = create(:role)
+
+    patch experimental_admin_user_url(@user), params: { user: { email: user.email, role: role.id } }
     assert_redirected_to experimental_admin_user_url(@user)
   end
 

@@ -51,7 +51,7 @@
 
     <div class="bp3-form-content">
       <div class="bp3-input-group">
-        <%= select(:user, :role, options_from_collection_for_select(Role.all, :id, :name)) %>
+        <%= select(:user, :role, options_from_collection_for_select(Role.all, :id, :name, user&.role&.id)) %>
       </div>
     </div>
   </div>
