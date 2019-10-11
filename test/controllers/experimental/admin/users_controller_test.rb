@@ -55,7 +55,7 @@ class Experimental::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     user = build(:user)
     role = create(:role)
 
-    patch experimental_admin_user_url(@user), params: { user: { email: user.email, role: role.id,email_notifications: true } }
+    patch experimental_admin_user_url(@user), params: { user: { email: user.email, role: role.id, email_notifications: true } }
     assert_redirected_to experimental_admin_user_url(@user)
   end
 
