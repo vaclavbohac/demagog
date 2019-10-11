@@ -64,6 +64,14 @@
     Posílat upozornění emailem
   <% end %>
 
+  <h4 class="bp3-heading">Veřejný profil</h4>
+
+  <%= label(:user, :user_public, class: "bp3-control bp3-switch") do %>
+    <%= check_box(:user, :user_public, class: "bp3-input") %>
+
+    <span class="bp3-control-indicator" ></span>
+    Zobrazit profil v sekci O nás
+  <% end %>
 
   <div class="actions">
     <%= form.submit %>
