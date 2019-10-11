@@ -7,7 +7,11 @@ class Experimental::Admin::UsersController < ApplicationController
 
   # GET /experimental/admin/users
   def index
-    @users = User.all
+    @users = if params[:deactivated]
+      User.all
+    else
+      User.active
+    end
   end
 
   # GET /experimental/admin/users/1
@@ -35,7 +39,9 @@ class Experimental::Admin::UsersController < ApplicationController
 
   # PATCH/PUT /experimental/admin/users/1
   def update
-    @user.role_id = user_params[:role]
+    if user_params[:role]
+      @user.role_id = user_params[:role]
+    end
 
     if @user.update(user_params.except(:role))
       redirect_to experimental_admin_user_path(@user), notice: "User was successfully updated."
@@ -59,6 +65,6 @@ class Experimental::Admin::UsersController < ApplicationController
 
   # Only allow a trusted parameter "white list" through.
   def user_params
-    params.fetch(:user, {}).permit(:first_name, :last_name, :email, :role)
+    params.fetch(:user, {}).permit(:first_name, :last_name, :email, :role, :active, :email_notifications)
   end
 end

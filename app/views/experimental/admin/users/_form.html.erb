@@ -56,6 +56,15 @@
     </div>
   </div>
 
+  <h4 class="bp3-heading">Upozornění</h4>
+
+  <%= label(:user, :email_notifications, class: "bp3-control bp3-switch") do %>
+    <%= check_box(:user, :email_notifications, class: "bp3-input") %>
+
+    <span class="bp3-control-indicator" ></span>
+    Posílat upozornění emailem
+  <% end %>
+
   <div class="actions">
     <%= form.submit %>
   </div>
