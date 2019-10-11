@@ -28,7 +28,12 @@
         <td><%= user.role ? user.role.name : 'Missing' %></td>
         <td><%= link_to 'Show', experimental_admin_user_path(user) %></td>
         <td><%= link_to 'Edit', edit_experimental_admin_user_path(user) %></td>
-        <td><%= link_to 'Aktivovat', experimental_admin_user_path(user), method: :put, data: { confirm: 'Are you sure?' } %></td>
+        <td>
+          <%= form_with(model: user, local: true, url: experimental_admin_user_path(user)) do |form| %>
+            <%= hidden_field(:user, :active, value: !user.active) %>
+            <%= submit_tag(user.active ? "Deaktivovat" : "Aktivovat") %>
+          <% end %>
+        </td>
         <td><%= link_to 'Destroy', experimental_admin_user_path(user), method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>

@@ -21,8 +21,13 @@ class Admin::AdminController < ApplicationController
     # Make sure it is not runnable in production
     return head :not_found if Rails.env.production?
 
-    sign_in(:user, User.find(params[:id]))
+    user = User.find_by(active: true, id: params[:id])
+    if user
+      sign_in(:user, user)
 
-    head :ok
+      redirect_to "/admin", notice: "Successfully logged in as '#{user.email}'"
+    else
+      head(:not_found)
+    end
   end
 end
