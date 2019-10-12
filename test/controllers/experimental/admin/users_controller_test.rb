@@ -44,6 +44,7 @@ class Experimental::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to experimental_admin_user_url(created_user)
     assert_equal(true, created_user.avatar.attached?)
+    assert_equal(true, created_user.active)
   end
 
   test "should show user" do

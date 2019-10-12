@@ -27,7 +27,7 @@ class Experimental::Admin::UsersController < ApplicationController
 
   # POST /experimental/admin/users
   def create
-    @user = User.new(user_params.except(:role))
+    @user = User.new(user_params.except(:role).merge(active: true))
     @user.roles << Role.find(user_params[:role])
 
     if @user.save
