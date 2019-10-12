@@ -34,11 +34,16 @@ class Experimental::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     user = build(:user)
     role = create(:role)
 
+    avatar_file = fixture_file_upload("files/speaker.png", "image/png")
+
     assert_difference("User.count") do
-      post experimental_admin_users_url, params: { user: { email: user.email, role: role.id } }
+      post experimental_admin_users_url, params: { user: { email: user.email, role: role.id, avatar: avatar_file } }
     end
 
-    assert_redirected_to experimental_admin_user_url(User.last)
+    created_user = User.last
+
+    assert_redirected_to experimental_admin_user_url(created_user)
+    assert_equal(true, created_user.avatar.attached?)
   end
 
   test "should show user" do

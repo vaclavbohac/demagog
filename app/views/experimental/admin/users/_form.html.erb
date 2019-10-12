@@ -73,6 +73,16 @@
     Zobrazit profil v sekci O nás
   <% end %>
 
+  <div class="bp3-form-group">
+    <%= form.label(:avatar) %>
+
+    <div class="bp3-form-content">
+      <div class="bp3-input-group">
+        <%= form.file_field(:avatar) %>
+      </div>
+    </div>
+  </div>
+
   <div class="actions">
     <%= form.submit %>
   </div>
