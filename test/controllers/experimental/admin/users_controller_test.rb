@@ -30,7 +30,7 @@ class Experimental::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should create admin_user" do
+  test "should create user" do
     user = build(:user)
     role = create(:role)
 
@@ -41,7 +41,7 @@ class Experimental::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to experimental_admin_user_url(User.last)
   end
 
-  test "should show admin_user" do
+  test "should show user" do
     get experimental_admin_user_url(@user)
     assert_response :success
   end
@@ -51,7 +51,7 @@ class Experimental::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should update admin_user" do
+  test "should update user" do
     user = build(:user)
     role = create(:role)
 
@@ -65,7 +65,7 @@ class Experimental::Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "should destroy admin_user" do
+  test "should destroy user" do
     assert_difference("User.count", -1) { delete experimental_admin_user_url(@user) }
 
     assert_redirected_to experimental_admin_users_url
