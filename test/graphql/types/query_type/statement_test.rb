@@ -18,6 +18,28 @@ class QueryTypeStatementTest < GraphQLTestCase
     assert_equal "#{statement.id}", result.data.statement.id
   end
 
+  test "statement should include statement video marks" do
+    statement = create(:statement)
+    statement.statement_video_mark = build(:statement_video_mark, statement: statement)
+    statement.save!
+
+    query_string = "
+      query {
+        statement(id: #{statement.id}) {
+          id
+          statementVideoMark {
+            start
+            stop
+          }
+        }
+      }"
+
+    result = execute(query_string)
+
+    assert_equal 10, result.data.statement.statementVideoMark.start
+    assert_equal 50, result.data.statement.statementVideoMark.stop
+  end
+
   test "statement should not return existing unpublished statement" do
     statement = create(:unpublished_statement)
 

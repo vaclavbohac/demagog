@@ -12,6 +12,7 @@ module Types
     field :source, Types::SourceType, null: false
     field :source_order, Int, null: true
     field :statement_transcript_position, Types::StatementTranscriptPositionType, null: true
+    field :statement_video_mark, Types::StatementVideoMarkType, null: true
     field :assessment, Types::AssessmentType, null: false
     field :published, Boolean, null: false
     field :count_in_statistics, Boolean, null: false

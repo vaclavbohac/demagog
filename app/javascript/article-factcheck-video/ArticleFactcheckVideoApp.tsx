@@ -18,14 +18,18 @@ import YoutubeVideo from './video/YoutubeVideo';
 const apolloLink = new HttpLink({ uri: '/graphql', fetch });
 
 const articleStatementsQuery = gql`
-  query {
-    article(id: 774) {
+  query getArticle($articleId: Int!) {
+    article(id: $articleId) {
       id
       title
       statements {
         id
         content
         important
+        statementVideoMark {
+          start
+          stop
+        }
         assessment {
           id
           veracity {
@@ -47,6 +51,7 @@ const articleStatementsQuery = gql`
   }
 `;
 
+// FIXME: Should be generated
 interface IArticleStatementsQueryResult {
   article: {
     id: string;
@@ -55,6 +60,10 @@ interface IArticleStatementsQueryResult {
       id: string;
       content: string;
       important: boolean;
+      statementVideoMark: {
+        start: number;
+        stop: number;
+      };
       assessment: {
         id: string;
         veracity: {
@@ -96,7 +105,9 @@ class ArticleFactcheckVideoApp extends React.Component<IProps, IState> {
 
     this.handleHashChange();
 
-    makePromise(execute(apolloLink, { query: articleStatementsQuery })).then((data) => {
+    makePromise(
+      execute(apolloLink, { query: articleStatementsQuery, variables: { articleId: 774 } }),
+    ).then((data) => {
       this.setState({ article: data.data.article });
     });
   }
