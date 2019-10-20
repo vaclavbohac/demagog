@@ -58,16 +58,9 @@ export class Player extends React.Component<IPlayerProps, IPlayerState> {
   public componentDidUpdate(_, prevState) {
     if (prevState.time !== this.state.time && this.state.time !== null) {
       const foundStatement = this.props.article.statements.find((statement) => {
-        const timing = timings[statement.id];
+        const timing = statement.statementVideoMark;
 
-        if (timing) {
-          return (
-            this.state.time >= parseTimingTime(timing[0]) &&
-            this.state.time <= parseTimingTime(timing[1])
-          );
-        } else {
-          return false;
-        }
+        return timing && this.state.time >= timing.start && this.state.time <= timing.stop;
       });
 
       this.setState({
@@ -94,8 +87,8 @@ export class Player extends React.Component<IPlayerProps, IPlayerState> {
     const { highlightStatementId } = this.state;
 
     const statementsSortedByTimingsStart = orderBy(
-      article.statements.filter((s) => !!timings[s.id]),
-      [(s) => parseTimingTime(timings[s.id][0])],
+      article.statements.filter((s) => s.statementVideoMark),
+      [(s) => s.statementVideoMark.start],
       ['asc'],
     );
 
@@ -138,7 +131,7 @@ export class Player extends React.Component<IPlayerProps, IPlayerState> {
         </VideoColumn>
         <StatementsColumn ref={(statementsColumn) => (this.statementsColumn = statementsColumn)}>
           {statementsSortedByTimingsStart.map((statement, index) => {
-            const timing = timings[statement.id];
+            const timing = statement.statementVideoMark;
             const highlighted = highlightStatementId === statement.id;
             const lastStatement = index + 1 === statementsSortedByTimingsStart.length;
             return (
@@ -150,8 +143,8 @@ export class Player extends React.Component<IPlayerProps, IPlayerState> {
                 <TimeContainer>
                   <TimeButton
                     type="button"
-                    onClick={() => this.goToTimeOfStatement(statement.id)}
-                    data-tip={`Kliknutím skočte na čas ${timing[0]}`}
+                    onClick={() => this.goToTimeOfStatement(statement)}
+                    data-tip={`Kliknutím skočte na čas ${timing.start}`}
                     data-for={`statement-${statement.id}`}
                   >
                     {timing[0]}
@@ -184,10 +177,10 @@ export class Player extends React.Component<IPlayerProps, IPlayerState> {
     }
   };
 
-  public goToTimeOfStatement = (statementId: string) => {
-    const timing = timings[statementId];
-    if (this.video !== null && timing) {
-      this.video.goToTime(parseTimingTime(timing[0]));
+  public goToTimeOfStatement = (statement) => {
+    const { start } = statement.statementVideoMark;
+    if (this.video !== null && start) {
+      this.video.goToTime(start);
     }
   };
 }
@@ -292,59 +285,6 @@ const TimeLine = styled.div`
   margin-left: -1px;
   border-left: 2px solid #d8e1e8;
 `;
-
-// TODO: move to server
-const timings = {
-  18598: ['0:46', '1:03'],
-  18599: ['1:06', '1:12'],
-  18601: ['2:33', '3:01'],
-  18602: ['3:19', '3:32'],
-  18603: ['4:12', '4:25'],
-  18604: ['4:43', '5:15'],
-  18605: ['5:19', '5:47'],
-  18606: ['6:57', '7:08'],
-  18607: ['7:09', '7:41'],
-  18608: ['7:44', '8:03'],
-  18609: ['8:03', '8:15'],
-  18610: ['9:15', '9:21'],
-  18611: ['9:24', '9:40'],
-  18612: ['9:41', '9:43'],
-  18614: ['9:53', '9:56'],
-  18615: ['10:17', '10:24'],
-  18616: ['10:34', '11:05'],
-  18617: ['11:23', '11:25'],
-  18618: ['12:42', '12:50'],
-  18620: ['14:02', '14:13'],
-  18619: ['14:33', '14:39'],
-  18621: ['15:42', '16:00'],
-  18622: ['18:12', '18:16'],
-  18623: ['18:31', '18:48'],
-  18624: ['18:52', '18:55'],
-  18625: ['19:50', '20:15'],
-  18626: ['21:25', '21:31'],
-};
-
-const parseTimingTime = (time: string): number => {
-  if (typeof time === 'number') {
-    return time;
-  }
-
-  const parts = time.split(':');
-
-  let seconds = 0;
-  if (parts.length > 0) {
-    // Float, because seconds can be '1.3'
-    seconds += parseFloat(parts.pop() as string);
-  }
-  if (parts.length > 0) {
-    seconds += parseInt(parts.pop() as string, 10) * 60;
-  }
-  if (parts.length > 0) {
-    seconds += parseInt(parts.pop() as string, 10) * 3600;
-  }
-
-  return seconds;
-};
 
 interface IDisplayStatementProps {
   highlighted: boolean;
