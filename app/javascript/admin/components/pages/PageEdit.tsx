@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, Query, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 
@@ -17,12 +17,7 @@ import { GetPage, GetPages } from '../../queries/queries';
 import { PageForm } from '../forms/PageForm';
 import Loading from '../Loading';
 
-class UpdatePageMutationComponent extends Mutation<
-  UpdatePageMutation,
-  UpdatePageMutationVariables
-> {}
-
-type UpdatePageMutationFn = MutationFn<UpdatePageMutation, UpdatePageMutationVariables>;
+type UpdatePageMutationFn = MutationFunction<UpdatePageMutation, UpdatePageMutationVariables>;
 
 interface IPageEditProps extends RouteComponentProps<{ id: string }>, DispatchProp {}
 
@@ -63,7 +58,7 @@ class PageEdit extends React.Component<IPageEditProps> {
             }
 
             return (
-              <UpdatePageMutationComponent
+              <Mutation<UpdatePageMutation, UpdatePageMutationVariables>
                 mutation={UpdatePage}
                 refetchQueries={[
                   { query: GetPages, variables: { name: null } },
@@ -80,7 +75,7 @@ class PageEdit extends React.Component<IPageEditProps> {
                     />
                   );
                 }}
-              </UpdatePageMutationComponent>
+              </Mutation>
             );
           }}
         </Query>

@@ -23,18 +23,6 @@ import { GetStatementComments, GetUsers } from '../queries/queries';
 import Authorize from './Authorize';
 import Loading from './Loading';
 
-class GetStatementCommentsQueryComponent extends Query<
-  GetStatementCommentsQuery,
-  GetStatementCommentsQueryVariables
-> {}
-
-class GetUsersQueryComponent extends Query<GetUsersQuery, GetUsersQueryVariables> {}
-
-class CreateCommentMutationComponent extends Mutation<
-  CreateCommentMutation,
-  CreateCommentMutationVariables
-> {}
-
 interface IProps {
   statementId: string;
 }
@@ -42,7 +30,7 @@ interface IProps {
 class StatementComments extends React.PureComponent<IProps> {
   public render() {
     return (
-      <GetStatementCommentsQueryComponent
+      <Query<GetStatementCommentsQuery, GetStatementCommentsQueryVariables>
         query={GetStatementComments}
         variables={{ id: parseInt(this.props.statementId, 10) }}
         pollInterval={20350} // Little more than 20s so it does not sync with other polls
@@ -102,7 +90,7 @@ class StatementComments extends React.PureComponent<IProps> {
             </div>
           );
         }}
-      </GetStatementCommentsQueryComponent>
+      </Query>
     );
   }
 }
@@ -144,7 +132,7 @@ const AddCommentForm = (props: IAddCommentFormProps) => {
   };
 
   return (
-    <CreateCommentMutationComponent mutation={CreateComment}>
+    <Mutation<CreateCommentMutation, CreateCommentMutationVariables> mutation={CreateComment}>
       {(createComment) => (
         <Formik
           initialValues={initialValues}
@@ -200,7 +188,7 @@ const AddCommentForm = (props: IAddCommentFormProps) => {
           )}
         </Formik>
       )}
-    </CreateCommentMutationComponent>
+    </Mutation>
   );
 };
 
@@ -211,7 +199,7 @@ interface ICommentInputProps {
 
 const CommentInput = (props: ICommentInputProps) => {
   return (
-    <GetUsersQueryComponent query={GetUsers}>
+    <Query<GetUsersQuery, GetUsersQueryVariables> query={GetUsers}>
       {({ data, loading, error }) => {
         if (error) {
           console.error(error); // tslint:disable-line:no-console
@@ -284,7 +272,7 @@ const CommentInput = (props: ICommentInputProps) => {
           </MentionsInput>
         );
       }}
-    </GetUsersQueryComponent>
+    </Query>
   );
 };
 

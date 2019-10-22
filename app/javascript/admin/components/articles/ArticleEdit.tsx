@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, Query, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 
@@ -18,13 +18,10 @@ import { GetArticle, GetArticles } from '../../queries/queries';
 import Loading from '../Loading';
 import { ArticleForm } from './ArticleForm';
 
-class ArticleQuery extends Query<GetArticleQuery, GetArticleQueryVariables> {}
-class UpdateArticleMutationComponent extends Mutation<
+type UpdateArticleMutationFn = MutationFunction<
   UpdateArticleMutation,
   UpdateArticleMutationVariables
-> {}
-
-type UpdateArticleMutationFn = MutationFn<UpdateArticleMutation, UpdateArticleMutationVariables>;
+>;
 
 interface IArticleEditProps extends RouteComponentProps<{ id: string }>, DispatchProp {}
 
@@ -66,7 +63,7 @@ class ArticleEdit extends React.Component<IArticleEditProps> {
 
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <ArticleQuery query={GetArticle} variables={{ id }}>
+        <Query<GetArticleQuery, GetArticleQueryVariables> query={GetArticle} variables={{ id }}>
           {({ data, loading }) => {
             if (loading) {
               return <Loading />;
@@ -77,7 +74,7 @@ class ArticleEdit extends React.Component<IArticleEditProps> {
             }
 
             return (
-              <UpdateArticleMutationComponent
+              <Mutation<UpdateArticleMutation, UpdateArticleMutationVariables>
                 mutation={UpdateArticle}
                 refetchQueries={[
                   { query: GetArticles, variables: { name: null } },
@@ -94,10 +91,10 @@ class ArticleEdit extends React.Component<IArticleEditProps> {
                     />
                   );
                 }}
-              </UpdateArticleMutationComponent>
+              </Mutation>
             );
           }}
-        </ArticleQuery>
+        </Query>
       </div>
     );
   }

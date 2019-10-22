@@ -9,7 +9,7 @@ interface IProps {
   title?: string;
   onCancel?: () => any;
   mutation?: any;
-  mutationProps?: { [key: string]: any };
+  mutationProps?: any;
 }
 
 class ConfirmDeleteModal extends React.Component<IProps> {
@@ -28,7 +28,7 @@ class ConfirmDeleteModal extends React.Component<IProps> {
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button text="Zpět" onClick={onCancel} />
-            <Mutation mutation={mutation} {...mutationProps}>
+            <Mutation<any, any> mutation={mutation} {...mutationProps} optimisticResponse={false}>
               {(mutate, { loading }) => (
                 <Button
                   icon={IconNames.TRASH}

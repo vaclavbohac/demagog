@@ -21,11 +21,6 @@ import { newlinesToBr } from '../utils';
 import { reorder } from '../utils/array';
 import SpeakerAvatar from './SpeakerAvatar';
 
-class UpdateUsersRankMutationComponent extends Mutation<
-  UpdateUsersRankMutation,
-  UpdateUsersRankMutationVariables
-> {}
-
 interface IUsersSortOnAboutUsPageProps extends DispatchProp {
   users: GetUsersQuery['users'];
   isLoading: boolean;
@@ -85,7 +80,9 @@ class UsersSortOnAboutUsPage extends React.Component<
           <Link to="/admin/users" className={Classes.BUTTON}>
             Zpět na seznam členů týmu
           </Link>
-          <UpdateUsersRankMutationComponent mutation={UpdateUsersRank}>
+          <Mutation<UpdateUsersRankMutation, UpdateUsersRankMutationVariables>
+            mutation={UpdateUsersRank}
+          >
             {(updateSourceStatementsOrder, { loading }) => (
               <Button
                 disabled={loading}
@@ -95,7 +92,7 @@ class UsersSortOnAboutUsPage extends React.Component<
                 text={loading ? 'Ukládám …' : 'Uložit'}
               />
             )}
-          </UpdateUsersRankMutationComponent>
+          </Mutation>
         </div>
 
         <h2 className={Classes.HEADING}>Seřadit členy týmu na stránce „O nás“</h2>
@@ -163,12 +160,10 @@ const getItemStyle = (isDragging, draggableStyle) => ({
   ...draggableStyle,
 });
 
-class GetUsersQueryComponent extends Query<GetUsersQuery, GetUsersQueryVariables> {}
-
 class UsersSortOnAboutUsPageContainer extends React.Component<{}> {
   public render() {
     return (
-      <GetUsersQueryComponent query={GetUsers}>
+      <Query<GetUsersQuery, GetUsersQueryVariables> query={GetUsers}>
         {({ data, loading }) => {
           let users: GetUsersQuery['users'] = [];
           if (data && data.users) {
@@ -178,7 +173,7 @@ class UsersSortOnAboutUsPageContainer extends React.Component<{}> {
 
           return <EnhancedUsersSortOnAboutUsPage users={users} isLoading={loading} />;
         }}
-      </GetUsersQueryComponent>
+      </Query>
     );
   }
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, MutationFunction, Query } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { addFlashMessage } from '../../actions/flashMessages';
@@ -19,12 +19,7 @@ import {
 import { MediaPersonalityForm } from '../forms/MediaPersonalityForm';
 import Loading from '../Loading';
 
-class UpdateMediaPersonalityMutationComponent extends Mutation<
-  UpdateMediaPersonalityMutation,
-  UpdateMediaPersonalityMutationVariables
-> {}
-
-type UpdateMediaPersonalityMutationFn = MutationFn<
+type UpdateMediaPersonalityMutationFn = MutationFunction<
   UpdateMediaPersonalityMutation,
   UpdateMediaPersonalityMutationVariables
 >;
@@ -73,7 +68,7 @@ class MediaPersonalityEdit extends React.Component<IMediaPersonalityEditProps> {
             }
 
             return (
-              <UpdateMediaPersonalityMutationComponent
+              <Mutation<UpdateMediaPersonalityMutation, UpdateMediaPersonalityMutationVariables>
                 mutation={UpdateMediaPersonality}
                 refetchQueries={[
                   { query: GetMediaPersonalities, variables: { name: '' } },
@@ -90,7 +85,7 @@ class MediaPersonalityEdit extends React.Component<IMediaPersonalityEditProps> {
                     />
                   );
                 }}
-              </UpdateMediaPersonalityMutationComponent>
+              </Mutation>
             );
           }}
         </Query>

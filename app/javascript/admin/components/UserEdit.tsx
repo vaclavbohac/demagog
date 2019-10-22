@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, Query, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 
@@ -21,13 +21,8 @@ import { UpdateUser } from '../queries/mutations';
 import { GetUser } from '../queries/queries';
 import { IUserFormData, UserForm } from './forms/UserForm';
 
-class UpdateUserMutationComponent extends Mutation<
-  UpdateUserMutation,
-  UpdateUserMutationVariables
-> {}
-
 interface IUpdateUserMutationFn
-  extends MutationFn<UpdateUserMutation, UpdateUserMutationVariables> {}
+  extends MutationFunction<UpdateUserMutation, UpdateUserMutationVariables> {}
 
 interface IUserEditProps extends RouteComponentProps<{ id: string }>, DispatchProp {
   id: number;
@@ -108,7 +103,7 @@ class UserEdit extends React.Component<IUserEditProps> {
             }
 
             return (
-              <UpdateUserMutationComponent mutation={UpdateUser}>
+              <Mutation<UpdateUserMutation, UpdateUserMutationVariables> mutation={UpdateUser}>
                 {(updateUser) => (
                   <UserForm
                     onSubmit={this.onFormSubmit(id, updateUser, data)}
@@ -117,7 +112,7 @@ class UserEdit extends React.Component<IUserEditProps> {
                     user={data.user}
                   />
                 )}
-              </UpdateUserMutationComponent>
+              </Mutation>
             );
           }}
         </Query>

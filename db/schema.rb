@@ -412,6 +412,17 @@ ActiveRecord::Schema.define(version: 2019_10_14_183806) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "article_segments", "articles"
 
+  create_view "speaker_stats", sql_definition: <<-SQL
+      SELECT count(veracities.key) AS count,
+      veracities.key,
+      statements.speaker_id
+     FROM (((statements
+       JOIN speakers ON ((speakers.id = statements.speaker_id)))
+       JOIN assessments ON ((statements.id = assessments.statement_id)))
+       JOIN veracities ON ((assessments.veracity_id = veracities.id)))
+    WHERE (((assessments.evaluation_status)::text = 'approved'::text) AND (statements.published = true) AND (statements.count_in_statistics = true))
+    GROUP BY veracities.key, statements.speaker_id;
+  SQL
   create_view "article_stats", sql_definition: <<-SQL
       SELECT count(veracities.key) AS count,
       veracities.key,
@@ -426,16 +437,5 @@ ActiveRecord::Schema.define(version: 2019_10_14_183806) do
        JOIN articles ON ((articles.id = article_segments.article_id)))
     WHERE (((assessments.evaluation_status)::text = 'approved'::text) AND ((article_segments.segment_type)::text = 'source_statements'::text) AND (statements.published = true) AND (statements.count_in_statistics = true))
     GROUP BY veracities.key, statements.speaker_id, article_segments.article_id;
-  SQL
-  create_view "speaker_stats", sql_definition: <<-SQL
-      SELECT count(veracities.key) AS count,
-      veracities.key,
-      statements.speaker_id
-     FROM (((statements
-       JOIN speakers ON ((speakers.id = statements.speaker_id)))
-       JOIN assessments ON ((statements.id = assessments.statement_id)))
-       JOIN veracities ON ((assessments.veracity_id = veracities.id)))
-    WHERE (((assessments.evaluation_status)::text = 'approved'::text) AND (statements.published = true) AND (statements.count_in_statistics = true))
-    GROUP BY veracities.key, statements.speaker_id;
   SQL
 end

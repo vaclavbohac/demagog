@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, Query, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { addFlashMessage } from '../actions/flashMessages';
@@ -15,13 +15,7 @@ import { GetSource, GetSources } from '../queries/queries';
 import { SourceForm } from './forms/SourceForm';
 import Loading from './Loading';
 
-class SourceQuery extends Query<GetSourceQuery, GetSourceQueryVariables> {}
-class UpdateSourceMutationComponent extends Mutation<
-  UpdateSourceMutation,
-  UpdateSourceMutationVariables
-> {}
-
-type UpdateSourceMutationFn = MutationFn<UpdateSourceMutation, UpdateSourceMutationVariables>;
+type UpdateSourceMutationFn = MutationFunction<UpdateSourceMutation, UpdateSourceMutationVariables>;
 
 interface ISourceEditProps extends RouteComponentProps<{ id: string }>, DispatchProp {}
 
@@ -49,7 +43,7 @@ class SourceEdit extends React.Component<ISourceEditProps> {
 
     return (
       <div role="main" style={{ marginTop: 15 }}>
-        <SourceQuery query={GetSource} variables={{ id }}>
+        <Query<GetSourceQuery, GetSourceQueryVariables> query={GetSource} variables={{ id }}>
           {({ data, loading }) => {
             if (loading) {
               return <Loading />;
@@ -60,7 +54,7 @@ class SourceEdit extends React.Component<ISourceEditProps> {
             }
 
             return (
-              <UpdateSourceMutationComponent
+              <Mutation<UpdateSourceMutation, UpdateSourceMutationVariables>
                 mutation={UpdateSource}
                 onCompleted={this.onSuccess}
                 onError={this.onError}
@@ -79,10 +73,10 @@ class SourceEdit extends React.Component<ISourceEditProps> {
                     />
                   );
                 }}
-              </UpdateSourceMutationComponent>
+              </Mutation>
             );
           }}
-        </SourceQuery>
+        </Query>
       </div>
     );
   }

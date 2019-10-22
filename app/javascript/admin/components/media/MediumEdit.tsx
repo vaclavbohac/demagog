@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, Query, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { addFlashMessage } from '../../actions/flashMessages';
@@ -15,13 +15,7 @@ import { GetMedia, GetMediaPersonalitiesForSelect, GetMedium } from '../../queri
 import { MediumForm } from '../forms/MediumForm';
 import Loading from '../Loading';
 
-class MediumQuery extends Query<GetMediumQuery, GetMediumQueryVariables> {}
-class UpdateMediumMutationComponent extends Mutation<
-  UpdateMediumMutation,
-  UpdateMediumMutationVariables
-> {}
-
-type UpdateMediumMutationFn = MutationFn<UpdateMediumMutation, UpdateMediumMutationVariables>;
+type UpdateMediumMutationFn = MutationFunction<UpdateMediumMutation, UpdateMediumMutationVariables>;
 
 interface IMediumEditProps extends RouteComponentProps<{ id: string }>, DispatchProp {}
 
@@ -51,7 +45,7 @@ class MediumEdit extends React.Component<IMediumEditProps> {
 
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <MediumQuery query={GetMedium} variables={{ id }}>
+        <Query<GetMediumQuery, GetMediumQueryVariables> query={GetMedium} variables={{ id }}>
           {({ data, loading }) => {
             if (loading) {
               return <Loading />;
@@ -62,7 +56,7 @@ class MediumEdit extends React.Component<IMediumEditProps> {
             }
 
             return (
-              <UpdateMediumMutationComponent
+              <Mutation<UpdateMediumMutation, UpdateMediumMutationVariables>
                 mutation={UpdateMedium}
                 refetchQueries={[
                   { query: GetMedia, variables: { name: '' } },
@@ -79,10 +73,10 @@ class MediumEdit extends React.Component<IMediumEditProps> {
                     />
                   );
                 }}
-              </UpdateMediumMutationComponent>
+              </Mutation>
             );
           }}
-        </MediumQuery>
+        </Query>
       </div>
     );
   }

@@ -61,13 +61,6 @@ const GET_STATEMENT_POLL_INTERVAL = 10150;
 const IS_EDITING_DEBOUNCE_TIMEOUT = 10000;
 const UPDATE_STATEMENT_DEBOUNCE_TIMEOUT = 2000;
 
-class UpdateStatementMutationComponent extends Mutation<
-  UpdateStatementMutation,
-  UpdateStatementMutationVariables
-> {}
-
-class GetStatementQueryComponent extends Query<GetStatementQuery> {}
-
 const VERACITY_COLORS = {
   true: Colors.COBALT2,
   untrue: Colors.RED3,
@@ -115,10 +108,7 @@ class StatementDetail extends React.Component<IProps, IState> {
     const statementId = this.props.match.params.id;
 
     return (
-      <GetStatementQueryComponent
-        query={GetStatement}
-        variables={{ id: parseInt(statementId, 10) }}
-      >
+      <Query<GetStatementQuery> query={GetStatement} variables={{ id: parseInt(statementId, 10) }}>
         {({ data, loading, error, stopPolling, startPolling }) => {
           if (error) {
             console.error(error); // tslint:disable-line:no-console
@@ -175,7 +165,9 @@ class StatementDetail extends React.Component<IProps, IState> {
           }
 
           return (
-            <UpdateStatementMutationComponent mutation={UpdateStatement}>
+            <Mutation<UpdateStatementMutation, UpdateStatementMutationVariables>
+              mutation={UpdateStatement}
+            >
               {(updateStatement) => (
                 <Formik
                   initialValues={initialValues}
@@ -875,10 +867,10 @@ class StatementDetail extends React.Component<IProps, IState> {
                   }}
                 </Formik>
               )}
-            </UpdateStatementMutationComponent>
+            </Mutation>
           );
         }}
-      </GetStatementQueryComponent>
+      </Query>
     );
   }
 }
