@@ -11,7 +11,7 @@ import { IArticleStatementsQueryResult } from './types';
 import { Player } from './video/Player';
 
 const articleStatementsQuery = gql`
-  query getArticle($articleId: Int!) {
+  query getArticle($articleId: ID!) {
     article(id: $articleId) {
       id
       title
