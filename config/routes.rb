@@ -46,6 +46,9 @@ Rails.application.routes.draw do
       get "/test-login/:id" => "admin#test_login", as: :test_login
     end
 
+    get "/video-marks/:id" => "video_marks#edit", as: :video_marks_edit
+    post "/video-marks/:id" => "video_marks#create"
+
     get "(/*all)" => "admin#index"
   end
 

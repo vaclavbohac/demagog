@@ -1,0 +1,20 @@
+<h1><%= @source.name %></h1>
+
+<%= form_with url: admin_video_marks_edit_path(@source) do |form| %>
+  <div>
+    <% @source.statements.each do |statement| %>
+      <%= form.fields_for :statements, statement, index: statement.id do |s| %>
+        <div><%= statement.content %> - <%= statement.speaker.full_name %></div>
+        <%= s.fields_for :statement_video_mark, statement.statement_video_mark do |v| %>
+          <%= v.number_field(:start, placeholder: 'Čas začátku výroku') %>
+          <%= v.number_field(:stop, placeholder: 'Čas konce výroku') %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <%= form.submit %>
+<% end %>
+
+
+
