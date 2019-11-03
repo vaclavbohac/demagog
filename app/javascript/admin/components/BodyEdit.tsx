@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, Query, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 
@@ -17,12 +17,8 @@ import Error from './Error';
 import { BodyForm, IBodyFormData } from './forms/BodyForm';
 import Loading from './Loading';
 
-class UpdateBodyMutationComponent extends Mutation<
-  UpdateBodyMutation,
-  UpdateBodyMutationVariables
-> {}
 interface IUpdateBodyMutationFn
-  extends MutationFn<UpdateBodyMutation, UpdateBodyMutationVariables> {}
+  extends MutationFunction<UpdateBodyMutation, UpdateBodyMutationVariables> {}
 
 interface IBodyDetailProps extends RouteComponentProps<{ id: string }>, DispatchProp {}
 
@@ -79,7 +75,7 @@ class BodyEdit extends React.Component<IBodyDetailProps> {
             }
 
             return (
-              <UpdateBodyMutationComponent
+              <Mutation<UpdateBodyMutation, UpdateBodyMutationVariables>
                 mutation={UpdateBody}
                 refetchQueries={[
                   { query: GetSpeakerBodies },
@@ -93,7 +89,7 @@ class BodyEdit extends React.Component<IBodyDetailProps> {
                     title="Upravit stranu / skupinu"
                   />
                 )}
-              </UpdateBodyMutationComponent>
+              </Mutation>
             );
           }}
         </Query>

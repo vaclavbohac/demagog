@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn } from 'react-apollo';
+import { Mutation, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 
@@ -14,12 +14,7 @@ import { CreateMediaPersonality } from '../../queries/mutations';
 import { GetMediaPersonalitiesForSelect } from '../../queries/queries';
 import { MediaPersonalityForm } from '../forms/MediaPersonalityForm';
 
-class CreateMediaPersonalityMutationComponent extends Mutation<
-  CreateMediaPersonalityMutation,
-  CreateMediaPersonalityMutationVariables
-> {}
-
-type CreateMediaPersonalityMutationFn = MutationFn<
+type CreateMediaPersonalityMutationFn = MutationFunction<
   CreateMediaPersonalityMutation,
   CreateMediaPersonalityMutationVariables
 >;
@@ -62,7 +57,7 @@ export class MediaPersonalityNew extends React.Component<ISourceNewProps> {
   public render() {
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <CreateMediaPersonalityMutationComponent
+        <Mutation<CreateMediaPersonalityMutation, CreateMediaPersonalityMutationVariables>
           mutation={CreateMediaPersonality}
           // TODO: is there a nicer way of updating apollo cache after creating?
           refetchQueries={[{ query: GetMediaPersonalitiesForSelect }]}
@@ -75,7 +70,7 @@ export class MediaPersonalityNew extends React.Component<ISourceNewProps> {
               />
             );
           }}
-        </CreateMediaPersonalityMutationComponent>
+        </Mutation>
       </div>
     );
   }

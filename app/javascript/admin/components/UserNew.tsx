@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn } from 'react-apollo';
+import { Mutation, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router-dom';
@@ -15,13 +15,8 @@ import {
 import { CreateUser } from '../queries/mutations';
 import { IUserFormData, UserForm } from './forms/UserForm';
 
-class CreateUserMutationComponent extends Mutation<
-  CreateUserMutation,
-  CreateUserMutationVariables
-> {}
-
 interface ICreateUserMutationFn
-  extends MutationFn<CreateUserMutation, CreateUserMutationVariables> {}
+  extends MutationFunction<CreateUserMutation, CreateUserMutationVariables> {}
 
 interface IUserNewProps extends RouteComponentProps<{}>, DispatchProp {}
 
@@ -79,7 +74,7 @@ class UserNew extends React.Component<IUserNewProps> {
   public render() {
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <CreateUserMutationComponent mutation={CreateUser}>
+        <Mutation<CreateUserMutation, CreateUserMutationVariables> mutation={CreateUser}>
           {(createUser) => (
             <UserForm
               onSubmit={this.onFormSubmit(createUser)}
@@ -87,7 +82,7 @@ class UserNew extends React.Component<IUserNewProps> {
               title="Přidat nového člena týmu"
             />
           )}
-        </CreateUserMutationComponent>
+        </Mutation>
       </div>
     );
   }

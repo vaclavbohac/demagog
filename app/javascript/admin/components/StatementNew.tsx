@@ -28,11 +28,6 @@ import UserSelect from './forms/controls/UserSelect';
 import FormGroup from './forms/FormGroup';
 import Loading from './Loading';
 
-class CreateStatementMutationComponent extends Mutation<
-  CreateStatementMutation,
-  CreateStatementMutationVariables
-> {}
-
 interface IProps extends RouteComponentProps<{ sourceId: string }>, DispatchProp {}
 
 // tslint:disable-next-line:max-classes-per-file
@@ -74,7 +69,7 @@ class StatementNew extends React.Component<IProps> {
           };
 
           return (
-            <CreateStatementMutationComponent
+            <Mutation<CreateStatementMutation, CreateStatementMutationVariables>
               mutation={CreateStatement}
               refetchQueries={[
                 {
@@ -199,7 +194,7 @@ class StatementNew extends React.Component<IProps> {
                   )}
                 </Formik>
               )}
-            </CreateStatementMutationComponent>
+            </Mutation>
           );
         }}
       </Query>

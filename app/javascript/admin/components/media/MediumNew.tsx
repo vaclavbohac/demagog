@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn } from 'react-apollo';
+import { Mutation, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 
@@ -14,12 +14,7 @@ import { CreateMedium } from '../../queries/mutations';
 import { GetMedia, GetMediaPersonalitiesForSelect } from '../../queries/queries';
 import { MediumForm } from '../forms/MediumForm';
 
-class CreateMediumMutationComponent extends Mutation<
-  CreateMediumMutation,
-  CreateMediumMutationVariables
-> {}
-
-type CreateMediumMutationFn = MutationFn<CreateMediumMutation, CreateMediumMutationVariables>;
+type CreateMediumMutationFn = MutationFunction<CreateMediumMutation, CreateMediumMutationVariables>;
 
 interface ISourceNewProps extends RouteComponentProps<{}>, DispatchProp {}
 
@@ -53,7 +48,7 @@ export class MediumNew extends React.Component<ISourceNewProps> {
   public render() {
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <CreateMediumMutationComponent
+        <Mutation<CreateMediumMutation, CreateMediumMutationVariables>
           mutation={CreateMedium}
           // TODO: is there a nicer way of updating apollo cache after creating?
           refetchQueries={[
@@ -64,7 +59,7 @@ export class MediumNew extends React.Component<ISourceNewProps> {
           {(createMedium) => {
             return <MediumForm onSubmit={this.onSubmit(createMedium)} title="Přidat nový pořad" />;
           }}
-        </CreateMediumMutationComponent>
+        </Mutation>
       </div>
     );
   }

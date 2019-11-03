@@ -13,11 +13,6 @@ import { CreatePage } from '../../queries/mutations';
 import { GetPages } from '../../queries/queries';
 import { PageForm } from '../forms/PageForm';
 
-class CreatePageMutationComponent extends Mutation<
-  CreatePageMutation,
-  CreatePageMutationVariables
-> {}
-
 interface IPageNewProps extends RouteComponentProps<{}>, DispatchProp {}
 
 export class PageNew extends React.Component<IPageNewProps> {
@@ -36,7 +31,7 @@ export class PageNew extends React.Component<IPageNewProps> {
   public render() {
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <CreatePageMutationComponent
+        <Mutation<CreatePageMutation, CreatePageMutationVariables>
           mutation={CreatePage}
           // TODO: is there a nicer way of updating apollo cache after creating?
           refetchQueries={[{ query: GetPages, variables: { title: '', offset: 0, limit: 50 } }]}
@@ -52,7 +47,7 @@ export class PageNew extends React.Component<IPageNewProps> {
               />
             );
           }}
-        </CreatePageMutationComponent>
+        </Mutation>
       </div>
     );
   }

@@ -532,3 +532,33 @@ export const MarkUnreadNotificationsAsRead = gql`
     }
   }
 `;
+
+export const UpdateSourceVideoFields = gql`
+  mutation UpdateSourceVideoFields($id: ID!, $sourceVideoFieldsInput: SourceInputVideoFields!) {
+    updateSourceVideoFields(id: $id, sourceVideoFieldsInput: $sourceVideoFieldsInput) {
+      source {
+        id
+        videoType
+        videoId
+      }
+    }
+  }
+`;
+
+export const UpdateStatementsVideoMarks = gql`
+  mutation UpdateStatementsVideoMarks(
+    $id: ID!
+    $statementsVideoMarksInput: [StatementsVideoMarksInput!]!
+  ) {
+    updateStatementsVideoMarks(id: $id, statementsVideoMarksInput: $statementsVideoMarksInput) {
+      statements {
+        id
+        statementVideoMark {
+          id
+          start
+          stop
+        }
+      }
+    }
+  }
+`;

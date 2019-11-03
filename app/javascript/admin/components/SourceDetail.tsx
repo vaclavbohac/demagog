@@ -47,12 +47,6 @@ import Loading from './Loading';
 import ConfirmDeleteModal from './modals/ConfirmDeleteModal';
 import StatementCard from './StatementCard';
 
-class GetSourceQueryComponent extends Query<GetSourceQuery> {}
-class GetSourceStatementsQueryComponent extends Query<
-  GetSourceStatementsQuery,
-  GetSourceStatementsQueryVariables
-> {}
-
 const STATUS_FILTER_LABELS = {
   [ASSESSMENT_STATUS_BEING_EVALUATED]: 'Ve zpracování',
   [ASSESSMENT_STATUS_APPROVAL_NEEDED]: 'Ke kontrole',
@@ -188,7 +182,7 @@ class SourceDetail extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <GetSourceQueryComponent
+      <Query<GetSourceQuery>
         query={GetSource}
         variables={{ id: parseInt(this.props.match.params.sourceId, 10) }}
       >
@@ -314,7 +308,7 @@ class SourceDetail extends React.Component<IProps, IState> {
             </div>
           );
         }}
-      </GetSourceQueryComponent>
+      </Query>
     );
   }
 
@@ -322,7 +316,7 @@ class SourceDetail extends React.Component<IProps, IState> {
     const { statementsFilter } = this.state;
 
     return (
-      <GetSourceStatementsQueryComponent
+      <Query<GetSourceStatementsQuery, GetSourceStatementsQueryVariables>
         query={GetSourceStatements}
         variables={{ sourceId: parseInt(source.id, 10), includeUnpublished: true }}
       >
@@ -492,7 +486,16 @@ class SourceDetail extends React.Component<IProps, IState> {
                   <div style={{ flex: '1 1' }}>
                     <div style={{ float: 'right' }}>
                       <Authorize permissions={['statements:edit']}>
-                        <Button onClick={this.toggleMassStatementsPublishModal}>
+                        <Link
+                          to={`/admin/sources/${source.id}/statements-video-marks`}
+                          className={Classes.BUTTON}
+                        >
+                          Propojení s videozáznamem
+                        </Link>
+                        <Button
+                          style={{ marginLeft: 7 }}
+                          onClick={this.toggleMassStatementsPublishModal}
+                        >
                           Zveřejnit všechny schválené výroky…
                         </Button>
                       </Authorize>
@@ -602,7 +605,7 @@ class SourceDetail extends React.Component<IProps, IState> {
             </>
           );
         }}
-      </GetSourceStatementsQueryComponent>
+      </Query>
     );
   }
 }
@@ -639,7 +642,10 @@ class MassStatementsPublishModal extends React.Component<IMassStatementsPublishM
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button text="Zpět" onClick={onCancel} />
             {approvedAndNotPublished.length > 0 && (
-              <Mutation mutation={PublishApprovedSourceStatements} variables={{ id: source.id }}>
+              <Mutation<any, any>
+                mutation={PublishApprovedSourceStatements}
+                variables={{ id: source.id }}
+              >
                 {(mutate, { loading }) => (
                   <Button
                     intent={Intent.PRIMARY}

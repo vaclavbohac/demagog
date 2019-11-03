@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn } from 'react-apollo';
+import { Mutation, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router-dom';
@@ -17,12 +17,8 @@ import {
 import { CreateSpeaker } from '../queries/mutations';
 import { GetSpeakers } from '../queries/queries';
 
-class CreateSpeakerMutationComponent extends Mutation<
-  CreateSpeakerMutation,
-  CreateSpeakerMutationVariables
-> {}
 interface ICreateSpeakerMutationFn
-  extends MutationFn<CreateSpeakerMutation, CreateSpeakerMutationVariables> {}
+  extends MutationFunction<CreateSpeakerMutation, CreateSpeakerMutationVariables> {}
 
 interface ISpeakerNewProps extends RouteComponentProps<{}>, DispatchProp {}
 
@@ -68,14 +64,14 @@ class SpeakerNew extends React.Component<ISpeakerNewProps> {
   public render() {
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <CreateSpeakerMutationComponent
+        <Mutation<CreateSpeakerMutation, CreateSpeakerMutationVariables>
           mutation={CreateSpeaker}
           refetchQueries={[{ query: GetSpeakers, variables: { name: '' } }]}
         >
           {(createSpeaker) => (
             <SpeakerForm onSubmit={this.onFormSubmit(createSpeaker)} title="Přidat novou osobu" />
           )}
-        </CreateSpeakerMutationComponent>
+        </Mutation>
       </div>
     );
   }

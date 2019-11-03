@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Mutation, MutationFn } from 'react-apollo';
+import { Mutation, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { addFlashMessage } from '../actions/flashMessages';
@@ -12,12 +12,7 @@ import { CreateSource } from '../queries/mutations';
 import { GetSources } from '../queries/queries';
 import { SourceForm } from './forms/SourceForm';
 
-class CreateSourceMutationComponent extends Mutation<
-  CreateSourceMutation,
-  CreateSourceMutationVariables
-> {}
-
-type CreateSourceMutationFn = MutationFn<CreateSourceMutation, CreateSourceMutationVariables>;
+type CreateSourceMutationFn = MutationFunction<CreateSourceMutation, CreateSourceMutationVariables>;
 
 interface ISourceNewProps extends RouteComponentProps<{}>, DispatchProp {}
 
@@ -43,7 +38,7 @@ export class SourceNew extends React.Component<ISourceNewProps> {
   public render() {
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <CreateSourceMutationComponent
+        <Mutation<CreateSourceMutation, CreateSourceMutationVariables>
           mutation={CreateSource}
           onCompleted={this.onSuccess}
           onError={this.onError}
@@ -58,7 +53,7 @@ export class SourceNew extends React.Component<ISourceNewProps> {
               />
             );
           }}
-        </CreateSourceMutationComponent>
+        </Mutation>
       </div>
     );
   }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, MutationFunction, Query } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 
@@ -20,12 +20,8 @@ import {
 import { UpdateSpeaker } from '../queries/mutations';
 import { GetSpeaker } from '../queries/queries';
 
-class UpdateSpeakerMutationComponent extends Mutation<
-  UpdateSpeakerMutation,
-  UpdateSpeakerMutationVariables
-> {}
 interface IUpdateSpeakerMutationFn
-  extends MutationFn<UpdateSpeakerMutation, UpdateSpeakerMutationVariables> {}
+  extends MutationFunction<UpdateSpeakerMutation, UpdateSpeakerMutationVariables> {}
 
 interface ISpeakerEditProps extends RouteComponentProps<{ id: string }>, DispatchProp {
   id: number;
@@ -88,7 +84,9 @@ class SpeakerEdit extends React.Component<ISpeakerEditProps> {
             }
 
             return (
-              <UpdateSpeakerMutationComponent mutation={UpdateSpeaker}>
+              <Mutation<UpdateSpeakerMutation, UpdateSpeakerMutationVariables>
+                mutation={UpdateSpeaker}
+              >
                 {(updateSpeaker) => (
                   <SpeakerForm
                     speaker={data.speaker}
@@ -96,7 +94,7 @@ class SpeakerEdit extends React.Component<ISpeakerEditProps> {
                     title="Upravit osobu"
                   />
                 )}
-              </UpdateSpeakerMutationComponent>
+              </Mutation>
             );
           }}
         </Query>

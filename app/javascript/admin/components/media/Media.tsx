@@ -22,8 +22,6 @@ import { SearchInput } from '../forms/controls/SearchInput';
 import Loading from '../Loading';
 import ConfirmDeleteModal from '../modals/ConfirmDeleteModal';
 
-class GetMediaQuery extends Query<GetMediaQueryResult, GetMediaQueryVariables> {}
-
 interface IProps extends DispatchProp<any> {}
 
 interface IState {
@@ -101,7 +99,10 @@ class Media extends React.Component<IProps, IState> {
           />
         </div>
 
-        <GetMediaQuery query={GetMedia} variables={{ name: this.state.search }}>
+        <Query<GetMediaQueryResult, GetMediaQueryVariables>
+          query={GetMedia}
+          variables={{ name: this.state.search }}
+        >
           {(props) => {
             if (props.loading) {
               return <Loading />;
@@ -192,7 +193,7 @@ class Media extends React.Component<IProps, IState> {
               </div>
             );
           }}
-        </GetMediaQuery>
+        </Query>
       </div>
     );
   }

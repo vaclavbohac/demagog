@@ -609,3 +609,31 @@ export const GetMediaPersonalitiesForSelect = gql`
     }
   }
 `;
+
+export const GetSourceWithStatementsAndVideoMarks = gql`
+  query GetSourceWithStatementsAndVideoMarks($id: Int!, $includeUnpublished: Boolean) {
+    source(id: $id) {
+      id
+      name
+      sourceUrl
+      releasedAt
+      transcript
+      videoType
+      videoId
+      statements(includeUnpublished: $includeUnpublished) {
+        id
+        content
+        speaker {
+          id
+          firstName
+          lastName
+        }
+        statementVideoMark {
+          id
+          start
+          stop
+        }
+      }
+    }
+  }
+`;

@@ -25,11 +25,6 @@ import { IState as ReduxState } from '../reducers';
 import Authorize from './Authorize';
 import UserSelect from './forms/controls/UserSelect';
 
-class GetNotificationsQueryComponent extends Query<
-  GetNotificationsQuery,
-  GetNotificationsQueryVariables
-> {}
-
 interface IProps {
   currentUser: ReduxState['currentUser']['user'];
 }
@@ -75,7 +70,7 @@ class Header extends React.Component<IProps, IState> {
               </>
             </Authorize>
 
-            <GetNotificationsQueryComponent
+            <Query<GetNotificationsQuery, GetNotificationsQueryVariables>
               query={GetNotifications}
               // offset & limit 0, because we only need the total_count
               variables={{ includeRead: false, offset: 0, limit: 0 }}
@@ -110,7 +105,7 @@ class Header extends React.Component<IProps, IState> {
                   </>
                 );
               }}
-            </GetNotificationsQueryComponent>
+            </Query>
 
             {this.props.currentUser !== null && (
               <>

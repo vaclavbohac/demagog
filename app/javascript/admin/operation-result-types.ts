@@ -1264,6 +1264,76 @@ export interface MarkUnreadNotificationsAsReadVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL mutation operation: UpdateSourceVideoFields
+// ====================================================
+
+export interface UpdateSourceVideoFields_updateSourceVideoFields_source {
+  __typename: "Source";
+  id: string;
+  videoType: string | null;
+  videoId: string | null;
+}
+
+export interface UpdateSourceVideoFields_updateSourceVideoFields {
+  __typename: "UpdateSourceVideoFieldsPayload";
+  source: UpdateSourceVideoFields_updateSourceVideoFields_source;
+}
+
+export interface UpdateSourceVideoFields {
+  /**
+   * Update source video fields
+   */
+  updateSourceVideoFields: UpdateSourceVideoFields_updateSourceVideoFields | null;
+}
+
+export interface UpdateSourceVideoFieldsVariables {
+  id: string;
+  sourceVideoFieldsInput: SourceInputVideoFields;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: UpdateStatementsVideoMarks
+// ====================================================
+
+export interface UpdateStatementsVideoMarks_updateStatementsVideoMarks_statements_statementVideoMark {
+  __typename: "StatementVideoMark";
+  id: string;
+  start: number;
+  stop: number;
+}
+
+export interface UpdateStatementsVideoMarks_updateStatementsVideoMarks_statements {
+  __typename: "Statement";
+  id: string;
+  statementVideoMark: UpdateStatementsVideoMarks_updateStatementsVideoMarks_statements_statementVideoMark | null;
+}
+
+export interface UpdateStatementsVideoMarks_updateStatementsVideoMarks {
+  __typename: "UpdateStatementsVideoMarksPayload";
+  statements: UpdateStatementsVideoMarks_updateStatementsVideoMarks_statements[];
+}
+
+export interface UpdateStatementsVideoMarks {
+  /**
+   * Update video marks for given statements
+   */
+  updateStatementsVideoMarks: UpdateStatementsVideoMarks_updateStatementsVideoMarks | null;
+}
+
+export interface UpdateStatementsVideoMarksVariables {
+  id: string;
+  statementsVideoMarksInput: StatementsVideoMarksInput[];
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL query operation: GetPages
 // ====================================================
 
@@ -2403,6 +2473,57 @@ export interface GetMediaPersonalitiesForSelect {
 /* eslint-disable */
 // This file was automatically generated and should not be edited.
 
+// ====================================================
+// GraphQL query operation: GetSourceWithStatementsAndVideoMarks
+// ====================================================
+
+export interface GetSourceWithStatementsAndVideoMarks_source_statements_speaker {
+  __typename: "Speaker";
+  id: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface GetSourceWithStatementsAndVideoMarks_source_statements_statementVideoMark {
+  __typename: "StatementVideoMark";
+  id: string;
+  start: number;
+  stop: number;
+}
+
+export interface GetSourceWithStatementsAndVideoMarks_source_statements {
+  __typename: "Statement";
+  id: string;
+  content: string;
+  speaker: GetSourceWithStatementsAndVideoMarks_source_statements_speaker;
+  statementVideoMark: GetSourceWithStatementsAndVideoMarks_source_statements_statementVideoMark | null;
+}
+
+export interface GetSourceWithStatementsAndVideoMarks_source {
+  __typename: "Source";
+  id: string;
+  name: string;
+  sourceUrl: string | null;
+  releasedAt: string;
+  transcript: string | null;
+  videoType: string | null;
+  videoId: string | null;
+  statements: GetSourceWithStatementsAndVideoMarks_source_statements[];
+}
+
+export interface GetSourceWithStatementsAndVideoMarks {
+  source: GetSourceWithStatementsAndVideoMarks_source;
+}
+
+export interface GetSourceWithStatementsAndVideoMarksVariables {
+  id: number;
+  includeUnpublished?: boolean | null;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// This file was automatically generated and should not be edited.
+
 //==============================================================
 // START Enums and Input Objects
 //==============================================================
@@ -2477,6 +2598,7 @@ export interface CreateStatementInput {
   countInStatistics: boolean;
   assessment: CreateAssessmentInput;
   statementTranscriptPosition?: StatementTranscriptPositionInput | null;
+  statementVideoMark?: StatementVideoMarkInput | null;
   firstCommentContent?: string | null;
 }
 
@@ -2514,6 +2636,11 @@ export interface SourceInput {
   experts: string[];
 }
 
+export interface SourceInputVideoFields {
+  videoType: string;
+  videoId: string;
+}
+
 export interface SpeakerInput {
   firstName: string;
   lastName: string;
@@ -2526,6 +2653,17 @@ export interface StatementTranscriptPositionInput {
   startOffset: number;
   endLine: number;
   endOffset: number;
+}
+
+export interface StatementVideoMarkInput {
+  start: number;
+  stop: number;
+}
+
+export interface StatementsVideoMarksInput {
+  statementId: string;
+  start: number;
+  stop: number;
 }
 
 export interface UpdateAssessmentInput {

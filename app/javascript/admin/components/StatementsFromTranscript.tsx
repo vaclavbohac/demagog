@@ -40,18 +40,6 @@ import FormGroup from './forms/FormGroup';
 import Loading from './Loading';
 import StatementCard from './StatementCard';
 
-class GetSourceQueryComponent extends Query<GetSourceQuery> {}
-
-class GetSourceStatementsQueryComponent extends Query<
-  GetSourceStatementsQuery,
-  GetSourceStatementsQueryVariables
-> {}
-
-class CreateStatementMutationComponent extends Mutation<
-  CreateStatementMutation,
-  CreateStatementMutationVariables
-> {}
-
 interface ITranscriptSelection {
   text: string;
   startLine: number;
@@ -107,7 +95,7 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <GetSourceQueryComponent
+      <Query<GetSourceQuery>
         query={GetSource}
         variables={{ id: parseInt(this.props.match.params.sourceId, 10) }}
       >
@@ -166,7 +154,7 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
             </div>
           );
         }}
-      </GetSourceQueryComponent>
+      </Query>
     );
   }
 
@@ -176,7 +164,7 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
     const canAddStatements = this.props.isAuthorized(['statements:add']);
 
     return (
-      <GetSourceStatementsQueryComponent
+      <Query<GetSourceStatementsQuery, GetSourceStatementsQueryVariables>
         query={GetSourceStatements}
         variables={{ sourceId: parseInt(source.id, 10), includeUnpublished: true }}
       >
@@ -322,7 +310,7 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
             </div>
           );
         }}
-      </GetSourceStatementsQueryComponent>
+      </Query>
     );
   }
 }
@@ -347,7 +335,9 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
     };
 
     return (
-      <CreateStatementMutationComponent mutation={CreateStatement}>
+      <Mutation<CreateStatementMutation, CreateStatementMutationVariables>
+        mutation={CreateStatement}
+      >
         {(createStatement) => (
           <Formik
             initialValues={initialValues}
@@ -453,7 +443,7 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
             )}
           </Formik>
         )}
-      </CreateStatementMutationComponent>
+      </Mutation>
     );
   }
 }

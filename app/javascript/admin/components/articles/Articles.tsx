@@ -35,8 +35,6 @@ const ARTICLE_TYPE_LABEL = {
   static: 'Komentář',
 };
 
-class GetArticlesQuery extends Query<GetArticlesQueryResult, GetArticlesQueryVariables> {}
-
 interface IProps extends DispatchProp<any> {}
 
 interface IState {
@@ -104,7 +102,7 @@ class Articles extends React.Component<IProps, IState> {
           />
         </div>
 
-        <GetArticlesQuery
+        <Query<GetArticlesQueryResult, GetArticlesQueryVariables>
           query={GetArticles}
           variables={{ title: this.state.search, limit: ARTICLES_PER_PAGE, offset: 0 }}
         >
@@ -257,7 +255,7 @@ class Articles extends React.Component<IProps, IState> {
               </div>
             );
           }}
-        </GetArticlesQuery>
+        </Query>
       </div>
     );
   }
