@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_11_23_171028) do
+ActiveRecord::Schema.define(version: 2019_11_24_133253) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -165,6 +165,14 @@ ActiveRecord::Schema.define(version: 2019_11_23_171028) do
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
   end
 
+  create_table "governments", force: :cascade do |t|
+    t.string "name"
+    t.date "from"
+    t.date "to"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "media", force: :cascade do |t|
     t.string "kind"
     t.string "name"
@@ -205,6 +213,15 @@ ActiveRecord::Schema.define(version: 2019_11_23_171028) do
     t.integer "order", null: false
     t.datetime "created_at", null: false
     t.index ["page_id"], name: "index_menu_items_on_page_id"
+  end
+
+  create_table "ministers", force: :cascade do |t|
+    t.integer "government_id"
+    t.integer "speaker_id"
+    t.integer "ordering"
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "notifications", force: :cascade do |t|
