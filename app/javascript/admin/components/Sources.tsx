@@ -16,16 +16,14 @@ import {
   ASSESSMENT_STATUS_PROOFREADING_NEEDED,
 } from '../constants';
 import {
-  GetSourcesQuery as GetSourcesQueryResult,
-  GetSourcesQueryVariables,
+  GetSources as GetSourcesQuery,
+  GetSourcesVariables as GetSourcesQueryVariables,
 } from '../operation-result-types';
 import { GetSources } from '../queries/queries';
 import { displayDate } from '../utils';
 import Authorize from './Authorize';
 import { SearchInput } from './forms/controls/SearchInput';
 import Loading from './Loading';
-
-class GetSourcesQuery extends Query<GetSourcesQueryResult, GetSourcesQueryVariables> {}
 
 interface IState {
   search: string;
@@ -79,7 +77,7 @@ class Sources extends React.Component<{}, IState> {
         </div>
 
         <div style={{ marginTop: 15 }}>
-          <GetSourcesQuery
+          <Query<GetSourcesQuery, GetSourcesQueryVariables>
             query={GetSources}
             variables={{ name: this.state.search, offset: 0, limit: 50 }}
           >
@@ -103,7 +101,7 @@ class Sources extends React.Component<{}, IState> {
               }
 
               if (this.state.search !== '' && props.data.sources.length === 0) {
-                return <p>Nenašli jsme žádnou diskuzi s názvem „{this.state.search}‟.</p>;
+                return <p>Nenašli jsme žádnou diskuzi s názvem „{this.state.search}“.</p>;
               }
 
               return (
@@ -117,9 +115,10 @@ class Sources extends React.Component<{}, IState> {
                         <th scope="col" style={{ width: '50%' }}>
                           Diskuze
                         </th>
-                        <th scope="col">Expert</th>
+                        <th scope="col">Experti</th>
                         <th scope="col">
-                          Výroky<br />
+                          Výroky
+                          <br />
                           <small className={Classes.TEXT_MUTED}>
                             ve zpracování/ke kontrole/ke korektuře/schválené
                           </small>
@@ -129,9 +128,9 @@ class Sources extends React.Component<{}, IState> {
                     </thead>
                     <tbody>
                       {props.data.sources.map((source) => {
-                        const statementsCountsMap = source.statements_counts_by_evaluation_status.reduce(
+                        const statementsCountsMap = source.statementsCountsByEvaluationStatus.reduce(
                           (carry, item) => {
-                            return { ...carry, [item.evaluation_status]: item.statements_count };
+                            return { ...carry, [item.evaluationStatus]: item.statementsCount };
                           },
                           {
                             [ASSESSMENT_STATUS_BEING_EVALUATED]: 0,
@@ -146,24 +145,23 @@ class Sources extends React.Component<{}, IState> {
                             <td>
                               <div className={Classes.TEXT_LARGE}>{source.name}</div>
                               <div className={Classes.TEXT_MUTED} style={{ marginTop: 5 }}>
-                                {source.medium.name} ze dne {displayDate(source.released_at)}
-                                {source.media_personalities.length > 0 && (
-                                  <>, {source.media_personalities.map((p) => p.name).join(' & ')}</>
+                                {source.medium.name} ze dne {displayDate(source.releasedAt)}
+                                {source.mediaPersonalities.length > 0 && (
+                                  <>, {source.mediaPersonalities.map((p) => p.name).join(' & ')}</>
                                 )}
-                                {source.source_url && (
+                                {source.sourceUrl && (
                                   <>
-                                    , <a href={source.source_url}>odkaz</a>
+                                    , <a href={source.sourceUrl}>odkaz</a>
                                   </>
                                 )}
                               </div>
                             </td>
                             <td>
-                              {source.expert ? (
-                                <>
-                                  {source.expert.first_name} {source.expert.last_name}
-                                </>
-                              ) : (
-                                <span className={Classes.TEXT_MUTED}>Expert nepřiřazený</span>
+                              {source.experts
+                                .map((expert) => `${expert.firstName} ${expert.lastName}`)
+                                .join(', ')}
+                              {source.experts.length === 0 && (
+                                <span className={Classes.TEXT_MUTED}>Nepřiřazení</span>
                               )}
                             </td>
                             <td>
@@ -224,7 +222,7 @@ class Sources extends React.Component<{}, IState> {
                 </React.Fragment>
               );
             }}
-          </GetSourcesQuery>
+          </Query>
         </div>
       </div>
     );

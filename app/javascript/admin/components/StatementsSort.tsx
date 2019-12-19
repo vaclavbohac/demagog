@@ -10,24 +10,19 @@ import { Link, withRouter } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import {
-  GetSourceQuery,
-  GetSourceQueryVariables,
-  GetSourceStatementsQuery,
-  GetSourceStatementsQueryVariables,
-  UpdateSourceStatementsOrderInputType,
-  UpdateSourceStatementsOrderMutation,
-  UpdateSourceStatementsOrderMutationVariables,
+  GetSource as GetSourceQuery,
+  GetSourceStatements as GetSourceStatementsQuery,
+  GetSourceStatementsVariables as GetSourceStatementsQueryVariables,
+  GetSourceVariables as GetSourceQueryVariables,
+  UpdateSourceStatementsOrder as UpdateSourceStatementsOrderMutation,
+  UpdateSourceStatementsOrderInput,
+  UpdateSourceStatementsOrderVariables as UpdateSourceStatementsOrderMutationVariables,
 } from '../operation-result-types';
 import { UpdateSourceStatementsOrder } from '../queries/mutations';
 import { GetSource, GetSourceStatements } from '../queries/queries';
 import { newlinesToBr } from '../utils';
 import { reorder } from '../utils/array';
 import Loading from './Loading';
-
-class UpdateSourceStatementsOrderMutationComponent extends Mutation<
-  UpdateSourceStatementsOrderMutation,
-  UpdateSourceStatementsOrderMutationVariables
-> {}
 
 interface ISource {
   id: string;
@@ -38,8 +33,8 @@ interface IStatement {
   id: string;
   content: string;
   speaker: {
-    first_name: string;
-    last_name: string;
+    firstName: string;
+    lastName: string;
   };
 }
 
@@ -82,8 +77,8 @@ class StatementsSort extends React.Component<IProps, IState> {
   };
 
   public save = (updateSourceStatementsOrder) => () => {
-    const input: UpdateSourceStatementsOrderInputType = {
-      ordered_statement_ids: this.state.statements.map((s) => s.id),
+    const input: UpdateSourceStatementsOrderInput = {
+      orderedStatementIds: this.state.statements.map((s) => s.id),
     };
 
     this.setState({ isSubmitting: true });
@@ -109,7 +104,12 @@ class StatementsSort extends React.Component<IProps, IState> {
           <Link to={`/admin/sources/${this.props.source.id}`} className={Classes.BUTTON}>
             Zpět na diskuzi
           </Link>
-          <UpdateSourceStatementsOrderMutationComponent mutation={UpdateSourceStatementsOrder}>
+          <Mutation<
+            UpdateSourceStatementsOrderMutation,
+            UpdateSourceStatementsOrderMutationVariables
+          >
+            mutation={UpdateSourceStatementsOrder}
+          >
             {(updateSourceStatementsOrder) => (
               <Button
                 disabled={this.state.isSubmitting}
@@ -119,7 +119,7 @@ class StatementsSort extends React.Component<IProps, IState> {
                 text={this.state.isSubmitting ? 'Ukládám ...' : 'Uložit'}
               />
             )}
-          </UpdateSourceStatementsOrderMutationComponent>
+          </Mutation>
         </div>
 
         <h2 className={Classes.HEADING}>Seřadit výroky z diskuze {this.props.source.name}</h2>
@@ -143,7 +143,7 @@ class StatementsSort extends React.Component<IProps, IState> {
                         >
                           <div style={{ flex: '1 0' }}>
                             <h5 className={Classes.HEADING}>
-                              {statement.speaker.first_name} {statement.speaker.last_name}
+                              {statement.speaker.firstName} {statement.speaker.lastName}
                             </h5>
                           </div>
                           <div style={{ flex: '2 0' }}>{newlinesToBr(statement.content)}</div>
@@ -177,24 +177,17 @@ const getItemStyle = (isDragging, draggableStyle) => ({
 
 const EnhancedStatementsSort = connect()(StatementsSort);
 
-class GetSourceQueryComponent extends Query<GetSourceQuery, GetSourceQueryVariables> {}
-
-class GetSourceStatementsQueryComponent extends Query<
-  GetSourceStatementsQuery,
-  GetSourceStatementsQueryVariables
-> {}
-
 interface IStatementsSortContainerProps extends RouteComponentProps<{ sourceId: string }> {}
 
 class StatementsSortContainer extends React.Component<IStatementsSortContainerProps> {
   public render() {
     return (
-      <GetSourceQueryComponent
+      <Query<GetSourceQuery, GetSourceQueryVariables>
         query={GetSource}
         variables={{ id: parseInt(this.props.match.params.sourceId, 10) }}
       >
         {({ data: sourceData, loading: sourceLoading }) => (
-          <GetSourceStatementsQueryComponent
+          <Query<GetSourceStatementsQuery, GetSourceStatementsQueryVariables>
             query={GetSourceStatements}
             variables={{
               sourceId: parseInt(this.props.match.params.sourceId, 10),
@@ -220,9 +213,9 @@ class StatementsSortContainer extends React.Component<IStatementsSortContainerPr
                 />
               );
             }}
-          </GetSourceStatementsQueryComponent>
+          </Query>
         )}
-      </GetSourceQueryComponent>
+      </Query>
     );
   }
 }

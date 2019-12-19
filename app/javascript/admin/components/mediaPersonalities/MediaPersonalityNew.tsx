@@ -1,25 +1,20 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn } from 'react-apollo';
+import { Mutation, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 
 import { addFlashMessage } from '../../actions/flashMessages';
 import {
-  CreateMediaPersonalityMutation,
-  CreateMediaPersonalityMutationVariables,
-  MediaPersonalityInputType,
+  CreateMediaPersonality as CreateMediaPersonalityMutation,
+  CreateMediaPersonalityVariables as CreateMediaPersonalityMutationVariables,
+  MediaPersonalityInput,
 } from '../../operation-result-types';
 import { CreateMediaPersonality } from '../../queries/mutations';
-import { GET_MEDIA_PERSONALITIES } from '../forms/controls/MediaPersonalitySelect';
+import { GetMediaPersonalitiesForSelect } from '../../queries/queries';
 import { MediaPersonalityForm } from '../forms/MediaPersonalityForm';
 
-class CreateMediaPersonalityMutationComponent extends Mutation<
-  CreateMediaPersonalityMutation,
-  CreateMediaPersonalityMutationVariables
-> {}
-
-type CreateMediaPersonalityMutationFn = MutationFn<
+type CreateMediaPersonalityMutationFn = MutationFunction<
   CreateMediaPersonalityMutation,
   CreateMediaPersonalityMutationVariables
 >;
@@ -40,7 +35,7 @@ export class MediaPersonalityNew extends React.Component<ISourceNewProps> {
   };
 
   public onSubmit = (createMediaPersonality: CreateMediaPersonalityMutationFn) => (
-    mediaPersonalityInput: MediaPersonalityInputType,
+    mediaPersonalityInput: MediaPersonalityInput,
   ) => {
     return createMediaPersonality({ variables: { mediaPersonalityInput } })
       .then((mutationResult) => {
@@ -52,7 +47,7 @@ export class MediaPersonalityNew extends React.Component<ISourceNewProps> {
           return;
         }
 
-        const mediumId = mutationResult.data.createMediaPersonality.id;
+        const mediumId = mutationResult.data.createMediaPersonality.mediaPersonality.id;
 
         this.onSuccess(mediumId);
       })
@@ -62,10 +57,10 @@ export class MediaPersonalityNew extends React.Component<ISourceNewProps> {
   public render() {
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <CreateMediaPersonalityMutationComponent
+        <Mutation<CreateMediaPersonalityMutation, CreateMediaPersonalityMutationVariables>
           mutation={CreateMediaPersonality}
           // TODO: is there a nicer way of updating apollo cache after creating?
-          refetchQueries={[{ query: GET_MEDIA_PERSONALITIES }]}
+          refetchQueries={[{ query: GetMediaPersonalitiesForSelect }]}
         >
           {(createMedium) => {
             return (
@@ -75,7 +70,7 @@ export class MediaPersonalityNew extends React.Component<ISourceNewProps> {
               />
             );
           }}
-        </CreateMediaPersonalityMutationComponent>
+        </Mutation>
       </div>
     );
   }

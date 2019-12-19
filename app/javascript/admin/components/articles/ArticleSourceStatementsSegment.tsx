@@ -6,10 +6,10 @@ import { css, cx } from 'emotion';
 import { Query } from 'react-apollo';
 
 import {
-  GetSourcesQuery,
-  GetSourcesQueryVariables,
-  GetSourceStatementsQuery,
-  GetSourceStatementsQueryVariables,
+  GetSources as GetSourcesQuery,
+  GetSourceStatements as GetSourceStatementsQuery,
+  GetSourceStatementsVariables as GetSourceStatementsQueryVariables,
+  GetSourcesVariables as GetSourcesQueryVariables,
 } from '../../operation-result-types';
 import { GetSources, GetSourceStatements } from '../../queries/queries';
 import Error from '../Error';
@@ -165,7 +165,7 @@ function StatementsPreview({ sourceId }: IStatementsPreviewProps) {
                       font-weight: 700;
                     `}
                   >
-                    {statement.speaker.first_name} {statement.speaker.last_name}
+                    {statement.speaker.firstName} {statement.speaker.lastName}
                   </div>
                 </div>
 
@@ -221,13 +221,13 @@ function StatementsPreview({ sourceId }: IStatementsPreviewProps) {
                       </p>
                     )}
 
-                    {statement.assessment.short_explanation && (
+                    {statement.assessment.shortExplanation && (
                       <p
                         className={css`
                           margin: 5px 0 0 15px;
                         `}
                       >
-                        {statement.assessment.short_explanation}
+                        {statement.assessment.shortExplanation}
                       </p>
                     )}
                   </div>

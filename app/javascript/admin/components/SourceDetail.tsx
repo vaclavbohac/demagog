@@ -20,11 +20,13 @@ import * as Sentry from '@sentry/browser';
 import { ApolloError } from 'apollo-client';
 import { css, cx } from 'emotion';
 import { get, groupBy, orderBy } from 'lodash';
+import * as queryString from 'query-string';
 import { Mutation, Query } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
+import apolloClient from '../apolloClient';
 import {
   ASSESSMENT_STATUS_APPROVAL_NEEDED,
   ASSESSMENT_STATUS_APPROVED,
@@ -32,9 +34,10 @@ import {
   ASSESSMENT_STATUS_PROOFREADING_NEEDED,
 } from '../constants';
 import {
-  GetSourceQuery,
-  GetSourceStatementsQuery,
-  GetSourceStatementsQueryVariables,
+  AssessmentMethodologyRatingModel,
+  GetSource as GetSourceQuery,
+  GetSourceStatements as GetSourceStatementsQuery,
+  GetSourceStatementsVariables as GetSourceStatementsQueryVariables,
 } from '../operation-result-types';
 import { DeleteSource, PublishApprovedSourceStatements } from '../queries/mutations';
 import { GetSource, GetSources, GetSourceStatements } from '../queries/queries';
@@ -43,12 +46,6 @@ import Authorize from './Authorize';
 import Loading from './Loading';
 import ConfirmDeleteModal from './modals/ConfirmDeleteModal';
 import StatementCard from './StatementCard';
-
-class GetSourceQueryComponent extends Query<GetSourceQuery> {}
-class GetSourceStatementsQueryComponent extends Query<
-  GetSourceStatementsQuery,
-  GetSourceStatementsQueryVariables
-> {}
 
 const STATUS_FILTER_LABELS = {
   [ASSESSMENT_STATUS_BEING_EVALUATED]: 'Ve zpracování',
@@ -74,6 +71,44 @@ class SourceDetail extends React.Component<IProps, IState> {
     showMassStatementsPublishModal: false,
     statementsFilter: null,
   };
+  private removeHistoryListener: null | (() => void);
+
+  public componentDidMount() {
+    this.removeHistoryListener = this.props.history.listen((location) => {
+      this.updateStatementsFilterFromLocation(location);
+    });
+    this.updateStatementsFilterFromLocation(this.props.history.location);
+  }
+
+  public componentWillUnmount() {
+    if (this.removeHistoryListener !== null) {
+      this.removeHistoryListener();
+      this.removeHistoryListener = null;
+    }
+  }
+
+  public updateStatementsFilterFromLocation(location) {
+    if (!location.search) {
+      this.setState({ statementsFilter: null });
+      return;
+    }
+
+    const queryParams = queryString.parse(location.search);
+    if (!queryParams.filter) {
+      return;
+    }
+
+    let filter;
+    try {
+      filter = JSON.parse(queryParams.filter as string);
+    } catch (e) {
+      return;
+    }
+
+    if (filter.field !== undefined && filter.value !== undefined) {
+      this.setState({ statementsFilter: { field: filter.field, value: filter.value } });
+    }
+  }
 
   public toggleConfirmDeleteModal = () => {
     this.setState({ showConfirmDeleteModal: !this.state.showConfirmDeleteModal });
@@ -118,14 +153,28 @@ class SourceDetail extends React.Component<IProps, IState> {
   public onStatementsFilterClick = (field: string, value: any) => (
     event: React.MouseEvent<HTMLAnchorElement>,
   ) => {
-    this.setState({ statementsFilter: { field, value } });
+    const statementsFilter = { field, value };
+
+    this.setState({ statementsFilter }, () => {
+      // Make sure we update the url after the state is changed
+      // so the location change listener can detect that the state
+      // is already set
+      this.props.history.push(
+        this.props.history.location.pathname +
+          '?filter=' +
+          encodeURIComponent(JSON.stringify(statementsFilter)),
+      );
+    });
 
     event.preventDefault();
     return false;
   };
 
   public onCancelStatementsFilterClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    this.setState({ statementsFilter: null });
+    this.setState({ statementsFilter: null }, () => {
+      // Reset the search part of location
+      this.props.history.push(this.props.history.location.pathname);
+    });
 
     event.preventDefault();
     return false;
@@ -133,7 +182,7 @@ class SourceDetail extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <GetSourceQueryComponent
+      <Query<GetSourceQuery>
         query={GetSource}
         variables={{ id: parseInt(this.props.match.params.sourceId, 10) }}
       >
@@ -156,9 +205,7 @@ class SourceDetail extends React.Component<IProps, IState> {
             <div style={{ padding: '15px 0 40px 0' }}>
               {this.state.showConfirmDeleteModal && (
                 <ConfirmDeleteModal
-                  message={`Opravdu chcete smazat diskuzi ${
-                    source.name
-                  } se všemi výroky, které k ní patří?`}
+                  message={`Opravdu chcete smazat diskuzi ${source.name} se všemi výroky, které k ní patří?`}
                   onCancel={this.toggleConfirmDeleteModal}
                   mutation={DeleteSource}
                   mutationProps={{
@@ -236,19 +283,22 @@ class SourceDetail extends React.Component<IProps, IState> {
                 <h2 className={Classes.HEADING}>{source.name}</h2>
 
                 <span>
-                  {source.medium.name} ze dne {displayDate(source.released_at)}
-                  {source.media_personalities.length > 0 && (
-                    <>, {source.media_personalities.map((p) => p.name).join(' & ')}</>
+                  {source.medium.name} ze dne {displayDate(source.releasedAt)}
+                  {source.mediaPersonalities.length > 0 && (
+                    <>, {source.mediaPersonalities.map((p) => p.name).join(' & ')}</>
                   )}
-                  {source.source_url && (
+                  {source.sourceUrl && (
                     <>
-                      , <a href={source.source_url}>odkaz</a>
+                      , <a href={source.sourceUrl}>odkaz</a>
                     </>
                   )}
-                  {source.expert && (
+                  {source.experts.length > 0 && (
                     <>
                       <br />
-                      Expert: {source.expert.first_name} {source.expert.last_name}
+                      {source.experts.length === 1 ? 'Expert: ' : 'Experti: '}
+                      {source.experts
+                        .map((expert) => `${expert.firstName} ${expert.lastName}`)
+                        .join(', ')}
                     </>
                   )}
                 </span>
@@ -258,7 +308,7 @@ class SourceDetail extends React.Component<IProps, IState> {
             </div>
           );
         }}
-      </GetSourceQueryComponent>
+      </Query>
     );
   }
 
@@ -266,7 +316,7 @@ class SourceDetail extends React.Component<IProps, IState> {
     const { statementsFilter } = this.state;
 
     return (
-      <GetSourceStatementsQueryComponent
+      <Query<GetSourceStatementsQuery, GetSourceStatementsQueryVariables>
         query={GetSourceStatements}
         variables={{ sourceId: parseInt(source.id, 10), includeUnpublished: true }}
       >
@@ -309,11 +359,11 @@ class SourceDetail extends React.Component<IProps, IState> {
             value: statusKey,
             label: STATUS_FILTER_LABELS[statusKey],
             count: data.statements.filter(
-              (statement) => statement.assessment.evaluation_status === statusKey,
+              (statement) => statement.assessment.evaluationStatus === statusKey,
             ).length,
             active:
               statementsFilter !== null &&
-              statementsFilter.field === 'assessment.evaluation_status' &&
+              statementsFilter.field === 'assessment.evaluationStatus' &&
               statementsFilter.value === statusKey,
           }));
 
@@ -344,7 +394,7 @@ class SourceDetail extends React.Component<IProps, IState> {
           let evaluatorFilterOptions: IEvaluatorFilterOptions = Object.keys(evaluators).map(
             (evaluatorId) => ({
               value: evaluatorId,
-              label: `${evaluators[evaluatorId].first_name} ${evaluators[evaluatorId].last_name}`,
+              label: `${evaluators[evaluatorId].firstName} ${evaluators[evaluatorId].lastName}`,
               count: data.statements.filter(
                 (statement) =>
                   statement.assessment.evaluator &&
@@ -378,50 +428,15 @@ class SourceDetail extends React.Component<IProps, IState> {
             });
           }
 
-          const veracitiesBySpeaker = source.speakers.map((speaker) => {
-            const speakerStatements = data.statements.filter(
-              (statement) => statement.speaker.id === speaker.id,
-            );
-            const groupedByVeracity = groupBy(speakerStatements, (statement) => {
-              switch (statement.assessment.evaluation_status) {
-                case ASSESSMENT_STATUS_APPROVED:
-                // When statement is already in proofreading state, the veracity won't
-                // change, so we can already include it in the stats as well
-                case ASSESSMENT_STATUS_PROOFREADING_NEEDED:
-                  if (statement.assessment.veracity === null) {
-                    // If the statement does not have veracity set in proofreading or approved
-                    // state, don't fail and just log this to sentry
-                    Sentry.withScope((scope) => {
-                      scope.setLevel(Sentry.Severity.Warning);
-                      Sentry.captureException(
-                        `Expected non-null veracity for statement #${statement.id}`,
-                      );
-                    });
-                    // tslint:disable-next-line:no-console
-                    console.warn(`Expected non-null veracity for statement #${statement.id}`);
-
-                    return 'being-evaluated';
-                  }
-
-                  return statement.assessment.veracity.key;
-
-                default:
-                  return 'being-evaluated';
-              }
-            });
-
-            return {
-              speaker,
-              trueCount: get(groupedByVeracity, 'true.length', 0),
-              untrueCount: get(groupedByVeracity, 'untrue.length', 0),
-              misleadingCount: get(groupedByVeracity, 'misleading.length', 0),
-              unverifiableCount: get(groupedByVeracity, 'unverifiable.length', 0),
-              beingEvaluatedCount: get(groupedByVeracity, 'being-evaluated.length', 0),
-            };
-          });
-
           const statementsToDisplay = data.statements.filter((statement) => {
             if (statementsFilter !== null) {
+              if (statementsFilter.field === 'verifiedAndUnpublished') {
+                return (
+                  statement.assessment.evaluationStatus === ASSESSMENT_STATUS_APPROVED &&
+                  statement.published === false
+                );
+              }
+
               return get(statement, statementsFilter.field, null) === statementsFilter.value;
             } else {
               return true;
@@ -471,7 +486,16 @@ class SourceDetail extends React.Component<IProps, IState> {
                   <div style={{ flex: '1 1' }}>
                     <div style={{ float: 'right' }}>
                       <Authorize permissions={['statements:edit']}>
-                        <Button onClick={this.toggleMassStatementsPublishModal}>
+                        <Link
+                          to={`/admin/sources/${source.id}/statements-video-marks`}
+                          className={Classes.BUTTON}
+                        >
+                          Propojení s videozáznamem
+                        </Link>
+                        <Button
+                          style={{ marginLeft: 7 }}
+                          onClick={this.toggleMassStatementsPublishModal}
+                        >
                           Zveřejnit všechny schválené výroky…
                         </Button>
                       </Authorize>
@@ -505,7 +529,7 @@ class SourceDetail extends React.Component<IProps, IState> {
                         active={option.active}
                         text={`${option.label} (${option.count})`}
                         onClick={this.onStatementsFilterClick(
-                          'assessment.evaluation_status',
+                          'assessment.evaluationStatus',
                           option.value,
                         )}
                       />
@@ -521,6 +545,22 @@ class SourceDetail extends React.Component<IProps, IState> {
                       />
                     ))}
 
+                    <MenuItem
+                      text={`Nezveřejněné, schválené (${
+                        data.statements.filter(
+                          (statement) =>
+                            statement.assessment.evaluationStatus === ASSESSMENT_STATUS_APPROVED &&
+                            statement.published === false,
+                        ).length
+                      })`}
+                      active={
+                        statementsFilter !== null &&
+                        statementsFilter.field === 'verifiedAndUnpublished' &&
+                        statementsFilter.value === true
+                      }
+                      onClick={this.onStatementsFilterClick('verifiedAndUnpublished', true)}
+                    />
+
                     <MenuDivider title="Filtrovat dle ověřovatele" />
                     {evaluatorFilterOptions.map((option) => (
                       <MenuItem
@@ -535,27 +575,7 @@ class SourceDetail extends React.Component<IProps, IState> {
                     ))}
                   </div>
 
-                  <div
-                    className={css`
-                      background-color: ${Colors.LIGHT_GRAY5};
-                      padding: 15px 15px 5px 15px;
-                      margin-top: 20px;
-                    `}
-                  >
-                    {veracitiesBySpeaker.map((stat) => (
-                      <p key={stat.speaker.id}>
-                        <strong>
-                          {stat.speaker.first_name} {stat.speaker.last_name}
-                        </strong>
-                        <br />
-                        {stat.trueCount} pravda<br />
-                        {stat.untrueCount} nepravda<br />
-                        {stat.misleadingCount} zavádějící<br />
-                        {stat.unverifiableCount} neověřitelné<br />
-                        {stat.beingEvaluatedCount} se ještě ověřuje
-                      </p>
-                    ))}
-                  </div>
+                  <SpeakersStats speakers={source.speakers} statements={data.statements} />
                 </div>
                 <div style={{ flex: '1 1' }}>
                   {statementsToDisplay.map((statement) => (
@@ -585,7 +605,7 @@ class SourceDetail extends React.Component<IProps, IState> {
             </>
           );
         }}
-      </GetSourceStatementsQueryComponent>
+      </Query>
     );
   }
 }
@@ -603,7 +623,7 @@ class MassStatementsPublishModal extends React.Component<IMassStatementsPublishM
     const { source, statements, onCancel, onCompleted, onError } = this.props;
 
     const approvedAndNotPublished = statements.filter(
-      (s) => s.assessment.evaluation_status === ASSESSMENT_STATUS_APPROVED && !s.published,
+      (s) => s.assessment.evaluationStatus === ASSESSMENT_STATUS_APPROVED && !s.published,
     );
 
     return (
@@ -622,7 +642,10 @@ class MassStatementsPublishModal extends React.Component<IMassStatementsPublishM
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button text="Zpět" onClick={onCancel} />
             {approvedAndNotPublished.length > 0 && (
-              <Mutation mutation={PublishApprovedSourceStatements} variables={{ id: source.id }}>
+              <Mutation<any, any>
+                mutation={PublishApprovedSourceStatements}
+                variables={{ id: source.id }}
+              >
                 {(mutate, { loading }) => (
                   <Button
                     intent={Intent.PRIMARY}
@@ -651,3 +674,131 @@ class MassStatementsPublishModal extends React.Component<IMassStatementsPublishM
 }
 
 export default connect()(SourceDetail);
+
+interface ISpeakerStatsProps {
+  speakers: GetSourceQuery['source']['speakers'];
+  statements: GetSourceStatementsQuery['statements'];
+}
+
+const SpeakersStats = (props: ISpeakerStatsProps) => {
+  const assessmentMethodology = props.statements[0].assessment.assessmentMethodology;
+
+  const statsBySpeaker = props.speakers.map((speaker) => {
+    const speakerStatements = props.statements.filter(
+      (statement) => statement.speaker.id === speaker.id,
+    );
+
+    const grouped = groupBy(speakerStatements, (statement) => {
+      switch (statement.assessment.evaluationStatus) {
+        case ASSESSMENT_STATUS_APPROVED:
+        // When statement is already in proofreading state, the rating won't
+        // change, so we can already include it in the stats as well
+        case ASSESSMENT_STATUS_PROOFREADING_NEEDED:
+          if (
+            statement.assessment.assessmentMethodology.ratingModel ===
+            AssessmentMethodologyRatingModel.veracity
+          ) {
+            if (statement.assessment.veracity === null) {
+              // If the statement does not have veracity set in proofreading or approved
+              // state, don't fail and just log this to sentry
+              Sentry.withScope((scope) => {
+                scope.setLevel(Sentry.Severity.Warning);
+                scope.setExtra('apollo_cache', JSON.stringify(apolloClient.extract()));
+                Sentry.captureException(
+                  `Expected non-null veracity for statement #${statement.id}`,
+                );
+              });
+              // tslint:disable-next-line:no-console
+              console.warn(`Expected non-null veracity for statement #${statement.id}`);
+
+              return 'being-evaluated';
+            }
+
+            return statement.assessment.veracity.key;
+          }
+
+          if (
+            statement.assessment.assessmentMethodology.ratingModel ===
+            AssessmentMethodologyRatingModel.promise_rating
+          ) {
+            if (statement.assessment.promiseRating === null) {
+              Sentry.withScope((scope) => {
+                scope.setLevel(Sentry.Severity.Warning);
+                scope.setExtra('apollo_cache', JSON.stringify(apolloClient.extract()));
+                Sentry.captureException(
+                  `Expected non-null promise rating for statement #${statement.id}`,
+                );
+              });
+              // tslint:disable-next-line:no-console
+              console.warn(`Expected non-null promise rating for statement #${statement.id}`);
+
+              return 'being-evaluated';
+            }
+
+            return statement.assessment.promiseRating.key;
+          }
+
+        default:
+          return 'being-evaluated';
+      }
+    });
+
+    const stats: string[] = [];
+    if (assessmentMethodology.ratingModel === AssessmentMethodologyRatingModel.veracity) {
+      assessmentMethodology.ratingKeys.forEach((ratingKey) => {
+        const labels = {
+          true: 'pravda',
+          untrue: 'nepravda',
+          misleading: 'zavádějící',
+          unverifiable: 'neověřitelné',
+        };
+
+        stats.push(get(grouped, [ratingKey, 'length'], 0) + ' ' + labels[ratingKey]);
+      });
+    }
+    if (assessmentMethodology.ratingModel === AssessmentMethodologyRatingModel.promise_rating) {
+      assessmentMethodology.ratingKeys.forEach((ratingKey) => {
+        const labels = {
+          fulfilled: 'splněno',
+          in_progress: 'průběžně plněno',
+          partially_fulfilled: 'částečně splněno',
+          broken: 'porušeno',
+          stalled: 'nerealizovano',
+        };
+
+        stats.push(get(grouped, [ratingKey, 'length'], 0) + ' ' + labels[ratingKey]);
+      });
+    }
+    stats.push(get(grouped, 'being-evaluated.length', 0) + ' se ještě ověřuje');
+
+    return {
+      speaker,
+      stats,
+    };
+  });
+
+  return (
+    <div
+      className={css`
+        background-color: ${Colors.LIGHT_GRAY5};
+        padding: 15px 15px 5px 15px;
+        margin-top: 20px;
+      `}
+    >
+      {statsBySpeaker.map(({ speaker, stats }) => (
+        <p key={speaker.id}>
+          <strong>
+            {speaker.firstName} {speaker.lastName}
+          </strong>
+          <br />
+          {stats.map((stat, index) => (
+            <React.Fragment key={index}>
+              {stat}
+              <br />
+            </React.Fragment>
+          ))}
+        </p>
+      ))}
+    </div>
+  );
+};

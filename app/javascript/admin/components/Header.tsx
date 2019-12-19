@@ -16,16 +16,14 @@ import { Query } from 'react-apollo';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 
-import { GetNotificationsQuery, GetNotificationsQueryVariables } from '../operation-result-types';
+import {
+  GetNotifications as GetNotificationsQuery,
+  GetNotificationsVariables as GetNotificationsQueryVariables,
+} from '../operation-result-types';
 import { GetNotifications } from '../queries/queries';
 import { IState as ReduxState } from '../reducers';
 import Authorize from './Authorize';
 import UserSelect from './forms/controls/UserSelect';
-
-class GetNotificationsQueryComponent extends Query<
-  GetNotificationsQuery,
-  GetNotificationsQueryVariables
-> {}
 
 interface IProps {
   currentUser: ReduxState['currentUser']['user'];
@@ -72,14 +70,14 @@ class Header extends React.Component<IProps, IState> {
               </>
             </Authorize>
 
-            <GetNotificationsQueryComponent
+            <Query<GetNotificationsQuery, GetNotificationsQueryVariables>
               query={GetNotifications}
               // offset & limit 0, because we only need the total_count
               variables={{ includeRead: false, offset: 0, limit: 0 }}
               pollInterval={20100} // Little more than 20s so it does not sync with other polls
             >
-              {({ data, loading, error }) => {
-                if (loading || !data) {
+              {({ data, error }) => {
+                if (!data || !data.notifications) {
                   return null;
                 }
 
@@ -96,25 +94,25 @@ class Header extends React.Component<IProps, IState> {
                         Classes.BUTTON,
                         Classes.iconClass(IconNames.NOTIFICATIONS),
                         {
-                          [Classes.MINIMAL]: data.notifications.total_count === 0,
-                          [Classes.INTENT_PRIMARY]: data.notifications.total_count > 0,
+                          [Classes.MINIMAL]: data.notifications.totalCount === 0,
+                          [Classes.INTENT_PRIMARY]: data.notifications.totalCount > 0,
                         },
                       )}
                     >
-                      {`${data.notifications.total_count}`}
+                      {`${data.notifications.totalCount}`}
                     </NavLink>
                     <Navbar.Divider />
                   </>
                 );
               }}
-            </GetNotificationsQueryComponent>
+            </Query>
 
             {this.props.currentUser !== null && (
               <>
                 <Button
                   icon={IconNames.USER}
                   minimal
-                  text={`${this.props.currentUser.first_name} ${this.props.currentUser.last_name}`}
+                  text={`${this.props.currentUser.firstName} ${this.props.currentUser.lastName}`}
                 />
                 <Navbar.Divider />
               </>

@@ -1,20 +1,22 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn } from 'react-apollo';
+import { Mutation, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import { uploadBodyLogo } from '../api';
-import { CreateBodyMutation, CreateBodyMutationVariables } from '../operation-result-types';
+import {
+  CreateBody as CreateBodyMutation,
+  CreateBodyVariables as CreateBodyMutationVariables,
+} from '../operation-result-types';
 import { CreateBody } from '../queries/mutations';
 import { GetBodies, GetSpeakerBodies } from '../queries/queries';
 import { BodyForm, IBodyFormData } from './forms/BodyForm';
 
-class BodyNewMutation extends Mutation<CreateBodyMutation, CreateBodyMutationVariables> {}
 interface ICreateBodyMutationFn
-  extends MutationFn<CreateBodyMutation, CreateBodyMutationVariables> {}
+  extends MutationFunction<CreateBodyMutation, CreateBodyMutationVariables> {}
 
 interface IBodyNewProps extends RouteComponentProps<{}>, DispatchProp {}
 
@@ -29,7 +31,7 @@ class BodyNew extends React.Component<IBodyNewProps> {
           return;
         }
 
-        const bodyId: number = parseInt(mutationResult.data.createBody.id, 10);
+        const bodyId: number = parseInt(mutationResult.data.createBody.body.id, 10);
 
         let uploadPromise: Promise<any> = Promise.resolve();
         if (logo instanceof File) {
@@ -59,7 +61,7 @@ class BodyNew extends React.Component<IBodyNewProps> {
   public render() {
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <BodyNewMutation
+        <Mutation<CreateBodyMutation, CreateBodyMutationVariables>
           mutation={CreateBody}
           refetchQueries={[
             { query: GetSpeakerBodies },
@@ -72,7 +74,7 @@ class BodyNew extends React.Component<IBodyNewProps> {
               title="Přidat novou stranu / skupinu"
             />
           )}
-        </BodyNewMutation>
+        </Mutation>
       </div>
     );
   }

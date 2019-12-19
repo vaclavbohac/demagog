@@ -2,6 +2,7 @@
 
 Rails.application.routes.draw do
   get "page_controller/show"
+
   devise_for :users, controllers: { omniauth_callbacks: "users/omniauth_callbacks" }
 
   devise_scope :user do
@@ -36,6 +37,9 @@ Rails.application.routes.draw do
     # We're using this from the notification email
     get "/notification-open/:id" => "notification#open", as: :open_notification
 
+    # Admin service policy - necessary for OAuth
+    get "/policy" => "admin#policy"
+
     # For development and testing we need a way to login as somebody even when
     # we don't have access to their Google account
     unless Rails.env.production?
@@ -59,10 +63,26 @@ Rails.application.routes.draw do
   get "archiv" => "archive#index", as: "archive", concerns: :paginatable
   get "stranka/:slug" => "page#show", as: "page"
 
+  get "sliby" => "promises#index"
+  get "sliby/:slug" => "promises#overview"
+  get "sliby/:slug/metodika" => "promises#methodology"
+  get "sliby/:slug/embed/:promise_id" => "promises#promise_embed"
+
+  # get "sliby-sobotkovy-vlady/programove-prohlaseni" => "promises#document"
+  get "sliby/:slug/programove-prohlaseni" => "promises#document"
+
+  get "vyhledavani" => "search#index", as: "search"
+
   root to: "homepage#index"
 
   # Shortcut redirect
   get "workshopy", to: redirect("/diskuze/workshopy-demagogcz")
+  get "tips", to: redirect("/diskuze/3-kroky-pro-rozpoznani-fake-news")
+
+  # Dynamic error pages
+  get "/404", to: "error#not_found"
+  get "/422", to: "error#unprocessable_entity"
+  get "/500", to: "error#internal_server_error"
 
   # Redirects from legacy web server
   get "diskusie/:id/:slug" => "redirect#index", as: "redirect_discussion"

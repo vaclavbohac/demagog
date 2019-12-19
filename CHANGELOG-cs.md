@@ -2,6 +2,86 @@
 
 Seznam změn v aplikaci za webem Demagog.cz. Struktura inspirována projektem [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## 4. listopadu 2019
+- Přidáno: Propojování výroku s videi ([#453](https://github.com/Demagog2/demagog/pull/453))
+
+## 25. září 2019
+- Změněno: Uživatele jde mazat jen pokud ještě nejsou navázáni na nějaká data v systému (komentáře, přiřazené výroky, atd.). Plus vizuální změny v administraci týmu. ([#443](https://github.com/Demagog2/demagog/pull/443))
+
+## 19. září 2019
+- Přidáno: Notifikace do Slack kanálů korektur při 5, 10, atd. nevyřízených výrocích ke kontrole ([#442](https://github.com/Demagog2/demagog/pull/442))
+- Změněno: Experti už nedostávají upozornění na změnu ověřovatele expertovaných výroků ([#441](https://github.com/Demagog2/demagog/pull/441))
+
+## 25. srpna 2019
+- Změněno: Odkazy v odůvodnění se otevírají v novém okně/tabu ([#438](https://github.com/Demagog2/demagog/pull/438))
+- Změněno: Administrace se nesnaží zmenšit pro mobil, ale zůstává jak kdyby ji člověk otevíral na počítači ([#439](https://github.com/Demagog2/demagog/pull/439))
+
+## 31. července 2019
+- Opraveno: Výrok jde měnit i když není vybraný ověřovatel ([#428](https://github.com/Demagog2/demagog/pull/428))
+
+## 22. července 2019
+- Změněno: Datum lze vybrat od 1.1.1990
+
+## 13. července 2019
+- Opraveno: Dlouhé odkazy či slova v odůvodnění se zalamují a nenatahují stránku do šířky ([#425](https://github.com/Demagog2/demagog/pull/425))
+- Opraveno: Při zadávání příslušnosti řečníka ke straně jde vybrat datum před rokem 1999 ([#426](https://github.com/Demagog2/demagog/pull/426))
+
+## 23. června 2019
+- Změněno: Diskuze může mít víc expertů ([#404](https://github.com/Demagog2/demagog/pull/404))
+
+## 19. května 2019
+- Přidáno: Editoři mohou upravit řečníka u výroku ([#395](https://github.com/Demagog2/demagog/pull/395))
+
+## 12. května 2019
+- Přidáno: Sliby jdou vkládat jako segment do článku ([#386](https://github.com/Demagog2/demagog/pull/386))
+- Přidáno: Vladní sliby na homepage ([#385](https://github.com/Demagog2/demagog/pull/385))
+
+## 11. května 2019
+- Přidáno: Komentáře u výroků už se zobrazují v odstavcích a se zalomeními ([#383](https://github.com/Demagog2/demagog/pull/383))
+
+## 10. května 2019
+- Změněno: Stážisti si mohou vrátit výrok ke zpracování ze stavu ke kontrole ([#379](https://github.com/Demagog2/demagog/pull/379))
+
+## 8. května 2019
+- Opraveno: Zobrazování datumů u článků a výroků je znovu české a bez 00:00 ([#373](https://github.com/Demagog2/demagog/pull/373))
+
+## 7. května 2019
+- Administrace podporuje sliby - jak metodiku pro sliby Sobotkovy vlády, tak tu pro druhou vládu Andreje Babiše ([#368](https://github.com/Demagog2/demagog/pull/368))
+- Přihlášení do administrace mohou nahlížet výstup slibů vlády Andreje Babiše ([#369](https://github.com/Demagog2/demagog/pull/369))
+
+## 29. dubna 2019
+- Technická změna: Migrace na novou verzi GraphQL
+
+## 20. dubna 2019
+- Změněno: Veřejná část webu Demagog.cz už se dobře zobrazuje i v IE11 ([#358](https://github.com/Demagog2/demagog/pull/358))
+
+## 18. března 2019
+- Změněno: Deaktivovaný uživatel je okamžitě odhlášen ([#350](https://github.com/Demagog2/demagog/pull/350))
+- Změněno: Omezen přístup k diskuzím pro veřejnost skrz GraphQL tak, abychom neleakovali interní data ([#349](https://github.com/Demagog2/demagog/pull/349))
+
+## 17. března 2019
+- Přidáno: Stránka "API pro vývojáře" s dokumentací GraphQL API ([#346](https://github.com/Demagog2/demagog/pull/346))
+
+## 14. března 2019
+- Změněno: NFNZ mezi podporovateli, předchozí US embassy a Visegrad fund skryti
+
+## 13. března 2019
+- Změněno: Partner Zákony pro lidi nahrazen Nadačním fondem nezávislé žurnalistiky
+
+## 6. března 2019
+- Změněno: Deprekováno Google+ API pro přihlašování do administrace ([#337](https://github.com/Demagog2/demagog/pull/337))
+- Změněno: Přidána stránka s ochranou soukromí - https://demagog.cz/admin/policy
+
+## 3. března 2019
+- Změněno: Komentáře u výroku z nedávné doby (dnes a včera) jsou ukázány s "dnes" a "včera" pro lepší přehlednost (iterujem, bejby!) ([#334](https://github.com/Demagog2/demagog/pull/334))
+- Změněno: Komentáře u výroku z nedávné doby (max 24h) jsou ukázány s relativním časem pro lepší přehlednost ([#333](https://github.com/Demagog2/demagog/pull/333))
+- Opraveno: Výroky jsou znovu korektně řazeny s důležitými na začátku, ne na konci ([#332](https://github.com/Demagog2/demagog/pull/332))
+
+## 2. března 2019
+- Změněno: Filtrování výroků na detailu diskuze se reflektuje v url, takže se při reloadu neztratí ([#330](https://github.com/Demagog2/demagog/pull/330))
+- Změněno: Vyhledávání v administraci už funguje i bez diakritiky (např. hledání "babis" najde našeho současného premiéra) ([#329](https://github.com/Demagog2/demagog/pull/329))
+- Přidáno: Máme nově stránku, která se zobrazí při špatném dotazu na web, či při chybě ([#288](https://github.com/Demagog2/demagog/issues/288))
+
 ## 22. února 2019
 - Opraveno: Lze uploadovat obrázek — ať už obsahový, k článku, nebo kdekoliv jinde ([#316](https://github.com/Demagog2/demagog/pull/316))
 

@@ -1,29 +1,23 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, Query, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 
 import { addFlashMessage } from '../../actions/flashMessages';
 import {
-  GetPageQuery,
-  GetPageQueryVariables,
-  PageInputType,
-  UpdatePageMutation,
-  UpdatePageMutationVariables,
+  GetPage as GetPageQuery,
+  GetPageVariables as GetPageQueryVariables,
+  PageInput,
+  UpdatePage as UpdatePageMutation,
+  UpdatePageVariables as UpdatePageMutationVariables,
 } from '../../operation-result-types';
 import { UpdatePage } from '../../queries/mutations';
 import { GetPage, GetPages } from '../../queries/queries';
 import { PageForm } from '../forms/PageForm';
 import Loading from '../Loading';
 
-class PageQuery extends Query<GetPageQuery, GetPageQueryVariables> {}
-class UpdatePageMutationComponent extends Mutation<
-  UpdatePageMutation,
-  UpdatePageMutationVariables
-> {}
-
-type UpdatePageMutationFn = MutationFn<UpdatePageMutation, UpdatePageMutationVariables>;
+type UpdatePageMutationFn = MutationFunction<UpdatePageMutation, UpdatePageMutationVariables>;
 
 interface IPageEditProps extends RouteComponentProps<{ id: string }>, DispatchProp {}
 
@@ -38,7 +32,7 @@ class PageEdit extends React.Component<IPageEditProps> {
     console.error(error);
   };
 
-  public onSubmit = (updatePage: UpdatePageMutationFn) => (pageInput: PageInputType) => {
+  public onSubmit = (updatePage: UpdatePageMutationFn) => (pageInput: PageInput) => {
     const id = this.getParamId();
 
     return updatePage({ variables: { id, pageInput } })
@@ -53,7 +47,7 @@ class PageEdit extends React.Component<IPageEditProps> {
 
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <PageQuery query={GetPage} variables={{ id }}>
+        <Query<GetPageQuery, GetPageQueryVariables> query={GetPage} variables={{ id }}>
           {({ data, loading }) => {
             if (loading) {
               return <Loading />;
@@ -64,7 +58,7 @@ class PageEdit extends React.Component<IPageEditProps> {
             }
 
             return (
-              <UpdatePageMutationComponent
+              <Mutation<UpdatePageMutation, UpdatePageMutationVariables>
                 mutation={UpdatePage}
                 refetchQueries={[
                   { query: GetPages, variables: { name: null } },
@@ -81,10 +75,10 @@ class PageEdit extends React.Component<IPageEditProps> {
                     />
                   );
                 }}
-              </UpdatePageMutationComponent>
+              </Mutation>
             );
           }}
-        </PageQuery>
+        </Query>
       </div>
     );
   }

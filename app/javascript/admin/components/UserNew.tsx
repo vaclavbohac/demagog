@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn } from 'react-apollo';
+import { Mutation, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router-dom';
@@ -8,17 +8,15 @@ import { withRouter } from 'react-router-dom';
 import { addFlashMessage } from '../actions/flashMessages';
 import { uploadUserAvatar } from '../api';
 
-import { CreateUserMutation, CreateUserMutationVariables } from '../operation-result-types';
+import {
+  CreateUser as CreateUserMutation,
+  CreateUserVariables as CreateUserMutationVariables,
+} from '../operation-result-types';
 import { CreateUser } from '../queries/mutations';
 import { IUserFormData, UserForm } from './forms/UserForm';
 
-class CreateUserMutationComponent extends Mutation<
-  CreateUserMutation,
-  CreateUserMutationVariables
-> {}
-
 interface ICreateUserMutationFn
-  extends MutationFn<CreateUserMutation, CreateUserMutationVariables> {}
+  extends MutationFunction<CreateUserMutation, CreateUserMutationVariables> {}
 
 interface IUserNewProps extends RouteComponentProps<{}>, DispatchProp {}
 
@@ -32,11 +30,23 @@ class UserNew extends React.Component<IUserNewProps> {
           return;
         }
 
-        const userId: number = parseInt(mutationResult.data.createUser.id, 10);
+        const userId: number = parseInt(mutationResult.data.createUser.user.id, 10);
 
         let uploadPromise: Promise<any> = Promise.resolve();
         if (avatar instanceof File) {
-          uploadPromise = uploadUserAvatar(userId, avatar);
+          uploadPromise = uploadUserAvatar(userId, avatar).catch((error) => {
+            if (error.status === 413) {
+              this.props.dispatch(
+                addFlashMessage(
+                  'Obrázek je větší než teď povolujeme, zmenšete ho a nahrajte znovu.',
+                  'warning',
+                ),
+              );
+              return Promise.reject();
+            } else {
+              return Promise.reject(error);
+            }
+          });
         }
 
         uploadPromise.then(() => {
@@ -44,7 +54,9 @@ class UserNew extends React.Component<IUserNewProps> {
         });
       })
       .catch((error) => {
-        this.onError(error);
+        if (error) {
+          this.onError(error);
+        }
       });
   };
 
@@ -62,7 +74,7 @@ class UserNew extends React.Component<IUserNewProps> {
   public render() {
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <CreateUserMutationComponent mutation={CreateUser}>
+        <Mutation<CreateUserMutation, CreateUserMutationVariables> mutation={CreateUser}>
           {(createUser) => (
             <UserForm
               onSubmit={this.onFormSubmit(createUser)}
@@ -70,7 +82,7 @@ class UserNew extends React.Component<IUserNewProps> {
               title="Přidat nového člena týmu"
             />
           )}
-        </CreateUserMutationComponent>
+        </Mutation>
       </div>
     );
   }

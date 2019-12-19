@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, Query, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 
@@ -12,24 +12,17 @@ import Error from './Error';
 import Loading from './Loading';
 
 import {
-  GetUserQuery as GetUserQueryData,
-  GetUserQueryVariables,
-  UpdateUserMutation,
-  UpdateUserMutationVariables,
+  GetUser as GetUserQuery,
+  GetUserVariables as GetUserQueryVariables,
+  UpdateUser as UpdateUserMutation,
+  UpdateUserVariables as UpdateUserMutationVariables,
 } from '../operation-result-types';
 import { UpdateUser } from '../queries/mutations';
 import { GetUser } from '../queries/queries';
 import { IUserFormData, UserForm } from './forms/UserForm';
 
-class GetUserQuery extends Query<GetUserQueryData, GetUserQueryVariables> {}
-
-class UpdateUserMutationComponent extends Mutation<
-  UpdateUserMutation,
-  UpdateUserMutationVariables
-> {}
-
 interface IUpdateUserMutationFn
-  extends MutationFn<UpdateUserMutation, UpdateUserMutationVariables> {}
+  extends MutationFunction<UpdateUserMutation, UpdateUserMutationVariables> {}
 
 interface IUserEditProps extends RouteComponentProps<{ id: string }>, DispatchProp {
   id: number;
@@ -40,7 +33,7 @@ class UserEdit extends React.Component<IUserEditProps> {
   public onFormSubmit = (
     id: number,
     updateUser: IUpdateUserMutationFn,
-    previousData: GetUserQueryData,
+    previousData: GetUserQuery,
   ) => (formData: IUserFormData) => {
     const { avatar, ...userInput } = formData;
 
@@ -50,7 +43,19 @@ class UserEdit extends React.Component<IUserEditProps> {
     // gets automatically refresh in Apollo's cache from the mutation result data
     let avatarPromise: Promise<any> = Promise.resolve();
     if (avatar instanceof File) {
-      avatarPromise = uploadUserAvatar(id, avatar);
+      avatarPromise = uploadUserAvatar(id, avatar).catch((error) => {
+        if (error.status === 413) {
+          this.props.dispatch(
+            addFlashMessage(
+              'Obrázek je větší než teď povolujeme, zmenšete ho a nahrajte znovu.',
+              'warning',
+            ),
+          );
+          return Promise.reject();
+        } else {
+          return Promise.reject(error);
+        }
+      });
     } else if (avatar === null && previousData.user.avatar !== null) {
       avatarPromise = deleteUserAvatar(id);
     }
@@ -61,7 +66,9 @@ class UserEdit extends React.Component<IUserEditProps> {
         this.onCompleted();
       })
       .catch((error) => {
-        this.onError(error);
+        if (error) {
+          this.onError(error);
+        }
       });
   };
 
@@ -85,7 +92,7 @@ class UserEdit extends React.Component<IUserEditProps> {
 
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <GetUserQuery query={GetUser} variables={{ id }}>
+        <Query<GetUserQuery, GetUserQueryVariables> query={GetUser} variables={{ id }}>
           {({ data, loading, error }) => {
             if (loading || !data) {
               return <Loading />;
@@ -96,7 +103,7 @@ class UserEdit extends React.Component<IUserEditProps> {
             }
 
             return (
-              <UpdateUserMutationComponent mutation={UpdateUser}>
+              <Mutation<UpdateUserMutation, UpdateUserMutationVariables> mutation={UpdateUser}>
                 {(updateUser) => (
                   <UserForm
                     onSubmit={this.onFormSubmit(id, updateUser, data)}
@@ -105,10 +112,10 @@ class UserEdit extends React.Component<IUserEditProps> {
                     user={data.user}
                   />
                 )}
-              </UpdateUserMutationComponent>
+              </Mutation>
             );
           }}
-        </GetUserQuery>
+        </Query>
       </div>
     );
   }

@@ -10,22 +10,16 @@ import { Link } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import {
-  GetUsersQuery,
-  GetUsersQueryVariables,
-  UpdateUsersRankInputType,
-  UpdateUsersRankMutation,
-  UpdateUsersRankMutationVariables,
+  GetUsers as GetUsersQuery,
+  GetUsersVariables as GetUsersQueryVariables,
+  UpdateUsersRank as UpdateUsersRankMutation,
+  UpdateUsersRankVariables as UpdateUsersRankMutationVariables,
 } from '../operation-result-types';
 import { UpdateUsersRank } from '../queries/mutations';
 import { GetUsers } from '../queries/queries';
 import { newlinesToBr } from '../utils';
 import { reorder } from '../utils/array';
 import SpeakerAvatar from './SpeakerAvatar';
-
-class UpdateUsersRankMutationComponent extends Mutation<
-  UpdateUsersRankMutation,
-  UpdateUsersRankMutationVariables
-> {}
 
 interface IUsersSortOnAboutUsPageProps extends DispatchProp {
   users: GetUsersQuery['users'];
@@ -66,11 +60,7 @@ class UsersSortOnAboutUsPage extends React.Component<
   };
 
   public save = (updateUsersRank) => () => {
-    const input: UpdateUsersRankInputType = {
-      ordered_user_ids: this.state.users.map((s) => s.id),
-    };
-
-    updateUsersRank({ variables: { input } })
+    updateUsersRank({ variables: { orderedUserIds: this.state.users.map((s) => s.id) } })
       .then(() => {
         this.props.dispatch(
           addFlashMessage('Řazení členů týmu na stránce „O nás“ úspěšně uloženo.', 'success'),
@@ -90,7 +80,9 @@ class UsersSortOnAboutUsPage extends React.Component<
           <Link to="/admin/users" className={Classes.BUTTON}>
             Zpět na seznam členů týmu
           </Link>
-          <UpdateUsersRankMutationComponent mutation={UpdateUsersRank}>
+          <Mutation<UpdateUsersRankMutation, UpdateUsersRankMutationVariables>
+            mutation={UpdateUsersRank}
+          >
             {(updateSourceStatementsOrder, { loading }) => (
               <Button
                 disabled={loading}
@@ -100,7 +92,7 @@ class UsersSortOnAboutUsPage extends React.Component<
                 text={loading ? 'Ukládám …' : 'Uložit'}
               />
             )}
-          </UpdateUsersRankMutationComponent>
+          </Mutation>
         </div>
 
         <h2 className={Classes.HEADING}>Seřadit členy týmu na stránce „O nás“</h2>
@@ -127,15 +119,15 @@ class UsersSortOnAboutUsPage extends React.Component<
                           <div style={{ flex: '0 0 106px' }}>
                             <SpeakerAvatar
                               avatar={user.avatar}
-                              first_name={user.first_name || ''}
-                              last_name={user.last_name || ''}
+                              first_name={user.firstName || ''}
+                              last_name={user.lastName || ''}
                             />
                           </div>
                           <div style={{ flex: '1 1', marginLeft: 15 }}>
                             <h5 className={Classes.HEADING}>
-                              {user.first_name} {user.last_name}
+                              {user.firstName} {user.lastName}
                             </h5>
-                            <h6 className={Classes.HEADING}>{user.position_description}</h6>
+                            <h6 className={Classes.HEADING}>{user.positionDescription}</h6>
                             <p>{user.bio && newlinesToBr(user.bio)}</p>
                           </div>
                         </div>
@@ -168,22 +160,20 @@ const getItemStyle = (isDragging, draggableStyle) => ({
   ...draggableStyle,
 });
 
-class GetUsersQueryComponent extends Query<GetUsersQuery, GetUsersQueryVariables> {}
-
 class UsersSortOnAboutUsPageContainer extends React.Component<{}> {
   public render() {
     return (
-      <GetUsersQueryComponent query={GetUsers}>
+      <Query<GetUsersQuery, GetUsersQueryVariables> query={GetUsers}>
         {({ data, loading }) => {
           let users: GetUsersQuery['users'] = [];
           if (data && data.users) {
-            users = data.users.filter((u) => u.user_public);
+            users = data.users.filter((u) => u.userPublic);
             users = sortBy(users, 'rank');
           }
 
           return <EnhancedUsersSortOnAboutUsPage users={users} isLoading={loading} />;
         }}
-      </GetUsersQueryComponent>
+      </Query>
     );
   }
 }

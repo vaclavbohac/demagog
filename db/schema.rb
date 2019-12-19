@@ -2,18 +2,19 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `rails
+# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_02_05_214955) do
+ActiveRecord::Schema.define(version: 2019_12_14_080641) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "unaccent"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -36,14 +37,17 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "article_has_segments", force: :cascade do |t|
-    t.integer "order"
-    t.bigint "article_id"
-    t.bigint "segment_id"
+  create_table "article_segments", force: :cascade do |t|
+    t.string "segment_type"
+    t.text "text_html"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["article_id"], name: "index_article_has_segments_on_article_id"
-    t.index ["segment_id"], name: "index_article_has_segments_on_segment_id"
+    t.text "text_slatejson"
+    t.bigint "source_id"
+    t.bigint "article_id"
+    t.integer "order"
+    t.string "promise_url"
+    t.index ["article_id"], name: "index_article_segments_on_article_id"
   end
 
   create_table "article_types", force: :cascade do |t|
@@ -79,6 +83,15 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.index ["tag_id"], name: "index_articles_tags_on_tag_id"
   end
 
+  create_table "assessment_methodologies", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "url"
+    t.string "rating_model", null: false
+    t.json "rating_keys", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "assessments", force: :cascade do |t|
     t.text "explanation_html"
     t.string "evaluation_status"
@@ -90,6 +103,10 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.datetime "updated_at", null: false
     t.text "explanation_slatejson"
     t.text "short_explanation"
+    t.bigint "assessment_methodology_id", null: false
+    t.bigint "promise_rating_id"
+    t.index ["assessment_methodology_id"], name: "index_assessments_on_assessment_methodology_id"
+    t.index ["promise_rating_id"], name: "index_assessments_on_promise_rating_id"
     t.index ["statement_id"], name: "index_assessments_on_statement_id"
     t.index ["user_id"], name: "index_assessments_on_user_id"
     t.index ["veracity_id"], name: "index_assessments_on_veracity_id"
@@ -148,6 +165,14 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.index ["sluggable_type"], name: "index_friendly_id_slugs_on_sluggable_type"
   end
 
+  create_table "governments", force: :cascade do |t|
+    t.string "name"
+    t.date "from"
+    t.date "to"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "media", force: :cascade do |t|
     t.string "kind"
     t.string "name"
@@ -190,14 +215,23 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.index ["page_id"], name: "index_menu_items_on_page_id"
   end
 
+  create_table "ministers", force: :cascade do |t|
+    t.integer "government_id"
+    t.integer "speaker_id"
+    t.integer "ordering"
+    t.string "name"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "notifications", force: :cascade do |t|
-    t.text "content", null: false
-    t.string "action_link", null: false
-    t.string "action_text", null: false
+    t.text "full_text", null: false
     t.bigint "recipient_id", null: false
     t.datetime "created_at", null: false
     t.datetime "read_at"
     t.datetime "emailed_at"
+    t.bigint "statement_id", null: false
+    t.text "statement_text", null: false
     t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
   end
 
@@ -213,6 +247,22 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.string "template"
   end
 
+  create_table "promise_ratings", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "key", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "public_api_accesses", force: :cascade do |t|
+    t.string "ip"
+    t.string "user_agent"
+    t.string "query"
+    t.json "variables"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "roles", force: :cascade do |t|
     t.string "key"
     t.datetime "created_at", null: false
@@ -220,16 +270,14 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.string "name"
   end
 
-  create_table "segments", force: :cascade do |t|
-    t.string "segment_type"
-    t.text "text_html"
+  create_table "searched_queries", force: :cascade do |t|
+    t.string "query", null: false
+    t.string "result_type"
+    t.json "result", null: false
+    t.bigint "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.text "text_slatejson"
-    t.bigint "source_id"
-    t.bigint "article_id"
-    t.integer "order"
-    t.index ["article_id"], name: "index_segments_on_article_id"
+    t.index ["user_id"], name: "index_searched_queries_on_user_id"
   end
 
   create_table "sources", force: :cascade do |t|
@@ -241,8 +289,16 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.datetime "updated_at", null: false
     t.string "name", null: false
     t.datetime "deleted_at"
-    t.bigint "expert_id"
+    t.string "video_type"
+    t.string "video_id"
     t.index ["medium_id"], name: "index_sources_on_medium_id"
+  end
+
+  create_table "sources_experts", id: false, force: :cascade do |t|
+    t.bigint "source_id"
+    t.bigint "user_id"
+    t.index ["source_id"], name: "index_sources_experts_on_source_id"
+    t.index ["user_id"], name: "index_sources_experts_on_user_id"
   end
 
   create_table "sources_media_personalities", id: false, force: :cascade do |t|
@@ -269,6 +325,7 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.boolean "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "osoba_id"
   end
 
   create_table "statement_transcript_positions", force: :cascade do |t|
@@ -282,28 +339,44 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.index ["statement_id"], name: "index_statement_transcript_positions_on_statement_id"
   end
 
+  create_table "statement_video_marks", force: :cascade do |t|
+    t.integer "start"
+    t.integer "stop"
+    t.integer "source_id"
+    t.integer "statement_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "statements", force: :cascade do |t|
     t.text "content"
     t.datetime "excerpted_at"
     t.boolean "important"
     t.boolean "published"
-    t.boolean "count_in_statistics"
     t.bigint "speaker_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "source_id"
     t.datetime "deleted_at"
     t.integer "source_order"
+    t.string "statement_type", null: false
+    t.string "title"
     t.index ["source_id"], name: "index_statements_on_source_id"
     t.index ["speaker_id"], name: "index_statements_on_speaker_id"
   end
 
+  create_table "statements_tags", id: false, force: :cascade do |t|
+    t.bigint "statement_id"
+    t.bigint "tag_id"
+    t.index ["statement_id"], name: "index_statements_tags_on_statement_id"
+    t.index ["tag_id"], name: "index_statements_tags_on_tag_id"
+  end
+
   create_table "tags", force: :cascade do |t|
-    t.string "name"
-    t.text "description"
-    t.boolean "is_policy_area"
+    t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "for_statement_type", null: false
   end
 
   create_table "users", force: :cascade do |t|
@@ -344,5 +417,44 @@ ActiveRecord::Schema.define(version: 2019_02_05_214955) do
     t.string "key"
   end
 
-  add_foreign_key "segments", "articles"
+  create_table "versions", force: :cascade do |t|
+    t.string "item_type", null: false
+    t.bigint "item_id", null: false
+    t.string "event", null: false
+    t.string "whodunnit"
+    t.text "object"
+    t.datetime "created_at"
+    t.text "object_changes"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+  end
+
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "article_segments", "articles"
+
+  create_view "article_stats", sql_definition: <<-SQL
+      SELECT count(veracities.key) AS count,
+      veracities.key,
+      statements.speaker_id,
+      article_segments.article_id
+     FROM ((((((statements
+       JOIN speakers ON ((speakers.id = statements.speaker_id)))
+       JOIN assessments ON ((statements.id = assessments.statement_id)))
+       JOIN veracities ON ((assessments.veracity_id = veracities.id)))
+       JOIN sources ON ((sources.id = statements.source_id)))
+       JOIN article_segments ON ((article_segments.source_id = sources.id)))
+       JOIN articles ON ((articles.id = article_segments.article_id)))
+    WHERE (((assessments.evaluation_status)::text = 'approved'::text) AND ((article_segments.segment_type)::text = 'source_statements'::text) AND (statements.published = true))
+    GROUP BY veracities.key, statements.speaker_id, article_segments.article_id;
+  SQL
+  create_view "speaker_stats", sql_definition: <<-SQL
+      SELECT count(veracities.key) AS count,
+      veracities.key,
+      statements.speaker_id
+     FROM (((statements
+       JOIN speakers ON ((speakers.id = statements.speaker_id)))
+       JOIN assessments ON ((statements.id = assessments.statement_id)))
+       JOIN veracities ON ((assessments.veracity_id = veracities.id)))
+    WHERE (((assessments.evaluation_status)::text = 'approved'::text) AND (statements.published = true))
+    GROUP BY veracities.key, statements.speaker_id;
+  SQL
 end

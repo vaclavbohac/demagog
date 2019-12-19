@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-Types::UpdateStatementInputType = GraphQL::InputObjectType.define do
-  name "UpdateStatementInputType"
-
-  argument :content, types.String
-  argument :important, types.Boolean
-  argument :published, types.Boolean
-  argument :count_in_statistics, types.Boolean
-  argument :assessment, Types::UpdateAssessmentInputType
+module Types
+  class UpdateStatementInputType < GraphQL::Schema::InputObject
+    argument :content, String, required: false
+    argument :title, String, required: false
+    argument :important, Boolean, required: false
+    argument :published, Boolean, required: false
+    argument :assessment, Types::UpdateAssessmentInputType, required: false
+    argument :tags, [ID], required: false
+    argument :speaker, ID, required: false
+  end
 end

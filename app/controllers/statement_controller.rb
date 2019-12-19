@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-class StatementController < ApplicationController
+class StatementController < FrontendController
   def show
-    @statement = Statement.published.find(params[:id])
+    @statement = Statement.factual_and_published.find(params[:id])
   end
 end

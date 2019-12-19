@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 class ContentImage < ApplicationRecord
+  include Discardable
+
   belongs_to :user, optional: true
   has_one_attached :image
 
-  default_scope {
-    where(deleted_at: nil)
-  }
+  default_scope { kept }
 
   def name
     image.filename.to_s
@@ -14,6 +14,6 @@ class ContentImage < ApplicationRecord
 
   def self.matching_name(name)
     joins(:image_blob)
-      .where("filename LIKE ?", "%#{name}%")
+      .where("filename ILIKE ? OR UNACCENT(filename) ILIKE ?", "%#{name}%", "%#{name}%")
   end
 end

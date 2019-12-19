@@ -1,18 +1,22 @@
 # frozen_string_literal: true
 
 class Source < ApplicationRecord
-  has_many :segments
+  include Discardable
+
+  enum video_type: { facebook: "facebook", youtube: "youtube" }
+  has_many :article_segments
   has_many :statements
+  has_many :statement_video_marks
   has_many :statement_transcript_positions
   has_and_belongs_to_many :speakers
   belongs_to :medium, optional: true
   has_and_belongs_to_many :media_personalities, join_table: "sources_media_personalities"
-  belongs_to :expert, class_name: "User", optional: true
+  has_and_belongs_to_many :experts, class_name: "User", join_table: "sources_experts"
 
-  default_scope { where(deleted_at: nil) }
+  default_scope { kept }
 
   def self.matching_name(name)
-    where("name LIKE ?", "%#{name}%")
+    where("name ILIKE ? OR UNACCENT(name) ILIKE ?", "%#{name}%", "%#{name}%")
   end
 
   def update_statements_source_order(ordered_statement_ids)

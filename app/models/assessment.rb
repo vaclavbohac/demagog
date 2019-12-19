@@ -8,12 +8,18 @@ class AssessmentValidator < ActiveModel::Validator
       case assessment.evaluation_status_was
       when Assessment::STATUS_BEING_EVALUATED
         if assessment.evaluation_status != Assessment::STATUS_APPROVAL_NEEDED
-          # raise GraphQL::ExecutionError.new()
           assessment.errors[:evaluation_status] << "Can only change status to #{Assessment::STATUS_APPROVAL_NEEDED} when assessment has status #{Assessment::STATUS_BEING_EVALUATED}"
         end
 
-        if !assessment.veracity || !assessment.short_explanation || !assessment.explanation_html
-          assessment.errors[:evaluation_status] << "To be able to change status to #{Assessment::STATUS_APPROVAL_NEEDED}, please fill veracity, short_explanation, and explanation"
+        if assessment.statement.statement_type == Statement::TYPE_FACTUAL || assessment.statement.statement_type == Statement::TYPE_NEWYEARS
+          if !assessment.veracity || !assessment.short_explanation || !assessment.explanation_html
+            assessment.errors[:evaluation_status] << "To be able to change status to #{Assessment::STATUS_APPROVAL_NEEDED}, please fill veracity, short_explanation, and explanation"
+          end
+        end
+        if assessment.statement.statement_type == Statement::TYPE_PROMISE
+          if !assessment.promise_rating || !assessment.short_explanation || !assessment.explanation_html
+            assessment.errors[:evaluation_status] << "To be able to change status to #{Assessment::STATUS_APPROVAL_NEEDED}, please fill promise rating, short_explanation, and explanation"
+          end
         end
       when Assessment::STATUS_APPROVAL_NEEDED
         if assessment.evaluation_status != Assessment::STATUS_BEING_EVALUATED && assessment.evaluation_status != Assessment::STATUS_PROOFREADING_NEEDED
@@ -41,6 +47,8 @@ end
 class Assessment < ApplicationRecord
   include ActiveModel::Dirty
 
+  has_paper_trail
+
   STATUS_BEING_EVALUATED = "being_evaluated"
   STATUS_APPROVAL_NEEDED = "approval_needed"
   STATUS_PROOFREADING_NEEDED = "proofreading_needed"
@@ -48,9 +56,13 @@ class Assessment < ApplicationRecord
 
   belongs_to :evaluator, class_name: "User", foreign_key: "user_id", optional: true
   belongs_to :veracity, optional: true
+  belongs_to :promise_rating, optional: true
   belongs_to :statement
+  belongs_to :assessment_methodology
 
   validates_with AssessmentValidator
+  validates :veracity, absence: true, unless: Proc.new { |a| a.assessment_methodology.rating_model == AssessmentMethodology::RATING_MODEL_VERACITY }
+  validates :promise_rating, absence: true, unless: Proc.new { |a| a.assessment_methodology.rating_model == AssessmentMethodology::RATING_MODEL_PROMISE_RATING }
 
   def approved?
     evaluation_status == STATUS_APPROVED
@@ -63,6 +75,11 @@ class Assessment < ApplicationRecord
   def short_explanation_characters_length
     return 0 if short_explanation.nil?
     short_explanation.length
+  end
+
+  def explanation_text
+    return "" if explanation_html.nil?
+    Nokogiri::HTML(explanation_html).text
   end
 
   def explanation_characters_length
@@ -81,14 +98,22 @@ class Assessment < ApplicationRecord
 
     evaluator_allowed_attributes = [
       "veracity_id",
+      "promise_rating_id",
       "explanation_html",
       "explanation_slatejson",
       "short_explanation",
       "evaluation_status"
     ]
     evaluator_allowed_changes =
-      evaluation_status_was == STATUS_BEING_EVALUATED &&
-      (changed_attributes.keys - evaluator_allowed_attributes).empty?
+      (
+        evaluation_status_was == STATUS_BEING_EVALUATED &&
+        (changed_attributes.keys - evaluator_allowed_attributes).empty?
+      ) ||
+      (
+        evaluation_status_was == STATUS_APPROVAL_NEEDED &&
+        evaluation_status == STATUS_BEING_EVALUATED &&
+        changed_attributes.keys == ["evaluation_status"]
+      )
 
     if evaluator_allowed_changes && permissions.include?("statements:edit-as-evaluator") && user_id == user.id
       return true
@@ -110,11 +135,15 @@ class Assessment < ApplicationRecord
   end
 
   def is_user_authorized_to_view_evaluation(user)
-    permissions = user.role.permissions
-
+    # Evaluation of approved assessment is always viewable
     return true if approved?
-    return true if permissions.include?("statements:view-unapproved-evaluation")
-    return true if permissions.include?("statements:view-evaluation-as-evaluator") && user.id == user_id
+
+    # Otherwise it is viewable only to authenticated users with proper permissions
+    if user
+      permissions = user.role.permissions
+      return true if permissions.include?("statements:view-unapproved-evaluation")
+      return true if permissions.include?("statements:view-evaluation-as-evaluator") && user.id == user_id
+    end
 
     false
   end
@@ -130,20 +159,11 @@ class Assessment < ApplicationRecord
           evaluator = User.find(user_id)
 
           notifications << Notification.new(
-            content: "#{current_user.display_in_notification} tě vybral/a jako ověřovatele/ku výroku #{statement.display_in_notification}",
-            action_link: "/admin/statements/#{statement.id}",
-            action_text: "Na detail výroku",
+            statement_text: "#{current_user.display_in_notification} tě vybral/a jako ověřovatele/ku",
+            full_text: "#{current_user.display_in_notification} tě vybral/a jako ověřovatele/ku výroku #{statement.display_in_notification}",
+            statement_id: statement.id,
             recipient: evaluator
           )
-
-          if statement.source.expert
-            notifications << Notification.new(
-              content: "#{current_user.display_in_notification} vybral/a #{evaluator.display_in_notification} jako ověřovatele/ku tebou expertovaného výroku #{statement.display_in_notification}",
-              action_link: "/admin/statements/#{statement.id}",
-              action_text: "Na detail výroku",
-              recipient: statement.source.expert
-            )
-          end
         rescue ActiveRecord::RecordNotFound
           logger.debug "User #{user_id} not found. Notification not send."
         end
@@ -154,20 +174,11 @@ class Assessment < ApplicationRecord
           evaluator_was = User.find(user_id_was)
 
           notifications << Notification.new(
-            content: "#{current_user.display_in_notification} tě odebral/a z pozice ověřovatele/ky výroku #{statement.display_in_notification}",
-            action_link: "/admin/statements/#{statement.id}",
-            action_text: "Na detail výroku",
+            statement_text: "#{current_user.display_in_notification} tě odebral/a z pozice ověřovatele/ky",
+            full_text: "#{current_user.display_in_notification} tě odebral/a z pozice ověřovatele/ky výroku #{statement.display_in_notification}",
+            statement_id: statement.id,
             recipient: evaluator_was
           )
-
-          if statement.source.expert
-            notifications << Notification.new(
-              content: "#{current_user.display_in_notification} odebral/a #{evaluator_was.display_in_notification} z pozice ověřovatele/ky tebou expertovaného výroku #{statement.display_in_notification}",
-              action_link: "/admin/statements/#{statement.id}",
-              action_text: "Na detail výroku",
-              recipient: statement.source.expert
-            )
-          end
         rescue ActiveRecord::RecordNotFound
           logger.debug "User #{user_id_was} not found. Notification not send."
         end
@@ -187,27 +198,40 @@ class Assessment < ApplicationRecord
                                 else evaluation_status
       end
 
-      # Temporarily sending notification to expert only when status is changed to
+      # Temporarily sending notification to experts only when status is changed to
       # approval_needed, because we are finetuning the notifications
-      if statement.source.expert && evaluation_status == STATUS_APPROVAL_NEEDED
-        notifications << Notification.new(
-          content: "#{current_user.display_in_notification} změnil/a stav tebou expertovaného výroku #{statement.display_in_notification} na #{evaluation_status_label}",
-          action_link: "/admin/statements/#{statement.id}",
-          action_text: "Na detail výroku",
-          recipient: statement.source.expert
-        )
+      if evaluation_status == STATUS_APPROVAL_NEEDED
+        statement.source.experts.each do |expert|
+          notifications << Notification.new(
+            statement_text: "#{current_user.display_in_notification} změnil/a stav na #{evaluation_status_label}",
+            full_text: "#{current_user.display_in_notification} změnil/a stav tebou expertovaného výroku #{statement.display_in_notification} na #{evaluation_status_label}",
+            statement_id: statement.id,
+            recipient: expert
+          )
+        end
       end
 
       if user_id
         notifications << Notification.new(
-          content: "#{current_user.display_in_notification} změnil/a stav tebou ověřovaného výroku #{statement.display_in_notification} na #{evaluation_status_label}",
-          action_link: "/admin/statements/#{statement.id}",
-          action_text: "Na detail výroku",
+          statement_text: "#{current_user.display_in_notification} změnil/a stav na #{evaluation_status_label}",
+          full_text: "#{current_user.display_in_notification} změnil/a stav tebou ověřovaného výroku #{statement.display_in_notification} na #{evaluation_status_label}",
+          statement_id: statement.id,
           recipient: User.find(user_id)
         )
       end
 
       Notification.create_notifications(notifications, current_user)
+    end
+  end
+
+  def post_to_proofreading_slack
+    if evaluation_status_previously_changed? && evaluation_status == STATUS_PROOFREADING_NEEDED
+      proofreading_needed_count = statement.source.statements.select { |s| s.assessment.evaluation_status == STATUS_PROOFREADING_NEEDED }.size
+
+      if proofreading_needed_count > 0 && proofreading_needed_count % 5 == 0
+        source_url = "https://demagog.cz/admin/sources/#{statement.source.id}?filter=%7B%22field%22%3A%22assessment.evaluationStatus%22%2C%22value%22%3A%22proofreading_needed%22%7D"
+        SlackNotifier::ProofreadingNotifier.post text: "<!channel> Ahoj, máme tu v diskuzi *#{statement.source.name}* už #{proofreading_needed_count} výroků ke korektuře. Prosíme o projití. Díky!\n#{source_url}"
+      end
     end
   end
 end

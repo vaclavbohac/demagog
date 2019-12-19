@@ -12,8 +12,8 @@ import { Link } from 'react-router-dom';
 
 import { addFlashMessage } from '../../actions/flashMessages';
 import {
-  GetMediaQuery as GetMediaQueryResult,
-  GetMediaQueryVariables,
+  GetMedia as GetMediaQueryResult,
+  GetMediaVariables as GetMediaQueryVariables,
 } from '../../operation-result-types';
 import { DeleteMedium } from '../../queries/mutations';
 import { GetMedia } from '../../queries/queries';
@@ -21,8 +21,6 @@ import Authorize from '../Authorize';
 import { SearchInput } from '../forms/controls/SearchInput';
 import Loading from '../Loading';
 import ConfirmDeleteModal from '../modals/ConfirmDeleteModal';
-
-class GetMediaQuery extends Query<GetMediaQueryResult, GetMediaQueryVariables> {}
 
 interface IProps extends DispatchProp<any> {}
 
@@ -101,7 +99,10 @@ class Media extends React.Component<IProps, IState> {
           />
         </div>
 
-        <GetMediaQuery query={GetMedia} variables={{ name: this.state.search }}>
+        <Query<GetMediaQueryResult, GetMediaQueryVariables>
+          query={GetMedia}
+          variables={{ name: this.state.search }}
+        >
           {(props) => {
             if (props.loading) {
               return <Loading />;
@@ -125,7 +126,7 @@ class Media extends React.Component<IProps, IState> {
               <div style={{ marginTop: 15 }}>
                 {confirmDeleteModalMedium && (
                   <ConfirmDeleteModal
-                    message={`Opravdu chcete smazat pořad „${confirmDeleteModalMedium.name}‟?`}
+                    message={`Opravdu chcete smazat pořad „${confirmDeleteModalMedium.name}“?`}
                     onCancel={this.hideConfirmDeleteModal}
                     mutation={DeleteMedium}
                     mutationProps={{
@@ -186,14 +187,13 @@ class Media extends React.Component<IProps, IState> {
                   </React.Fragment>
                 )}
 
-                {mediaLength === 0 &&
-                  this.state.search !== '' && (
-                    <p>Nenašli jsme žádný pořad s názvem „{this.state.search}‟.</p>
-                  )}
+                {mediaLength === 0 && this.state.search !== '' && (
+                  <p>Nenašli jsme žádný pořad s názvem „{this.state.search}“.</p>
+                )}
               </div>
             );
           }}
-        </GetMediaQuery>
+        </Query>
       </div>
     );
   }

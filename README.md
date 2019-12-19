@@ -10,26 +10,30 @@ Political fact checking website. For more information see http://demagog.cz/o-na
 
 Demagog can be run, tested and fully developed in the [docker](https://www.docker.com/) environment
 
-## First run
-```
-docker-compose build
-docker-compose up
-```
-
 ## Setting up database
 ```
-docker-compose exec web rails db:create db:migrate db:seed
+rails db:create db:migrate db:seed
 ```
 
 ## Running tests
 ```
-docker-compose exec web rails test
-docker-compose exec web yarn jest
+rails test
+yarn jest
 ```
 
-## Rebuilding single service
+## Elasticsearch integration
+
+Elasticsearch server is installed by docker-compose and will be running on http://localhost:9200 by default
+
+First run:
 ```
-docker-compose up -d --no-deps --build <service_name>
+# It's necessary to use the parameters FORCE=y as it creates the elasticsearch indexes
+rails environment elasticsearch:import:all FORCE=y
+```
+
+Regular data refresh:
+```
+rails environment elasticsearch:import:all
 ```
 
 ## Configuration
@@ -79,7 +83,7 @@ Run guard-livereload server with `guard`.
 ## Generating Apollo flow types
 
 ```sh
-docker-compose exec web rails apollo:types
+rails apollo:types
 ```
 
 ### Services (job queues, cache servers, search engines, etc.)
@@ -102,20 +106,15 @@ cap production deploy
 
 Stop production unicorn:
 ```sh
-cap production rvm:hook unicorn:reload
-```
-
-Reload production unicorn:
-```sh
-cap production rvm:hook unicorn:reload
-```
-
-Stop production unicorn:
-```sh
 cap production rvm:hook unicorn:stop
 ```
 
 Start production unicorn:
 ```sh
 cap production rvm:hook unicorn:start
+```
+
+Reload production unicorn:
+```sh
+cap production rvm:hook unicorn:reload
 ```

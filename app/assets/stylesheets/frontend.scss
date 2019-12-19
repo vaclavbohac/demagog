@@ -4,12 +4,27 @@
 @import "veracity";
 
 @import "fonts";
-@import "base";
-@import "nav";
 
-// layout
+@import "base";
 @import "layout";
 
-// identify & remove
-// @import "obsolete";
+@import "homepage/cover_story";
+@import "homepage/promises";
 
+@import "page/show";
+
+@import "promises/methodology";
+@import "promises/overview";
+@import "promises/promise_embed";
+
+@import "search/index";
+
+@import "shared/nav";
+@import "shared/partners";
+@import "shared/speaker_stat";
+
+@import "speaker/index";
+@import "speaker/listed";
+@import "speaker/show";
+
+@import "statement/show";

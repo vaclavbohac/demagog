@@ -1,78 +1,34 @@
 /* eslint-env browser */
 
-// This file is automatically compiled by Webpack, along with any other files
-// present in this directory. You're encouraged to place your actual application logic in
-// a relevant structure within app/javascript and only use these pack files to reference
-// that code so it'll be compiled.
-//
-// To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
-// layout file, like app/views/layouts/application.html.erb
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
+
+// NodeList.forEach is in core-js v3, but since we are using still v2 through
+// webpacker/babel-preset-env, we just polyfill it ourselves here
+if (window.NodeList && !NodeList.prototype.forEach) {
+  NodeList.prototype.forEach = Array.prototype.forEach;
+}
+
+// Polyfills Element.closest and Element.matches which Stimulus need.
+// We are not using the @stimulus/polyfills package, because it contains
+// some core-js polyfills which would be duplicate, because we are already
+// adding them via babel
+import elementClosestPolyfill from 'element-closest';
+elementClosestPolyfill(window);
+
+// Needed for Element.classList.toggle's second parameter to work in IE11
+import 'classlist-polyfill';
+
+// Replaces all css variables (var(--my-var)) with actual values in
+// browsers which do not support css variables, like IE11
+import cssVars from 'css-vars-ponyfill';
+cssVars();
 
 import 'intersection-observer/intersection-observer';
 
+import '../application';
+
 document.addEventListener('DOMContentLoaded', () => {
-  /**
-   * Find closest parent of given element that has className
-   * @param {HTMLElement} elem
-   * @param {string} className
-   * @return {HTMLElement}
-   */
-  function findClosest(elem, className) {
-    // eslint-disable-next-line no-param-reassign
-    for (; elem && elem !== document; elem = elem.parentNode) {
-      if (elem.classList.contains(className)) {
-        return elem;
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Shows assessment of given statement
-   * @param {Event} event
-   */
-  function showAssessment(event) {
-    const parent = findClosest(event.target, 'statement');
-
-    if (parent) {
-      parent.classList.toggle('collapsed');
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  [].slice.call(document.querySelectorAll('.statement')).forEach(function(statement) {
-    var blockquote = statement.querySelector('.statement-content > blockquote');
-
-    // 44px means that the quote is one-liner
-    if (blockquote.clientHeight === 44) {
-      statement.classList.add('oneliner-statement');
-    }
-
-    var link = statement.querySelector('.show-reasons');
-    link.addEventListener('click', showAssessment);
-
-    // Show the full explanation only when short explanation is not present
-    // and the statement is marked as important.
-    if (
-      !statement.classList.contains('important-statement') ||
-      statement.querySelector('.reasons-short')
-    ) {
-      statement.classList.add('collapsed');
-    }
-  });
-
-  [].slice.call(document.querySelectorAll('.statement-detail')).forEach(function(statementDetail) {
-    var blockquote = statementDetail.querySelector('.statement-content > blockquote');
-
-    // 63px means that the quote is one-liner
-    if (blockquote.clientHeight === 63) {
-      statementDetail.classList.add('oneliner-statement');
-    }
-  });
-
   /**
    * Render images if they are in the view port
    * @param {IntersectionObserverEntry[]} entries

@@ -2,8 +2,10 @@
 
 class Page < ApplicationRecord
   extend FriendlyId
+  include Discardable
+  include Searchable
 
-  default_scope { where(deleted_at: nil) }
+  default_scope { kept }
 
   scope :published, -> {
     where(published: true)
@@ -12,6 +14,6 @@ class Page < ApplicationRecord
   friendly_id :title, use: :slugged
 
   def self.matching_title(title)
-    where("title LIKE ?", "%#{title}%")
+    where("title ILIKE ? OR UNACCENT(title) ILIKE ?", "%#{title}%", "%#{title}%")
   end
 end

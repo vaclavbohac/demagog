@@ -12,8 +12,8 @@ import { Link } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import {
-  GetSpeakersQuery as GetSpeakersQueryResult,
-  GetSpeakersQueryVariables,
+  GetSpeakers as GetSpeakersQuery,
+  GetSpeakersVariables as GetSpeakersQueryVariables,
 } from '../operation-result-types';
 import { DeleteSpeaker } from '../queries/mutations';
 import { GetSpeakers } from '../queries/queries';
@@ -23,8 +23,6 @@ import { SearchInput } from './forms/controls/SearchInput';
 import Loading from './Loading';
 import ConfirmDeleteModal from './modals/ConfirmDeleteModal';
 import SpeakerAvatar from './SpeakerAvatar';
-
-class GetSpeakersQuery extends Query<GetSpeakersQueryResult, GetSpeakersQueryVariables> {}
 
 interface IProps extends DispatchProp<any> {}
 
@@ -93,7 +91,10 @@ class Speakers extends React.Component<IProps, IState> {
           />
         </div>
 
-        <GetSpeakersQuery query={GetSpeakers} variables={{ name: this.state.search }}>
+        <Query<GetSpeakersQuery, GetSpeakersQueryVariables>
+          query={GetSpeakers}
+          variables={{ name: this.state.search }}
+        >
           {(props) => {
             if (props.loading) {
               return <Loading />;
@@ -107,17 +108,15 @@ class Speakers extends React.Component<IProps, IState> {
               return null;
             }
 
-            const confirmDeleteModalSpeaker = props.data.speakers.find(
+            const deletedSpeaker = props.data.speakers.find(
               (s) => s.id === confirmDeleteModalSpeakerId,
             );
 
             return (
               <div style={{ marginTop: 15 }}>
-                {confirmDeleteModalSpeaker && (
+                {deletedSpeaker && (
                   <ConfirmDeleteModal
-                    message={`Opravdu chcete smazat osobu ${confirmDeleteModalSpeaker.first_name} ${
-                      confirmDeleteModalSpeaker.last_name
-                    }?`}
+                    message={`Opravdu chcete smazat osobu ${deletedSpeaker.firstName} ${deletedSpeaker.lastName}?`}
                     onCancel={this.hideConfirmDeleteModal}
                     mutation={DeleteSpeaker}
                     mutationProps={{
@@ -137,8 +136,8 @@ class Speakers extends React.Component<IProps, IState> {
                       <div style={{ flex: '0 0 106px', marginRight: 15 }}>
                         <SpeakerAvatar
                           avatar={speaker.avatar}
-                          first_name={speaker.first_name}
-                          last_name={speaker.last_name}
+                          first_name={speaker.firstName}
+                          last_name={speaker.lastName}
                         />
                       </div>
                       <div style={{ flex: '1 1' }}>
@@ -163,15 +162,15 @@ class Speakers extends React.Component<IProps, IState> {
                         </Authorize>
 
                         <h5 className={Classes.HEADING}>
-                          {speaker.first_name} {speaker.last_name}
+                          {speaker.firstName} {speaker.lastName}
                         </h5>
 
                         <ul className={Classes.LIST_UNSTYLED}>
                           <li>
                             <span className={Classes.TEXT_MUTED}>Respektovaný odkaz: </span>
                             <p>
-                              {speaker.website_url ? (
-                                <a href={speaker.website_url}>{speaker.website_url}</a>
+                              {speaker.websiteUrl ? (
+                                <a href={speaker.websiteUrl}>{speaker.websiteUrl}</a>
                               ) : (
                                 'Nevyplněn'
                               )}
@@ -182,10 +181,10 @@ class Speakers extends React.Component<IProps, IState> {
                               Příslušnost ke skupinám/stranám:{' '}
                             </span>
                             <p>
-                              {speaker.memberships.map((m) => (
+                              {(speaker.memberships || []).map((m) => (
                                 <React.Fragment key={m.id}>
                                   <span>
-                                    {m.body.short_name}
+                                    {m.body.shortName}
                                     {' — od '}
                                     {m.since ? displayDate(m.since) : 'nevyplněno'}
                                     {' do '}
@@ -195,7 +194,7 @@ class Speakers extends React.Component<IProps, IState> {
                                 </React.Fragment>
                               ))}
 
-                              {speaker.memberships.length === 0 &&
+                              {(speaker.memberships || []).length === 0 &&
                                 'Není členem žádné skupiny či strany'}
                             </p>
                           </li>
@@ -205,14 +204,13 @@ class Speakers extends React.Component<IProps, IState> {
                   </Card>
                 ))}
 
-                {props.data.speakers.length === 0 &&
-                  this.state.search !== '' && (
-                    <p>Nenašli jsme žádnou osobu se jménem „{this.state.search}‟.</p>
-                  )}
+                {props.data.speakers.length === 0 && this.state.search !== '' && (
+                  <p>Nenašli jsme žádnou osobu se jménem „{this.state.search}“.</p>
+                )}
               </div>
             );
           }}
-        </GetSpeakersQuery>
+        </Query>
       </div>
     );
   }

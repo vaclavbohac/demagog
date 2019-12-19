@@ -3,19 +3,29 @@
 require "test_helper"
 
 class StatementTest < ActiveSupport::TestCase
+  test "soft delete" do
+    assert_discardable create(:statement)
+  end
+
   test "#published" do
     statements = Statement.published
 
     statements.each do |statement|
+      assert statement.published
       assert_not_nil statement.approved_assessment.veracity
     end
   end
 
-  test "#relevant_for_statistics" do
-    statements = Statement.relevant_for_statistics
+  test "#factual_and_published" do
+    create(:statement)
+    create(:statement, :promise_statement)
+
+    statements = Statement.factual_and_published
 
     statements.each do |statement|
-      assert statement.count_in_statistics?
+      assert_equal Statement::TYPE_FACTUAL, statement.statement_type
+      assert statement.published
+      assert_not_nil statement.approved_assessment.veracity
     end
   end
 

@@ -19,12 +19,13 @@ import { Editor, RenderMarkProps } from 'slate-react';
 
 import { isAuthorized } from '../authorization';
 import {
-  CreateStatementInputType,
-  CreateStatementMutation,
-  CreateStatementMutationVariables,
-  GetSourceQuery,
-  GetSourceStatementsQuery,
-  GetSourceStatementsQueryVariables,
+  CreateStatement as CreateStatementMutation,
+  CreateStatementInput,
+  CreateStatementVariables as CreateStatementMutationVariables,
+  GetSource as GetSourceQuery,
+  GetSourceStatements as GetSourceStatementsQuery,
+  GetSourceStatementsVariables as GetSourceStatementsQueryVariables,
+  StatementType,
 } from '../operation-result-types';
 import { CreateStatement } from '../queries/mutations';
 import { GetSource, GetSourceStatements } from '../queries/queries';
@@ -38,18 +39,6 @@ import UserSelect from './forms/controls/UserSelect';
 import FormGroup from './forms/FormGroup';
 import Loading from './Loading';
 import StatementCard from './StatementCard';
-
-class GetSourceQueryComponent extends Query<GetSourceQuery> {}
-
-class GetSourceStatementsQueryComponent extends Query<
-  GetSourceStatementsQuery,
-  GetSourceStatementsQueryVariables
-> {}
-
-class CreateStatementMutationComponent extends Mutation<
-  CreateStatementMutation,
-  CreateStatementMutationVariables
-> {}
 
 interface ITranscriptSelection {
   text: string;
@@ -106,7 +95,7 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
 
   public render() {
     return (
-      <GetSourceQueryComponent
+      <Query<GetSourceQuery>
         query={GetSource}
         variables={{ id: parseInt(this.props.match.params.sourceId, 10) }}
       >
@@ -140,19 +129,22 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
                 <h2 className={Classes.HEADING}>{source.name}</h2>
 
                 <span>
-                  {source.medium.name} ze dne {displayDate(source.released_at)}
-                  {source.media_personalities.length > 0 && (
-                    <>, {source.media_personalities.map((p) => p.name).join(' & ')}</>
+                  {source.medium.name} ze dne {displayDate(source.releasedAt)}
+                  {source.mediaPersonalities.length > 0 && (
+                    <>, {source.mediaPersonalities.map((p) => p.name).join(' & ')}</>
                   )}
-                  {source.source_url && (
+                  {source.sourceUrl && (
                     <>
-                      , <a href={source.source_url}>odkaz</a>
+                      , <a href={source.sourceUrl}>odkaz</a>
                     </>
                   )}
-                  {source.expert && (
+                  {source.experts.length > 0 && (
                     <>
                       <br />
-                      Expert: {source.expert.first_name} {source.expert.last_name}
+                      Experti:{' '}
+                      {source.experts
+                        .map((expert) => `${expert.firstName} ${expert.lastName}`)
+                        .join(', ')}
                     </>
                   )}
                 </span>
@@ -162,7 +154,7 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
             </div>
           );
         }}
-      </GetSourceQueryComponent>
+      </Query>
     );
   }
 
@@ -172,7 +164,7 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
     const canAddStatements = this.props.isAuthorized(['statements:add']);
 
     return (
-      <GetSourceStatementsQueryComponent
+      <Query<GetSourceStatementsQuery, GetSourceStatementsQueryVariables>
         query={GetSourceStatements}
         variables={{ sourceId: parseInt(source.id, 10), includeUnpublished: true }}
       >
@@ -188,7 +180,7 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
           const statements = data.statements;
 
           const statementsWithPositions = statements.filter(
-            (s) => s.statement_transcript_position !== null,
+            (s) => s.statementTranscriptPosition !== null,
           );
 
           let statementsToDisplay = statementsWithPositions;
@@ -205,20 +197,20 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
               (s) => s.id === queryParams.highlightStatementId,
             );
 
-            if (highlightStatement && highlightStatement.statement_transcript_position) {
+            if (highlightStatement && highlightStatement.statementTranscriptPosition) {
               startCursor = {
-                line: highlightStatement.statement_transcript_position.start_line,
-                offset: highlightStatement.statement_transcript_position.start_offset,
+                line: highlightStatement.statementTranscriptPosition.startLine,
+                offset: highlightStatement.statementTranscriptPosition.startOffset,
               };
             }
           }
 
           return (
-            <div style={{ flex: '1 0', display: 'flex', marginTop: 30 }}>
+            <div style={{ flex: '1 0', display: 'flex', marginTop: 30, overflowY: 'hidden' }}>
               <div
                 style={{
                   flex: '1 0',
-                  overflow: 'scroll',
+                  overflowY: 'auto',
                   marginRight: 15,
                   paddingRight: 15,
                   paddingBottom: 50,
@@ -237,7 +229,7 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
                   />
                 )}
               </div>
-              <div style={{ flex: '1 0', overflow: 'scroll', marginLeft: 15, paddingBottom: 50 }}>
+              <div style={{ flex: '1 0', overflowY: 'auto', marginLeft: 15, paddingBottom: 50 }}>
                 {(!canAddStatements ||
                   (transcriptSelection === null && newStatementSelection === null)) && (
                   <>
@@ -303,23 +295,22 @@ class StatementsFromTranscript extends React.Component<IProps, IState> {
                     />
                   )}
 
-                {canAddStatements &&
-                  newStatementSelection !== null && (
-                    <NewStatementForm
-                      onStatementCreated={() => {
-                        refetch({ sourceId: parseInt(source.id, 10) });
-                        this.closeNewStatementForm();
-                      }}
-                      onRequestClose={this.closeNewStatementForm}
-                      selection={newStatementSelection}
-                      source={source}
-                    />
-                  )}
+                {canAddStatements && newStatementSelection !== null && (
+                  <NewStatementForm
+                    onStatementCreated={() => {
+                      refetch({ sourceId: parseInt(source.id, 10) });
+                      this.closeNewStatementForm();
+                    }}
+                    onRequestClose={this.closeNewStatementForm}
+                    selection={newStatementSelection}
+                    source={source}
+                  />
+                )}
               </div>
             </div>
           );
         }}
-      </GetSourceStatementsQueryComponent>
+      </Query>
     );
   }
 }
@@ -336,6 +327,7 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
     const { onRequestClose, onStatementCreated, selection, source } = this.props;
 
     const initialValues = {
+      statement_type: StatementType.factual,
       content: selection.text,
       speaker_id: source.speakers[0].id,
       note: '',
@@ -343,7 +335,9 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
     };
 
     return (
-      <CreateStatementMutationComponent mutation={CreateStatement}>
+      <Mutation<CreateStatementMutation, CreateStatementMutationVariables>
+        mutation={CreateStatement}
+      >
         {(createStatement) => (
           <Formik
             initialValues={initialValues}
@@ -353,24 +347,24 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
             onSubmit={(values, { setSubmitting }) => {
               const note = values.note.trim();
 
-              const statementInput: CreateStatementInputType = {
+              const statementInput: CreateStatementInput = {
+                statementType: values.statement_type,
                 content: values.content,
-                speaker_id: values.speaker_id,
-                source_id: source.id,
+                speakerId: values.speaker_id,
+                sourceId: source.id,
                 important: false,
                 published: false,
-                count_in_statistics: true,
-                excerpted_at: DateTime.utc().toISO(),
+                excerptedAt: DateTime.utc().toISO(),
                 assessment: {
-                  evaluator_id: values.evaluator_id,
+                  evaluatorId: values.evaluator_id,
                 },
-                statement_transcript_position: {
-                  start_line: selection.startLine,
-                  start_offset: selection.startOffset,
-                  end_line: selection.endLine,
-                  end_offset: selection.endOffset,
+                statementTranscriptPosition: {
+                  startLine: selection.startLine,
+                  startOffset: selection.startOffset,
+                  endLine: selection.endLine,
+                  endOffset: selection.endOffset,
                 },
-                first_comment_content: note !== '' ? note : null,
+                firstCommentContent: note !== '' ? note : null,
               };
 
               createStatement({ variables: { statementInput } })
@@ -411,15 +405,24 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
                     <FormGroup label="Znění" name="content">
                       <TextareaField name="content" rows={5} autoFocus />
                     </FormGroup>
-                    <FormGroup label="Řečník" name="speaker_id">
-                      <SelectField
-                        name="speaker_id"
-                        options={source.speakers.map((s) => ({
-                          label: `${s.first_name} ${s.last_name}`,
-                          value: s.id,
-                        }))}
-                      />
-                    </FormGroup>
+                    <div style={{ display: 'flex' }}>
+                      <div style={{ flex: '1 1' }}>
+                        <FormGroup label="Řečník" name="speaker_id">
+                          <SelectField
+                            name="speaker_id"
+                            options={source.speakers.map((s) => ({
+                              label: `${s.firstName} ${s.lastName}`,
+                              value: s.id,
+                            }))}
+                          />
+                        </FormGroup>
+                      </div>
+                      <div style={{ flex: '1 1' }}>
+                        <FormGroup label="Typ výroku" name="statement_type">
+                          <SelectField name="statement_type" options={STATEMENT_TYPE_OPTIONS} />
+                        </FormGroup>
+                      </div>
+                    </div>
                     <FormGroup label="Ověřovatel" name="evaluator_id" optional>
                       <SelectComponentField name="evaluator_id">
                         {(renderProps) => <UserSelect {...renderProps} />}
@@ -439,7 +442,7 @@ class NewStatementForm extends React.Component<INewStatementFormProps> {
             )}
           </Formik>
         )}
-      </CreateStatementMutationComponent>
+      </Mutation>
     );
   }
 }
@@ -448,7 +451,7 @@ interface ITranscriptTextProps {
   onSelectedStatementsChange: (selectedStatements: string[]) => void;
   onSelectionChange: (selection: null | ITranscriptSelection) => void;
   selectedStatements: string[];
-  statements: any[];
+  statements: GetSourceStatementsQuery['statements'];
   transcript: string;
   newStatementSelection: null | ITranscriptSelection;
   startCursor: { line: number; offset: number } | null;
@@ -559,13 +562,13 @@ class TranscriptText extends React.Component<ITranscriptTextProps, ITranscriptTe
         const cursorLine = startLine;
         const cursorOffset = startOffset;
         const selectedStatements = this.props.statements.filter((statement) => {
-          if (statement.statement_transcript_position) {
-            const position = statement.statement_transcript_position;
+          if (statement.statementTranscriptPosition) {
+            const position = statement.statementTranscriptPosition;
             return (
-              position.start_line <= cursorLine &&
-              (position.start_line === cursorLine ? position.start_offset <= cursorOffset : true) &&
-              position.end_line >= cursorLine &&
-              (position.end_line === cursorLine ? position.end_offset >= startOffset : true)
+              position.startLine <= cursorLine &&
+              (position.startLine === cursorLine ? position.startOffset <= cursorOffset : true) &&
+              position.endLine >= cursorLine &&
+              (position.endLine === cursorLine ? position.endOffset >= startOffset : true)
             );
           }
           return false;
@@ -647,25 +650,26 @@ const addMarksFromStatements = (
   decorations = removeDecorationsWithMarkType(decorations, 'statement-');
 
   statements.forEach((statement: any) => {
-    if (statement.statement_transcript_position) {
-      const position = statement.statement_transcript_position;
+    if (statement.statementTranscriptPosition) {
+      const position = statement.statementTranscriptPosition;
 
-      const startInlineNode = findInlineNodeByLineNumber(value.document, position.start_line);
-      const endInlineNode = findInlineNodeByLineNumber(value.document, position.end_line);
+      const startInlineNode = findInlineNodeByLineNumber(value.document, position.startLine);
+      const endInlineNode = findInlineNodeByLineNumber(value.document, position.endLine);
 
       decorations = decorations.push(
         Slate.Decoration.fromJSON({
           anchor: {
             key: startInlineNode.key,
-            offset: position.start_offset,
+            offset: position.startOffset,
             object: 'point',
           },
           focus: {
             key: endInlineNode.key,
-            offset: position.end_offset,
+            offset: position.endOffset,
             object: 'point',
           },
           mark: {
+            object: 'mark',
             type: `statement-${statement.id}`,
             data: { selected: selectedIds.includes(statement.id) },
           },
@@ -722,7 +726,10 @@ const highlightNewStatementSelection = (
           offset: newStatementSelection.endOffset,
           object: 'point',
         },
-        mark: { type: 'new-statement' },
+        mark: {
+          object: 'mark',
+          type: 'new-statement',
+        },
       }),
     );
   }
@@ -747,6 +754,21 @@ const removeDecorationsWithMarkType = (
     return !decoration.mark.type.startsWith(markTypeStartsWith);
   }) as Immutable.List<Slate.Decoration>;
 };
+
+const STATEMENT_TYPE_OPTIONS = [
+  {
+    label: 'Faktický',
+    value: StatementType.factual,
+  },
+  {
+    label: 'Slib',
+    value: StatementType.promise,
+  },
+  {
+    label: 'Silvestrovský',
+    value: StatementType.newyears,
+  },
+];
 
 const mapStateToProps = (state: ReduxState) => ({
   isAuthorized: isAuthorized(state.currentUser.user),

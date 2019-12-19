@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 class MediaPersonality < ApplicationRecord
-  default_scope { where(deleted_at: nil) }
+  include Discardable
+
+  default_scope { kept }
 
   has_and_belongs_to_many :sources, join_table: "sources_media_personalities"
   belongs_to :attachment, optional: true
 
   def self.matching_name(name)
-    where("name LIKE ?", "%#{name}%")
+    where("name ILIKE ? OR UNACCENT(name) ILIKE ?", "%#{name}%", "%#{name}%")
   end
 
   def self.delete_media_personality(id)
@@ -19,7 +21,6 @@ class MediaPersonality < ApplicationRecord
       raise ActiveModel::ValidationError.new(media_personality)
     end
 
-    media_personality.deleted_at = Time.now
-    media_personality.save!
+    media_personality.discard
   end
 end

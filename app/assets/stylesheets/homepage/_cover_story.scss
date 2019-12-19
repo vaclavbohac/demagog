@@ -1,0 +1,77 @@
+.container-homepage-cover_story {
+  flex: 1 0 100%;
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+  .illustration {
+    flex: 1 0 0;
+    order: 2;
+    margin-top: 1rem;
+    align-self: start;
+    position: relative;
+
+    img {
+      display: block;
+    }
+
+    .factcheck-video-label {
+      position: absolute;
+      left: 15px;
+      bottom: 15px;
+      height: 40px;
+      background-color: rgba(40, 40, 40, 0.8);
+      display: flex;
+      align-items: center;
+
+      .factcheck-video-label-play-icon {
+        height: 16px;
+        margin-left: 12px;
+      }
+
+      .factcheck-video-label-text {
+        margin-left: 8px;
+        margin-right: 12px;
+        color: white;
+        font-size: 14px;
+        line-height: 1.25;
+      }
+    }
+  }
+
+  .title-perex-and-speakers {
+    flex: 1 0 0;
+    order: 1;
+    margin-right: 2rem;
+
+    .article-meta {
+      margin-top: 1rem;
+
+      .label {
+        margin-right: 2px;
+      }
+    }
+
+    .perex {
+      margin-top: 0.4rem;
+    }
+
+    .speakers {
+      margin-top: 1.5rem;
+    }
+  }
+
+  @media (max-width: 899.9px) {
+    .illustration {
+      flex: 1 1 auto;
+      order: 1;
+    }
+
+    .title-perex-and-speakers {
+      h1 {
+        margin-top: 1rem;
+      }
+    }
+  }
+}

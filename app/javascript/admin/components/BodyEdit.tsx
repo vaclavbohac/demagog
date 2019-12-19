@@ -1,15 +1,15 @@
 import * as React from 'react';
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, Query, MutationFunction } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import { deleteBodyLogo, uploadBodyLogo } from '../api';
 import {
-  GetBodyQuery,
-  GetBodyQueryVariables,
-  UpdateBodyMutation,
-  UpdateBodyMutationVariables,
+  GetBody as GetBodyQuery,
+  GetBodyVariables as GetBodyQueryVariables,
+  UpdateBody as UpdateBodyMutation,
+  UpdateBodyVariables as UpdateBodyMutationVariables,
 } from '../operation-result-types';
 import { UpdateBody } from '../queries/mutations';
 import { GetBodies, GetBody, GetSpeakerBodies } from '../queries/queries';
@@ -17,14 +17,8 @@ import Error from './Error';
 import { BodyForm, IBodyFormData } from './forms/BodyForm';
 import Loading from './Loading';
 
-class GetBodyQueryComponent extends Query<GetBodyQuery, GetBodyQueryVariables> {}
-
-class UpdateBodyMutationComponent extends Mutation<
-  UpdateBodyMutation,
-  UpdateBodyMutationVariables
-> {}
 interface IUpdateBodyMutationFn
-  extends MutationFn<UpdateBodyMutation, UpdateBodyMutationVariables> {}
+  extends MutationFunction<UpdateBodyMutation, UpdateBodyMutationVariables> {}
 
 interface IBodyDetailProps extends RouteComponentProps<{ id: string }>, DispatchProp {}
 
@@ -70,7 +64,7 @@ class BodyEdit extends React.Component<IBodyDetailProps> {
 
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <GetBodyQueryComponent query={GetBody} variables={{ id }}>
+        <Query<GetBodyQuery, GetBodyQueryVariables> query={GetBody} variables={{ id }}>
           {({ data, loading, error }) => {
             if (loading || !data) {
               return <Loading />;
@@ -81,7 +75,7 @@ class BodyEdit extends React.Component<IBodyDetailProps> {
             }
 
             return (
-              <UpdateBodyMutationComponent
+              <Mutation<UpdateBodyMutation, UpdateBodyMutationVariables>
                 mutation={UpdateBody}
                 refetchQueries={[
                   { query: GetSpeakerBodies },
@@ -95,10 +89,10 @@ class BodyEdit extends React.Component<IBodyDetailProps> {
                     title="Upravit stranu / skupinu"
                   />
                 )}
-              </UpdateBodyMutationComponent>
+              </Mutation>
             );
           }}
-        </GetBodyQueryComponent>
+        </Query>
       </div>
     );
   }

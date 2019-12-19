@@ -13,10 +13,10 @@ import { Link } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import {
-  GetUsersQuery as GetUsersQueryData,
-  GetUsersQueryVariables,
+  GetUsers as GetUsersQuery,
+  GetUsersVariables as GetUsersQueryVariables,
 } from '../operation-result-types';
-import { DeleteUser, UpdateUserPublicity } from '../queries/mutations';
+import { DeleteUser, UpdateUserActiveness } from '../queries/mutations';
 import { GetUsers } from '../queries/queries';
 import { newlinesToBr } from '../utils';
 import Authorize from './Authorize';
@@ -32,8 +32,6 @@ interface IUsersState {
   includeInactive: boolean;
   confirmDeleteModalUserId: string | null;
 }
-
-class GetUsersQuery extends Query<GetUsersQueryData, GetUsersQueryVariables> {}
 
 class Users extends React.Component<IProps, IUsersState> {
   constructor(props: IProps) {
@@ -65,6 +63,16 @@ class Users extends React.Component<IProps, IUsersState> {
   };
 
   private onDeleteError = (error: ApolloError) => {
+    if (error.message.match(/cannot be deleted if it is already linked/)) {
+      this.props.dispatch(
+        addFlashMessage(
+          'Uživatele nelze smazat, protože už byl v systému aktivní. Deaktivujte jej.',
+          'warning',
+        ),
+      );
+      return;
+    }
+
     this.props.dispatch(addFlashMessage('Doško k chybě při mazání uživatele', 'error'));
 
     console.error(error); // tslint:disable-line:no-console
@@ -113,12 +121,12 @@ class Users extends React.Component<IProps, IUsersState> {
           />
         </div>
 
-        <GetUsersQuery
+        <Query<GetUsersQuery, GetUsersQueryVariables>
           query={GetUsers}
           variables={{ name: this.state.search, includeInactive: this.state.includeInactive }}
         >
           {(props) => {
-            if (props.loading || !props.data) {
+            if (props.loading && (!props.data || !props.data.users)) {
               return <Loading />;
             }
 
@@ -126,17 +134,22 @@ class Users extends React.Component<IProps, IUsersState> {
               return <h1>{props.error}</h1>;
             }
 
-            const confirmDeleteModalUser = props.data.users.find(
-              (s) => s.id === confirmDeleteModalUserId,
-            );
+            if (!props.data || !props.data.users) {
+              return null;
+            }
+
+            const deletedUser = props.data.users.find((s) => s.id === confirmDeleteModalUserId);
+            const refetchUsers = () =>
+              props.refetch({
+                name: this.state.search,
+                includeInactive: this.state.includeInactive,
+              });
 
             return (
               <div style={{ marginTop: 15 }}>
-                {confirmDeleteModalUser && (
+                {deletedUser && (
                   <ConfirmDeleteModal
-                    message={`Opravdu chcete smazat uživatele ${
-                      confirmDeleteModalUser.first_name
-                    } ${confirmDeleteModalUser.last_name}?`}
+                    message={`Opravdu chcete smazat uživatele ${deletedUser.firstName} ${deletedUser.lastName}?`}
                     onCancel={this.hideConfirmDeleteModal}
                     mutation={DeleteUser}
                     mutationProps={{
@@ -168,8 +181,8 @@ class Users extends React.Component<IProps, IUsersState> {
                       <div style={{ flex: '0 0 106px' }}>
                         <SpeakerAvatar
                           avatar={user.avatar}
-                          first_name={user.first_name || ''}
-                          last_name={user.last_name || ''}
+                          first_name={user.firstName || ''}
+                          last_name={user.lastName || ''}
                         />
                       </div>
                       <div style={{ flex: '1 1', marginLeft: 15 }}>
@@ -191,68 +204,58 @@ class Users extends React.Component<IProps, IUsersState> {
                             >
                               Upravit
                             </Link>
-                            {user.active ? (
-                              <Button
-                                icon={IconNames.CROSS}
-                                disabled
-                                style={{ marginLeft: 7 }}
-                                text="Deaktivovat"
-                              />
-                            ) : (
-                              <Button
-                                icon={IconNames.TICK}
-                                disabled
-                                style={{ marginLeft: 7 }}
-                                text="Aktivovat"
-                              />
-                            )}
-                            <Authorize permissions={['users:edit-user-public']}>
-                              <Mutation
-                                mutation={UpdateUserPublicity}
-                                onCompleted={() =>
-                                  this.props.dispatch(
-                                    addFlashMessage(
-                                      'Viditelnost uživatele na stránce "O nás" byla upravena',
-                                      'success',
-                                    ),
-                                  )
-                                }
-                                onError={() =>
-                                  this.props.dispatch(
-                                    addFlashMessage(
-                                      'Došlo k chybě při ukládaní změny viditelnosti',
-                                      'error',
-                                    ),
-                                  )
-                                }
-                              >
-                                {(updateUserPublicity) =>
-                                  user.user_public ? (
-                                    <Button
-                                      icon={IconNames.EYE_OFF}
-                                      style={{ marginLeft: 7 }}
-                                      text="Skrýt v O nás"
-                                      onClick={() =>
-                                        updateUserPublicity({
-                                          variables: { id: Number(user.id), userPublicity: false },
-                                        })
-                                      }
-                                    />
-                                  ) : (
-                                    <Button
-                                      icon={IconNames.EYE_ON}
-                                      style={{ marginLeft: 7 }}
-                                      text="Zobrazit v O nás"
-                                      onClick={() =>
-                                        updateUserPublicity({
-                                          variables: { id: Number(user.id), userPublicity: true },
-                                        })
-                                      }
-                                    />
-                                  )
-                                }
-                              </Mutation>
-                            </Authorize>
+                            <Mutation<any, any>
+                              mutation={UpdateUserActiveness}
+                              onCompleted={() => {
+                                refetchUsers();
+                                this.props.dispatch(
+                                  addFlashMessage(
+                                    'Uživatel úspěšně ' +
+                                      (user.active ? 'aktivován' : 'deaktivován') +
+                                      '.',
+                                    'success',
+                                  ),
+                                );
+                              }}
+                              onError={() =>
+                                this.props.dispatch(
+                                  addFlashMessage(
+                                    'Došlo k chybě při ' +
+                                      (user.active ? 'deaktivaci' : 'aktivaci') +
+                                      ' uživatele.',
+                                    'error',
+                                  ),
+                                )
+                              }
+                            >
+                              {(updateUserActiveness, { loading }) =>
+                                user.active ? (
+                                  <Button
+                                    icon={IconNames.CROSS}
+                                    style={{ marginLeft: 7 }}
+                                    text="Deaktivovat"
+                                    disabled={loading}
+                                    onClick={() =>
+                                      updateUserActiveness({
+                                        variables: { id: Number(user.id), userActive: false },
+                                      })
+                                    }
+                                  />
+                                ) : (
+                                  <Button
+                                    icon={IconNames.TICK}
+                                    style={{ marginLeft: 7 }}
+                                    text="Aktivovat"
+                                    disabled={loading}
+                                    onClick={() =>
+                                      updateUserActiveness({
+                                        variables: { id: Number(user.id), userActive: true },
+                                      })
+                                    }
+                                  />
+                                )
+                              }
+                            </Mutation>
                             <Button
                               type="button"
                               icon={IconNames.TRASH}
@@ -264,10 +267,10 @@ class Users extends React.Component<IProps, IUsersState> {
                         </Authorize>
 
                         <h5 className={Classes.HEADING}>
-                          {user.first_name} {user.last_name}
+                          {user.firstName} {user.lastName}
                         </h5>
 
-                        <h6 className={Classes.HEADING}>{user.position_description}</h6>
+                        <h6 className={Classes.HEADING}>{user.positionDescription}</h6>
                         <p>{user.bio && newlinesToBr(user.bio)}</p>
 
                         <Callout>
@@ -278,26 +281,23 @@ class Users extends React.Component<IProps, IUsersState> {
                           {user.role.name}
                           <br />
                           <span className={Classes.TEXT_MUTED}>Posílat upozornění emailem: </span>
-                          {user.email_notifications ? 'Ano' : 'Ne'}
-                          <Authorize permissions={['users:edit-user-public']}>
-                            <br />
-                            <span className={Classes.TEXT_MUTED}>Zobrazit v O nás:&nbsp;</span>
-                            {user.user_public ? 'Ano' : 'Ne'}
-                          </Authorize>
+                          {user.emailNotifications ? 'Ano' : 'Ne'}
+                          <br />
+                          <span className={Classes.TEXT_MUTED}>Zobrazit v O nás:&nbsp;</span>
+                          {user.userPublic ? 'Ano' : 'Ne'}
                         </Callout>
                       </div>
                     </div>
                   </Card>
                 ))}
 
-                {props.data.users.length === 0 &&
-                  this.state.search !== '' && (
-                    <p>Nenašli jsme žádného člena týmu se jménem „{this.state.search}‟.</p>
-                  )}
+                {props.data.users.length === 0 && this.state.search !== '' && (
+                  <p>Nenašli jsme žádného člena týmu se jménem „{this.state.search}“.</p>
+                )}
               </div>
             );
           }}
-        </GetUsersQuery>
+        </Query>
       </div>
     );
   }

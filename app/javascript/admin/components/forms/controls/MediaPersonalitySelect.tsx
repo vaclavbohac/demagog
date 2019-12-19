@@ -1,25 +1,11 @@
 import * as React from 'react';
 
 import { Colors } from '@blueprintjs/core';
-import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import Select from 'react-select';
 
-export const GET_MEDIA_PERSONALITIES = gql`
-  query {
-    media_personalities {
-      id
-      name
-    }
-  }
-`;
-
-interface IGetMediaPersonalitiesQuery {
-  media_personalities: Array<{
-    id: string;
-    name: string;
-  }>;
-}
+import { GetMediaPersonalitiesForSelect as GetMediaPersonalitiesForSelectQuery } from '../../../operation-result-types';
+import { GetMediaPersonalitiesForSelect } from '../../../queries/queries';
 
 interface ISelectOption {
   label: string;
@@ -37,12 +23,12 @@ interface IProps {
 export default class MediaPersonalitiesSelect extends React.Component<IProps> {
   public render() {
     return (
-      <Query<IGetMediaPersonalitiesQuery> query={GET_MEDIA_PERSONALITIES}>
+      <Query<GetMediaPersonalitiesForSelectQuery> query={GetMediaPersonalitiesForSelect}>
         {({ data, loading }) => {
           let options: ISelectOption[] = [];
 
           if (data && !loading) {
-            options = data.media_personalities.map((mp) => ({
+            options = data.mediaPersonalities.map((mp) => ({
               label: mp.name,
               value: mp.id,
             }));

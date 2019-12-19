@@ -3,6 +3,20 @@
 require "test_helper"
 
 class SourceTest < ActiveSupport::TestCase
+  test "video type enum" do
+    source = build(:source)
+
+    source.video_type = :facebook
+    assert source.facebook?
+
+    source.video_type = :youtube
+    assert source.youtube?
+  end
+
+  test "soft delete" do
+    assert_discardable create(:source)
+  end
+
   test "update_statements_source_order should set source_order to index of ordered ids" do
     source = create(:source)
     create_list(:statement, 10, source: source)
@@ -10,7 +24,7 @@ class SourceTest < ActiveSupport::TestCase
     assert_equal 10, source.statements.count
     assert source.statements.all? { |s| s.source_order.nil? }
 
-    ordered_ids = source.statements.map { |s| s.id }
+    ordered_ids = source.statements.map(&:id)
     source.update_statements_source_order(ordered_ids)
 
     source.statements.order(source_order: :asc).each_with_index do |s, i|

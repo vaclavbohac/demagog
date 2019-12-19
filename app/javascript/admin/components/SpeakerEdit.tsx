@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, MutationFunction, Query } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 
@@ -12,22 +12,16 @@ import Loading from './Loading';
 import { ISpeakerFormData, SpeakerForm } from './forms/SpeakerForm';
 
 import {
-  GetSpeakerQuery,
-  GetSpeakerQueryVariables,
-  UpdateSpeakerMutation,
-  UpdateSpeakerMutationVariables,
+  GetSpeaker as GetSpeakerQuery,
+  GetSpeakerVariables as GetSpeakerQueryVariables,
+  UpdateSpeaker as UpdateSpeakerMutation,
+  UpdateSpeakerVariables as UpdateSpeakerMutationVariables,
 } from '../operation-result-types';
 import { UpdateSpeaker } from '../queries/mutations';
 import { GetSpeaker } from '../queries/queries';
 
-class GetSpeakerQueryComponent extends Query<GetSpeakerQuery, GetSpeakerQueryVariables> {}
-
-class UpdateSpeakerMutationComponent extends Mutation<
-  UpdateSpeakerMutation,
-  UpdateSpeakerMutationVariables
-> {}
 interface IUpdateSpeakerMutationFn
-  extends MutationFn<UpdateSpeakerMutation, UpdateSpeakerMutationVariables> {}
+  extends MutationFunction<UpdateSpeakerMutation, UpdateSpeakerMutationVariables> {}
 
 interface ISpeakerEditProps extends RouteComponentProps<{ id: string }>, DispatchProp {
   id: number;
@@ -53,7 +47,7 @@ class SpeakerEdit extends React.Component<ISpeakerEditProps> {
     }
 
     return avatarPromise
-      .then(() => updateSpeaker({ variables: { id, speakerInput } }))
+      .then(() => updateSpeaker({ variables: { id: id.toString(), speakerInput } }))
       .then(() => {
         this.setState({ submitting: false });
         this.onCompleted();
@@ -79,7 +73,7 @@ class SpeakerEdit extends React.Component<ISpeakerEditProps> {
 
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <GetSpeakerQueryComponent query={GetSpeaker} variables={{ id }}>
+        <Query<GetSpeakerQuery, GetSpeakerQueryVariables> query={GetSpeaker} variables={{ id }}>
           {({ data, loading, error }) => {
             if (loading || !data) {
               return <Loading />;
@@ -90,7 +84,9 @@ class SpeakerEdit extends React.Component<ISpeakerEditProps> {
             }
 
             return (
-              <UpdateSpeakerMutationComponent mutation={UpdateSpeaker}>
+              <Mutation<UpdateSpeakerMutation, UpdateSpeakerMutationVariables>
+                mutation={UpdateSpeaker}
+              >
                 {(updateSpeaker) => (
                   <SpeakerForm
                     speaker={data.speaker}
@@ -98,10 +94,10 @@ class SpeakerEdit extends React.Component<ISpeakerEditProps> {
                     title="Upravit osobu"
                   />
                 )}
-              </UpdateSpeakerMutationComponent>
+              </Mutation>
             );
           }}
-        </GetSpeakerQueryComponent>
+        </Query>
       </div>
     );
   }

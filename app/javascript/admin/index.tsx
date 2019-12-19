@@ -13,12 +13,11 @@ import '@blueprintjs/core/lib/css/blueprint';
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css';
 import '@blueprintjs/icons/lib/css/blueprint-icons.css';
 
-import 'jquery';
-import 'jquery-ujs';
+// Hot loader needs to be loaded before react
+import 'react-hot-loader';
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { AppContainer } from 'react-hot-loader';
 
 import { ApolloProvider } from 'react-apollo';
 import { Provider } from 'react-redux';
@@ -31,16 +30,6 @@ import * as ActiveStorage from 'activestorage';
 
 ActiveStorage.start();
 
-// import { Classes, FormGroup } from '@blueprintjs/core';
-
-// We use the required label the other way around: to mark fields which
-// are NOT required
-// FormGroup.DEFAULT_REQUIRED_CONTENT = (
-//   <small className={Classes.TEXT_MUTED} style={{ paddingLeft: 7 }}>
-//     nepovinné
-//   </small>
-// );
-
 import App from './App';
 import rootEpic from './epics';
 import rootReducer from './reducers';
@@ -49,23 +38,25 @@ const composeEnhancers = (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ||
 
 const epicMiddleware = createEpicMiddleware();
 
-const store = createStore(rootReducer, composeEnhancers(applyMiddleware(epicMiddleware)));
+// Any used to fool broken provider store
+const store = createStore(rootReducer, composeEnhancers(applyMiddleware(epicMiddleware))) as any;
 
 epicMiddleware.run(rootEpic);
 
 const render = (RootContainer) =>
   ReactDOM.render(
-    <AppContainer>
-      <ApolloProvider client={apolloClient}>
-        <Provider store={store}>
-          <RootContainer />
-        </Provider>
-      </ApolloProvider>
-    </AppContainer>,
+    <ApolloProvider client={apolloClient}>
+      <Provider store={store}>
+        <RootContainer />
+      </Provider>
+    </ApolloProvider>,
     document.getElementById('app-root'),
   );
 
-render(App);
+// #app-root element is not present on the admin login page
+if (document.getElementById('app-root') !== null) {
+  render(App);
+}
 
 if ((module as any).hot) {
   (module as any).hot.accept('./App', () => render(App));

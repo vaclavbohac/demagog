@@ -1,19 +1,20 @@
 const { environment } = require('@rails/webpacker');
-const typescript = require('./loaders/typescript');
+const babelLoader = require('./loaders/babel');
+const typescriptLoader = require('./loaders/typescript');
 const webpack = require('webpack');
 const fs = require('fs');
 
-// Babel loader is not necessary
-environment.loaders.delete('babel');
-environment.loaders.append('typescript', typescript);
+environment.config.output.filename = (chunkData) => {
+  // We need to have widget.js without hash, because it is linked externally
+  return chunkData.chunk.name === 'widget' ? '[name].js' : '[name]-[hash].js';
+};
 
-environment.plugins.append(
-  'Provide',
-  new webpack.ProvidePlugin({
-    $: 'jquery',
-    jQuery: 'jquery',
-  }),
-);
+// Replace default babel loader with our custom-configured one
+environment.loaders.delete('babel');
+environment.loaders.append('babel', babelLoader);
+
+// Add typescript loader
+environment.loaders.append('typescript', typescriptLoader);
 
 const changelogContents = fs.readFileSync(__dirname + '/../../CHANGELOG-cs.md', 'utf8');
 const matches = changelogContents.match(/\n## (\d{1,2}\. [^ ]+ \d{4})/u);

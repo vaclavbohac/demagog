@@ -1,4 +1,6 @@
 <% content_for(:title, @article.title) %>
+<% content_for(:description, strip_tags(@article.perex).truncate(230)) if @article.perex.present? %>
+<% content_for(:image_src, @article.illustration.attached? ? polymorphic_url(@article.illustration) : nil) %>
 
 <article class="detail">
   <section class="intro">
@@ -10,9 +12,15 @@
         <span class="label factcheck">Ověřili jsme</span><br>
         <%= @article.source.medium.name %> ze dne <%= raw(l(@article.source.released_at, format: :long)) %>
         <% if @article.source.media_personalities.size > 0 %>
-          (<%= @article.source.media_personalities.size > 1 ? "moderátoři" : "moderátor" %> <%= @article.source.media_personalities.pluck(:name).to_sentence %><% unless @article.source.source_url.empty? %>, <a class="ext" href="<%= @article.source.source_url %>">záznam</a><% end %>)
+          (<%= @article.source.media_personalities.size > 1 ? "moderátoři" : "moderátor" %> <%= @article.source.media_personalities.pluck(:name).to_sentence %><% unless @article.source.source_url.empty? %>, <a class="ext" href="<%= @article.source.source_url %>" target="_blank">záznam</a><% end %>)
         <% end %>
       </p>
+
+      <% if show_article_factcheck_video(@article) %>
+        <div id="article-factcheck-video-app-root" class="article-factcheck-video" data-article-id="<%= @article.id %>">
+          <img src="<%= url_for(@article.illustration) %>" alt="Ilustrační obrázek k výstupu <%= @article.title %>">
+        </div>
+      <% end %>
     <% end %>
 
     <% if @article_type == "editorial" %>
@@ -22,10 +30,12 @@
     <% end %>
   </section>
 
-  <% @article.segments.each do |segment| %>
+  <% @article.segments.ordered.each do |segment| %>
     <section class="segment-<%= segment.segment_type %>">
       <% if segment.is_text? %>
-        <%= raw(segment.text_html) %>
+        <%= raw(replace_segment_text_html_special_strings(segment.text_html)) %>
+      <% elsif segment.is_promise? %>
+        <demagogcz-widget data-url="<%= promise_segment_widget_url(segment.promise_url) %>"></demagogcz-widget>
       <% elsif segment.is_source_statements? %>
         <% if @article.segments.size === 1 %>
           <div class="statements-filters">
@@ -37,7 +47,7 @@
 
             <% @article.unique_speakers.each do |speaker| %>
               <div class="speaker-veracities-filter">
-                <% stats = controller.article_stats.build(@article, speaker) %>
+                <% stats = @article.speaker_stats(speaker) %>
 
                 <div class="portrait-wrapper">
                   <%= render(partial: 'shared/portrait', object: speaker, as: :speaker) %>
@@ -97,9 +107,13 @@
             <% end %>
             <%= segment.all_published_statements.count %> ověřených výroků
           </h2>
-          <%= render(partial: "statement/detail", collection: filtered_statements, as: :statement) %>
+          <%= render(partial: "statement/detail", collection: filtered_statements, as: :statement, locals: { show_when_and_where: false }) %>
         </div>
       <% end %>
     </section>
   <% end %>
 </article>
+
+<% if show_article_factcheck_video(@article) %>
+  <%= javascript_pack_tag 'article-factcheck-video'  %>
+<% end %>

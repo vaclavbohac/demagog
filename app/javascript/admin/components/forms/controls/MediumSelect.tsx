@@ -4,7 +4,8 @@ import { Colors } from '@blueprintjs/core';
 import { isEmpty } from 'lodash';
 import { Query } from 'react-apollo';
 import Select from 'react-select';
-import { GetMediaQuery } from '../../../operation-result-types';
+
+import { GetMedia as GetMediaQuery } from '../../../operation-result-types';
 import { GetMedia } from '../../../queries/queries';
 
 interface ISelectOption {

@@ -12,11 +12,12 @@ import * as yup from 'yup';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import {
-  CreateStatementInputType,
-  CreateStatementMutation,
-  CreateStatementMutationVariables,
-  GetSourceQuery,
-  GetSourceQueryVariables,
+  CreateStatement as CreateStatementMutation,
+  CreateStatementInput,
+  CreateStatementVariables as CreateStatementMutationVariables,
+  GetSource as GetSourceQuery,
+  GetSourceVariables as GetSourceQueryVariables,
+  StatementType,
 } from '../operation-result-types';
 import { CreateStatement } from '../queries/mutations';
 import { GetSource, GetSourceStatements } from '../queries/queries';
@@ -26,13 +27,6 @@ import TextareaField from './forms/controls/TextareaField';
 import UserSelect from './forms/controls/UserSelect';
 import FormGroup from './forms/FormGroup';
 import Loading from './Loading';
-
-class GetSourceQueryComponent extends Query<GetSourceQuery, GetSourceQueryVariables> {}
-
-class CreateStatementMutationComponent extends Mutation<
-  CreateStatementMutation,
-  CreateStatementMutationVariables
-> {}
 
 interface IProps extends RouteComponentProps<{ sourceId: string }>, DispatchProp {}
 
@@ -51,7 +45,7 @@ class StatementNew extends React.Component<IProps> {
 
   public render() {
     return (
-      <GetSourceQueryComponent
+      <Query<GetSourceQuery, GetSourceQueryVariables>
         query={GetSource}
         variables={{ id: parseInt(this.props.match.params.sourceId, 10) }}
       >
@@ -67,6 +61,7 @@ class StatementNew extends React.Component<IProps> {
           const source = data.source;
 
           const initialValues = {
+            statement_type: StatementType.factual,
             content: '',
             speaker_id: source.speakers[0].id,
             evaluator_id: null,
@@ -74,7 +69,7 @@ class StatementNew extends React.Component<IProps> {
           };
 
           return (
-            <CreateStatementMutationComponent
+            <Mutation<CreateStatementMutation, CreateStatementMutationVariables>
               mutation={CreateStatement}
               refetchQueries={[
                 {
@@ -92,18 +87,18 @@ class StatementNew extends React.Component<IProps> {
                   onSubmit={(values, { setSubmitting }) => {
                     const note = values.note.trim();
 
-                    const statementInput: CreateStatementInputType = {
+                    const statementInput: CreateStatementInput = {
+                      statementType: values.statement_type,
                       content: values.content,
-                      speaker_id: values.speaker_id,
-                      source_id: source.id,
+                      speakerId: values.speaker_id,
+                      sourceId: source.id,
                       important: false,
                       published: false,
-                      count_in_statistics: true,
-                      excerpted_at: DateTime.utc().toISO(),
+                      excerptedAt: DateTime.utc().toISO(),
                       assessment: {
-                        evaluator_id: values.evaluator_id,
+                        evaluatorId: values.evaluator_id,
                       },
-                      first_comment_content: note !== '' ? note : null,
+                      firstCommentContent: note !== '' ? note : null,
                     };
 
                     createStatement({ variables: { statementInput } })
@@ -149,15 +144,27 @@ class StatementNew extends React.Component<IProps> {
                                 rows={7}
                               />
                             </FormGroup>
-                            <FormGroup label="Řečník" name="speaker_id">
-                              <SelectField
-                                name="speaker_id"
-                                options={source.speakers.map((s) => ({
-                                  label: `${s.first_name} ${s.last_name}`,
-                                  value: s.id,
-                                }))}
-                              />
-                            </FormGroup>
+                            <div style={{ display: 'flex' }}>
+                              <div style={{ flex: '1 1' }}>
+                                <FormGroup label="Řečník" name="speaker_id">
+                                  <SelectField
+                                    name="speaker_id"
+                                    options={source.speakers.map((s) => ({
+                                      label: `${s.firstName} ${s.lastName}`,
+                                      value: s.id,
+                                    }))}
+                                  />
+                                </FormGroup>
+                              </div>
+                              <div style={{ flex: '1 1' }}>
+                                <FormGroup label="Typ výroku" name="statement_type">
+                                  <SelectField
+                                    name="statement_type"
+                                    options={STATEMENT_TYPE_OPTIONS}
+                                  />
+                                </FormGroup>
+                              </div>
+                            </div>
                           </div>
                         </div>
 
@@ -186,12 +193,27 @@ class StatementNew extends React.Component<IProps> {
                   )}
                 </Formik>
               )}
-            </CreateStatementMutationComponent>
+            </Mutation>
           );
         }}
-      </GetSourceQueryComponent>
+      </Query>
     );
   }
 }
+
+const STATEMENT_TYPE_OPTIONS = [
+  {
+    label: 'Faktický',
+    value: StatementType.factual,
+  },
+  {
+    label: 'Slib',
+    value: StatementType.promise,
+  },
+  {
+    label: 'Silvestrovský',
+    value: StatementType.newyears,
+  },
+];
 
 export default connect()(withRouter(StatementNew));

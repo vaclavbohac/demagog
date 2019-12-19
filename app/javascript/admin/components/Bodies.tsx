@@ -12,8 +12,8 @@ import { Link } from 'react-router-dom';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import {
-  GetBodiesQuery as GetBodiesQueryResult,
-  GetBodiesQueryVariables,
+  GetBodies as GetBodiesQuery,
+  GetBodiesVariables as GetBodiesQueryVariables,
 } from '../operation-result-types';
 import { DeleteBody } from '../queries/mutations';
 import { GetBodies } from '../queries/queries';
@@ -23,8 +23,6 @@ import BodyLogo from './BodyLogo';
 import { SearchInput } from './forms/controls/SearchInput';
 import Loading from './Loading';
 import ConfirmDeleteModal from './modals/ConfirmDeleteModal';
-
-class GetBodiesQuery extends Query<GetBodiesQueryResult, GetBodiesQueryVariables> {}
 
 interface IProps extends DispatchProp<any> {}
 
@@ -93,7 +91,10 @@ class Bodies extends React.Component<IProps, IState> {
           />
         </div>
 
-        <GetBodiesQuery query={GetBodies} variables={{ name: this.state.search }}>
+        <Query<GetBodiesQuery, GetBodiesQueryVariables>
+          query={GetBodies}
+          variables={{ name: this.state.search }}
+        >
           {(props) => {
             if (props.loading) {
               return <Loading />;
@@ -158,10 +159,10 @@ class Bodies extends React.Component<IProps, IState> {
                         </Authorize>
 
                         <h5 className={Classes.HEADING}>
-                          {body.name} ({body.short_name})
+                          {body.name} ({body.shortName})
                         </h5>
 
-                        {body.is_party ? (
+                        {body.isParty ? (
                           <Tag intent={Intent.PRIMARY}>Politická strana</Tag>
                         ) : (
                           <Tag>Skupina</Tag>
@@ -174,12 +175,12 @@ class Bodies extends React.Component<IProps, IState> {
                           </li>
                           <li>
                             <span className={Classes.TEXT_MUTED}>Vznik: </span>
-                            <p>{body.founded_at ? displayDate(body.founded_at) : 'Nevyplněn'}</p>
+                            <p>{body.foundedAt ? displayDate(body.foundedAt) : 'Nevyplněn'}</p>
                           </li>
-                          {body.terminated_at && (
+                          {body.terminatedAt && (
                             <li>
                               <span className={Classes.TEXT_MUTED}>Zánik: </span>
-                              <p>{displayDate(body.terminated_at)}</p>
+                              <p>{displayDate(body.terminatedAt)}</p>
                             </li>
                           )}
                         </ul>
@@ -188,14 +189,13 @@ class Bodies extends React.Component<IProps, IState> {
                   </Card>
                 ))}
 
-                {props.data.bodies.length === 0 &&
-                  this.state.search !== '' && (
-                    <p>Nenašli jsme žádnou stranu či skupinu s názvem „{this.state.search}‟.</p>
-                  )}
+                {props.data.bodies.length === 0 && this.state.search !== '' && (
+                  <p>Nenašli jsme žádnou stranu či skupinu s názvem „{this.state.search}“.</p>
+                )}
               </div>
             );
           }}
-        </GetBodiesQuery>
+        </Query>
       </div>
     );
   }

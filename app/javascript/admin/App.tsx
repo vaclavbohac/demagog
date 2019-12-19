@@ -1,7 +1,8 @@
 import * as React from 'react';
 
 import { css, cx } from 'emotion';
-import createBrowserHistory from 'history/createBrowserHistory';
+import { createBrowserHistory } from 'history';
+import { hot } from 'react-hot-loader/root';
 import { connect, DispatchProp } from 'react-redux';
 import { Redirect, Route, Router, Switch } from 'react-router';
 
@@ -12,6 +13,8 @@ import { IState } from './reducers';
 import ArticleEdit from './components/articles/ArticleEdit';
 import ArticleNew from './components/articles/ArticleNew';
 import Articles from './components/articles/Articles';
+
+import Availability from './components/Availability';
 
 import Bodies from './components/Bodies';
 import BodyEdit from './components/BodyEdit';
@@ -50,6 +53,7 @@ import StatementDetail from './components/StatementDetail';
 import StatementNew from './components/StatementNew';
 import StatementsFromTranscript from './components/StatementsFromTranscript';
 import StatementsSort from './components/StatementsSort';
+import StatementsVideoMarks from './components/StatementsVideoMarks';
 
 import UserEdit from './components/UserEdit';
 import UserNew from './components/UserNew';
@@ -123,6 +127,11 @@ class App extends React.Component<IProps> {
                   exact
                   component={StatementsSort}
                 />
+                <Route
+                  path="/admin/sources/:sourceId/statements-video-marks"
+                  exact
+                  component={StatementsVideoMarks}
+                />
 
                 <Route path="/admin/statements/:id" exact component={StatementDetail} />
 
@@ -163,7 +172,9 @@ class App extends React.Component<IProps> {
                   component={UsersSortOnAboutUsPage}
                 />
 
-                <Route path="/admin/notifications" exact component={Notifications} />
+                <Route path="/admin/notifications/:tab?" exact component={Notifications} />
+
+                <Route path="/admin/availability" exact component={Availability} />
 
                 <Route component={NotFound} />
               </Switch>
@@ -179,4 +190,4 @@ const mapStateToProps = (state: IState) => ({
   currentUser: state.currentUser.user,
 });
 
-export default connect(mapStateToProps)(App);
+export default hot(connect(mapStateToProps)(App));

@@ -12,7 +12,10 @@ import { connect, DispatchProp } from 'react-redux';
 import { addFlashMessage } from '../actions/flashMessages';
 import { uploadContentImage } from '../api';
 import apolloClient from '../apolloClient';
-import { GetContentImagesQuery, GetContentImagesQueryVariables } from '../operation-result-types';
+import {
+  GetContentImages as GetContentImagesQuery,
+  GetContentImagesVariables as GetContentImagesQueryVariables,
+} from '../operation-result-types';
 import { DeleteContentImage } from '../queries/mutations';
 import { GetContentImages } from '../queries/queries';
 import { displayDateTime } from '../utils';
@@ -22,11 +25,6 @@ import Loading from './Loading';
 import ConfirmDeleteModal from './modals/ConfirmDeleteModal';
 
 const IMAGES_PER_PAGE = 20;
-
-class GetContentImagesQueryComponent extends Query<
-  GetContentImagesQuery,
-  GetContentImagesQueryVariables
-> {}
 
 interface IProps extends DispatchProp<any> {}
 
@@ -120,7 +118,7 @@ class Images extends React.Component<IProps, IState> {
   };
 
   public copyImageUrlToClipboard = (
-    contentImage: GetContentImagesQuery['content_images']['items'][0],
+    contentImage: GetContentImagesQuery['contentImages']['items'][0],
   ) => () => {
     const baseUrl = document.location
       ? `${document.location.protocol}//${document.location.host}`
@@ -171,7 +169,7 @@ class Images extends React.Component<IProps, IState> {
         </div>
 
         <div style={{ marginTop: 15 }}>
-          <GetContentImagesQueryComponent
+          <Query<GetContentImagesQuery, GetContentImagesQueryVariables>
             query={GetContentImages}
             variables={{ name: this.state.search, offset: 0, limit: IMAGES_PER_PAGE }}
           >
@@ -186,15 +184,15 @@ class Images extends React.Component<IProps, IState> {
                 return null;
               }
 
-              if (this.state.search !== '' && data.content_images.total_count === 0) {
-                return <p>Nenašli jsme žádný obrázek s názvem „{this.state.search}‟.</p>;
+              if (this.state.search !== '' && data.contentImages.totalCount === 0) {
+                return <p>Nenašli jsme žádný obrázek s názvem „{this.state.search}“.</p>;
               }
 
-              const confirmDeleteModalContentImage = data.content_images.items.find(
+              const confirmDeleteModalContentImage = data.contentImages.items.find(
                 (s) => s.id === this.state.confirmDeleteModalId,
               );
 
-              const zoomedContentImage = data.content_images.items.find(
+              const zoomedContentImage = data.contentImages.items.find(
                 (s) => s.id === this.state.zoomedId,
               );
 
@@ -202,9 +200,7 @@ class Images extends React.Component<IProps, IState> {
                 <>
                   {confirmDeleteModalContentImage && (
                     <ConfirmDeleteModal
-                      message={`Opravdu chcete smazat obrázek ${
-                        confirmDeleteModalContentImage.name
-                      }?`}
+                      message={`Opravdu chcete smazat obrázek ${confirmDeleteModalContentImage.name}?`}
                       onCancel={this.hideConfirmDeleteModal}
                       mutation={DeleteContentImage}
                       mutationProps={{
@@ -249,23 +245,20 @@ class Images extends React.Component<IProps, IState> {
 
                   <p>
                     Zobrazuji
-                    {data.content_images.total_count > data.content_images.items.length ? (
+                    {data.contentImages.totalCount > data.contentImages.items.length ? (
                       <>
                         {' '}
                         <strong>
                           posledních{' '}
-                          {Math.min(
-                            data.content_images.total_count,
-                            data.content_images.items.length,
-                          )}{' '}
+                          {Math.min(data.contentImages.totalCount, data.contentImages.items.length)}{' '}
                           obrázků
                         </strong>{' '}
-                        z <strong>celkových {data.content_images.total_count}</strong>
+                        z <strong>celkových {data.contentImages.totalCount}</strong>
                       </>
                     ) : (
                       <>
                         {' '}
-                        <strong>všech {data.content_images.total_count} obrázků</strong>
+                        <strong>všech {data.contentImages.totalCount} obrázků</strong>
                       </>
                     )}
                     {this.state.search && <> vyhovujících hledání</>}
@@ -288,7 +281,7 @@ class Images extends React.Component<IProps, IState> {
                       </tr>
                     </thead>
                     <tbody>
-                      {data.content_images.items.map((contentImage) => (
+                      {data.contentImages.items.map((contentImage) => (
                         <tr key={contentImage.id}>
                           <td>
                             <div
@@ -301,14 +294,14 @@ class Images extends React.Component<IProps, IState> {
                               }}
                               onClick={() => this.showZoomed(contentImage.id)}
                             >
-                              <img src={contentImage.image_50x50} style={{ alignSelf: 'center' }} />
+                              <img src={contentImage.image50x50} style={{ alignSelf: 'center' }} />
                             </div>
                           </td>
                           <td style={{ wordBreak: 'break-word' }}>{contentImage.name}</td>
-                          <td>{displayDateTime(contentImage.created_at)}</td>
+                          <td>{displayDateTime(contentImage.createdAt)}</td>
                           <td>
                             {contentImage.user ? (
-                              `${contentImage.user.first_name} ${contentImage.user.last_name}`
+                              `${contentImage.user.firstName} ${contentImage.user.lastName}`
                             ) : (
                               <span className={Classes.TEXT_MUTED}>Chybí</span>
                             )}
@@ -345,7 +338,7 @@ class Images extends React.Component<IProps, IState> {
                           </td>
                         </tr>
                       ))}
-                      {data.content_images.total_count > data.content_images.items.length && (
+                      {data.contentImages.totalCount > data.contentImages.items.length && (
                         <tr>
                           <td colSpan={6} style={{ textAlign: 'center' }}>
                             <Button
@@ -359,7 +352,7 @@ class Images extends React.Component<IProps, IState> {
 
                                 fetchMore({
                                   variables: {
-                                    offset: data.content_images.items.length,
+                                    offset: data.contentImages.items.length,
                                   },
                                   updateQuery: (prev, { fetchMoreResult }) => {
                                     if (!fetchMoreResult) {
@@ -367,11 +360,11 @@ class Images extends React.Component<IProps, IState> {
                                     }
 
                                     return {
-                                      content_images: {
-                                        ...prev.content_images,
+                                      contentImages: {
+                                        ...prev.contentImages,
                                         items: [
-                                          ...prev.content_images.items,
-                                          ...fetchMoreResult.content_images.items,
+                                          ...prev.contentImages.items,
+                                          ...fetchMoreResult.contentImages.items,
                                         ],
                                       },
                                     };
@@ -389,7 +382,7 @@ class Images extends React.Component<IProps, IState> {
                 </>
               );
             }}
-          </GetContentImagesQueryComponent>
+          </Query>
         </div>
       </div>
     );

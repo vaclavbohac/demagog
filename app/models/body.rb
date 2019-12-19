@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Body < ApplicationRecord
+  include Searchable
+
   has_many :memberships, dependent: :destroy
   has_many :speakers, through: :memberships
   belongs_to :attachment, optional: true
@@ -11,6 +13,13 @@ class Body < ApplicationRecord
     speakers
       .where(memberships: { until: nil })
       .order(last_name: :asc)
+  end
+
+  def self.matching_name(name)
+    where(
+      "name ILIKE ? OR UNACCENT(name) ILIKE ? OR short_name ILIKE ? OR UNACCENT(short_name) ILIKE ?",
+      "%#{name}%", "%#{name}%", "%#{name}%", "%#{name}%"
+    )
   end
 
   def self.min_members(count)

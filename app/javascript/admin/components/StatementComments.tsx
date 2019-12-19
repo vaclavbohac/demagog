@@ -2,37 +2,26 @@ import * as React from 'react';
 
 import { Button, Classes } from '@blueprintjs/core';
 import anchorme from 'anchorme';
+import { format, isToday, isYesterday } from 'date-fns';
+import * as dateFnsCsLocale from 'date-fns/locale/cs';
 import { css, cx } from 'emotion';
 import { Formik } from 'formik';
 import { Mutation, Query } from 'react-apollo';
 import { Mention, MentionsInput } from 'react-mentions';
 
 import {
-  CommentInputType,
-  CreateCommentMutation,
-  CreateCommentMutationVariables,
-  GetStatementCommentsQuery,
-  GetStatementCommentsQueryVariables,
-  GetUsersQuery,
-  GetUsersQueryVariables,
+  CommentInput,
+  CreateComment as CreateCommentMutation,
+  CreateCommentVariables as CreateCommentMutationVariables,
+  GetStatementComments as GetStatementCommentsQuery,
+  GetStatementCommentsVariables as GetStatementCommentsQueryVariables,
+  GetUsers as GetUsersQuery,
+  GetUsersVariables as GetUsersQueryVariables,
 } from '../operation-result-types';
 import { CreateComment } from '../queries/mutations';
 import { GetStatementComments, GetUsers } from '../queries/queries';
-import { displayDateTime } from '../utils';
 import Authorize from './Authorize';
 import Loading from './Loading';
-
-class GetStatementCommentsQueryComponent extends Query<
-  GetStatementCommentsQuery,
-  GetStatementCommentsQueryVariables
-> {}
-
-class GetUsersQueryComponent extends Query<GetUsersQuery, GetUsersQueryVariables> {}
-
-class CreateCommentMutationComponent extends Mutation<
-  CreateCommentMutation,
-  CreateCommentMutationVariables
-> {}
 
 interface IProps {
   statementId: string;
@@ -41,7 +30,7 @@ interface IProps {
 class StatementComments extends React.PureComponent<IProps> {
   public render() {
     return (
-      <GetStatementCommentsQueryComponent
+      <Query<GetStatementCommentsQuery, GetStatementCommentsQueryVariables>
         query={GetStatementComments}
         variables={{ id: parseInt(this.props.statementId, 10) }}
         pollInterval={20350} // Little more than 20s so it does not sync with other polls
@@ -55,7 +44,7 @@ class StatementComments extends React.PureComponent<IProps> {
             return <Loading />;
           }
 
-          if (!data) {
+          if (!data || !data.statement) {
             return null;
           }
 
@@ -64,23 +53,27 @@ class StatementComments extends React.PureComponent<IProps> {
               {data.statement.comments.map((comment) => (
                 <div key={comment.id} style={{ marginBottom: 15 }}>
                   <strong>
-                    {comment.user.first_name} {comment.user.last_name}
+                    {comment.user.firstName} {comment.user.lastName}
                   </strong>
                   <small className={Classes.TEXT_MUTED} style={{ marginLeft: 10 }}>
-                    {displayDateTime(comment.created_at)}
+                    {formatCreatedAt(comment.createdAt)}
                   </small>
-                  <p
+                  <div
                     style={{ marginTop: 3 }}
                     className={css`
-                      margin-top: 3px;
-                      word-break: break-word;
+                      p {
+                        margin: 3px 0 5px 0;
+                        word-break: break-word;
 
-                      span.highlight {
-                        background-color: rgb(206, 230, 249);
+                        span.highlight {
+                          background-color: rgb(206, 230, 249);
+                        }
                       }
                     `}
                     dangerouslySetInnerHTML={{
-                      __html: highlightMentions(nicerLinks(comment.content)),
+                      __html: newlinesToParagraphsAndBreaks(
+                        highlightMentions(nicerLinks(comment.content)),
+                      ),
                     }}
                   />
                 </div>
@@ -97,7 +90,7 @@ class StatementComments extends React.PureComponent<IProps> {
             </div>
           );
         }}
-      </GetStatementCommentsQueryComponent>
+      </Query>
     );
   }
 }
@@ -116,6 +109,18 @@ const nicerLinks = (commentContent: string) =>
     },
   });
 
+const newlinesToParagraphsAndBreaks = (commentContent: string): string => {
+  let paragraphs = commentContent.split(/(?:\r\n|\r|\n){2,}/);
+
+  paragraphs = paragraphs.map((paragraph) => {
+    const lines = paragraph.split(/(?:\r\n|\r|\n)/);
+
+    return lines.join('<br>');
+  });
+
+  return paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('');
+};
+
 interface IAddCommentFormProps {
   statementId: string;
   onCommentAdded: () => void;
@@ -127,14 +132,14 @@ const AddCommentForm = (props: IAddCommentFormProps) => {
   };
 
   return (
-    <CreateCommentMutationComponent mutation={CreateComment}>
+    <Mutation<CreateCommentMutation, CreateCommentMutationVariables> mutation={CreateComment}>
       {(createComment) => (
         <Formik
           initialValues={initialValues}
           onSubmit={(values, { setSubmitting, resetForm }) => {
-            const commentInput: CommentInputType = {
+            const commentInput: CommentInput = {
               content: values.content.trim(),
-              statement_id: props.statementId,
+              statementId: props.statementId,
             };
 
             createComment({ variables: { commentInput } })
@@ -167,7 +172,7 @@ const AddCommentForm = (props: IAddCommentFormProps) => {
                 {values.content.trim() !== '' && (
                   <div className={Classes.FORM_HELPER_TEXT}>
                     Tip: Můžeš zmínit kohokoli z týmu — stačí napsat @ a vybrat koho. Také dostane
-                    upozornění na tvůj komentář.
+                    upozornění na tvůj komentář. @Experti upozorní všechny experty u tohoto výroku.
                   </div>
                 )}
               </div>
@@ -183,7 +188,7 @@ const AddCommentForm = (props: IAddCommentFormProps) => {
           )}
         </Formik>
       )}
-    </CreateCommentMutationComponent>
+    </Mutation>
   );
 };
 
@@ -194,7 +199,7 @@ interface ICommentInputProps {
 
 const CommentInput = (props: ICommentInputProps) => {
   return (
-    <GetUsersQueryComponent query={GetUsers}>
+    <Query<GetUsersQuery, GetUsersQueryVariables> query={GetUsers}>
       {({ data, loading, error }) => {
         if (error) {
           console.error(error); // tslint:disable-line:no-console
@@ -206,8 +211,12 @@ const CommentInput = (props: ICommentInputProps) => {
 
         const suggestions = data.users.map((u) => ({
           id: u.id,
-          display: `${u.first_name} ${u.last_name}`,
+          display: `${u.firstName} ${u.lastName}`,
         }));
+        suggestions.unshift({
+          id: 'experts',
+          display: 'Experti',
+        });
 
         return (
           <MentionsInput
@@ -267,8 +276,19 @@ const CommentInput = (props: ICommentInputProps) => {
           </MentionsInput>
         );
       }}
-    </GetUsersQueryComponent>
+    </Query>
   );
+};
+
+const formatCreatedAt = (createdAt: string) => {
+  let datePart = format(createdAt, 'dd D. M. YYYY', { locale: dateFnsCsLocale });
+  if (isToday(createdAt)) {
+    datePart = 'dnes';
+  } else if (isYesterday(createdAt)) {
+    datePart = 'včera';
+  }
+
+  return datePart + format(createdAt, ' H:mm', { locale: dateFnsCsLocale });
 };
 
 export default StatementComments;

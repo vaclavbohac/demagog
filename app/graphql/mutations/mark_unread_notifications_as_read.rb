@@ -1,13 +1,21 @@
 # frozen_string_literal: true
 
-Mutations::MarkUnreadNotificationsAsRead = GraphQL::Field.define do
-  name "MarkUnreadNotificationsAsRead"
-  type types[!Types::NotificationType]
-  description "Mark all unread notifications of current user as read"
+module Mutations
+  class MarkUnreadNotificationsAsRead < GraphQL::Schema::Mutation
+    description "Mark unread notifications of current user as read, either all or just regarding one statement"
 
-  resolve -> (obj, args, ctx) {
-    Utils::Auth.authenticate(ctx)
+    field :notifications, [Types::NotificationType], null: false
 
-    Notification.mark_unread_as_read(ctx[:current_user])
-  }
+    argument :statement_id, ID, required: false
+
+    def resolve(statement_id: nil)
+      Utils::Auth.authenticate(context)
+
+      notifications = statement_id.nil? ?
+        Notification.mark_all_unread_as_read(context[:current_user])
+        : Notification.mark_statement_unread_as_read(statement_id, context[:current_user])
+
+      { notifications: notifications }
+    end
+  end
 end

@@ -1,16 +1,17 @@
 # frozen_string_literal: true
 
-Types::CreateStatementInputType = GraphQL::InputObjectType.define do
-  name "CreateStatementInputType"
-
-  argument :content, !types.String
-  argument :excerpted_at, !types.String
-  argument :important, !types.Boolean
-  argument :speaker_id, !types.ID
-  argument :source_id, !types.ID
-  argument :published, !types.Boolean
-  argument :count_in_statistics, !types.Boolean
-  argument :assessment, !Types::CreateAssessmentInputType
-  argument :statement_transcript_position, Types::StatementTranscriptPositionInputType
-  argument :first_comment_content, types.String
+module Types
+  class CreateStatementInputType < GraphQL::Schema::InputObject
+    argument :statement_type, Types::StatementTypeType, required: true
+    argument :content, String, required: true
+    argument :excerpted_at, String, required: true
+    argument :important, Boolean, required: true
+    argument :speaker_id, ID, required: true
+    argument :source_id, ID, required: true
+    argument :published, Boolean, required: true
+    argument :assessment, CreateAssessmentInputType, required: true
+    argument :statement_transcript_position, StatementTranscriptPositionInputType, required: false
+    argument :statement_video_mark, StatementVideoMarkInputType, required: false
+    argument :first_comment_content, String, required: false
+  end
 end

@@ -1,31 +1,25 @@
 import * as React from 'react';
-import { Mutation, MutationFn, Query } from 'react-apollo';
+import { Mutation, MutationFunction, Query } from 'react-apollo';
 import { connect, DispatchProp } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { addFlashMessage } from '../../actions/flashMessages';
 import {
-  GetMediaPersonalityQuery,
-  GetMediaPersonalityQueryVariables,
-  MediaPersonalityInputType,
-  UpdateMediaPersonalityMutation,
-  UpdateMediaPersonalityMutationVariables,
+  GetMediaPersonality as GetMediaPersonalityQuery,
+  GetMediaPersonalityVariables as GetMediaPersonalityQueryVariables,
+  MediaPersonalityInput,
+  UpdateMediaPersonality as UpdateMediaPersonalityMutation,
+  UpdateMediaPersonalityVariables as UpdateMediaPersonalityMutationVariables,
 } from '../../operation-result-types';
 import { UpdateMediaPersonality } from '../../queries/mutations';
-import { GetMediaPersonalities, GetMediaPersonality } from '../../queries/queries';
-import { GET_MEDIA_PERSONALITIES } from '../forms/controls/MediaPersonalitySelect';
+import {
+  GetMediaPersonalities,
+  GetMediaPersonalitiesForSelect,
+  GetMediaPersonality,
+} from '../../queries/queries';
 import { MediaPersonalityForm } from '../forms/MediaPersonalityForm';
 import Loading from '../Loading';
 
-class MediaPersonalityQuery extends Query<
-  GetMediaPersonalityQuery,
-  GetMediaPersonalityQueryVariables
-> {}
-class UpdateMediaPersonalityMutationComponent extends Mutation<
-  UpdateMediaPersonalityMutation,
-  UpdateMediaPersonalityMutationVariables
-> {}
-
-type UpdateMediaPersonalityMutationFn = MutationFn<
+type UpdateMediaPersonalityMutationFn = MutationFunction<
   UpdateMediaPersonalityMutation,
   UpdateMediaPersonalityMutationVariables
 >;
@@ -44,7 +38,7 @@ class MediaPersonalityEdit extends React.Component<IMediaPersonalityEditProps> {
   };
 
   public onSubmit = (updateMediaPersonality: UpdateMediaPersonalityMutationFn) => (
-    mediaPersonalityInput: MediaPersonalityInputType,
+    mediaPersonalityInput: MediaPersonalityInput,
   ) => {
     const id = this.getParamId();
 
@@ -60,7 +54,10 @@ class MediaPersonalityEdit extends React.Component<IMediaPersonalityEditProps> {
 
     return (
       <div style={{ padding: '15px 0 40px 0' }}>
-        <MediaPersonalityQuery query={GetMediaPersonality} variables={{ id }}>
+        <Query<GetMediaPersonalityQuery, GetMediaPersonalityQueryVariables>
+          query={GetMediaPersonality}
+          variables={{ id }}
+        >
           {({ data, loading }) => {
             if (loading) {
               return <Loading />;
@@ -71,27 +68,27 @@ class MediaPersonalityEdit extends React.Component<IMediaPersonalityEditProps> {
             }
 
             return (
-              <UpdateMediaPersonalityMutationComponent
+              <Mutation<UpdateMediaPersonalityMutation, UpdateMediaPersonalityMutationVariables>
                 mutation={UpdateMediaPersonality}
                 refetchQueries={[
                   { query: GetMediaPersonalities, variables: { name: '' } },
                   { query: GetMediaPersonality, variables: { id } },
-                  { query: GET_MEDIA_PERSONALITIES },
+                  { query: GetMediaPersonalitiesForSelect },
                 ]}
               >
                 {(updateMediaPersonality) => {
                   return (
                     <MediaPersonalityForm
-                      mediaPersonality={data.media_personality}
+                      mediaPersonality={data.mediaPersonality}
                       onSubmit={this.onSubmit(updateMediaPersonality)}
                       title="Upravit moderátory"
                     />
                   );
                 }}
-              </UpdateMediaPersonalityMutationComponent>
+              </Mutation>
             );
           }}
-        </MediaPersonalityQuery>
+        </Query>
       </div>
     );
   }

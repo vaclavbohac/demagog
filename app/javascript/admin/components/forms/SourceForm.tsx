@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import * as yup from 'yup';
 
-import { GetSourceQuery, SourceInputType } from '../../operation-result-types';
+import { GetSource as GetSourceQuery, SourceInput } from '../../operation-result-types';
 import { IState as ReduxState } from '../../reducers';
 import DateField from './controls/DateField';
 import MediaPersonalitiesSelect from './controls/MediaPersonalitySelect';
@@ -24,7 +24,7 @@ import FormGroup from './FormGroup';
 interface ISourceFormProps {
   backPath: string;
   source?: GetSourceQuery['source'];
-  onSubmit: (formData: SourceInputType) => Promise<any>;
+  onSubmit: (formData: SourceInput) => Promise<any>;
   title: string;
 
   currentUser: ReduxState['currentUser']['user'];
@@ -37,17 +37,17 @@ class SourceForm extends React.Component<ISourceFormProps> {
     const initialValues = {
       name: source ? source.name : '',
       medium_id: source ? source.medium.id : null,
-      media_personalities: source ? source.media_personalities.map((p) => p.id) : [],
-      released_at: source ? source.released_at : DateTime.local().toISODate(),
-      source_url: source ? source.source_url : '',
+      media_personalities: source ? source.mediaPersonalities.map((p) => p.id) : [],
+      released_at: source ? source.releasedAt : DateTime.local().toISODate(),
+      source_url: source ? source.sourceUrl : '',
       speakers: source ? source.speakers.map((s) => s.id) : [],
       transcript: source && source.transcript ? source.transcript : '',
-      expert_id: source && source.expert ? source.expert.id : null,
+      experts: source ? source.experts.map((u) => u.id) : [],
     };
 
-    // When creating new source, prefill the expert with the current user
+    // When creating new source, prefill experts with the current user
     if (!source && currentUser) {
-      initialValues.expert_id = currentUser.id;
+      initialValues.experts = [currentUser.id];
     }
 
     return (
@@ -60,14 +60,17 @@ class SourceForm extends React.Component<ISourceFormProps> {
           speakers: yup.array().min(1, 'Je třeba vybrat alespoň jednoho řečníka'),
         })}
         onSubmit={(values, { setSubmitting }) => {
-          const formData: SourceInputType = {
-            ...values,
-
+          const formData: SourceInput = {
+            name: values.name,
+            sourceUrl: values.source_url,
+            speakers: values.speakers,
+            transcript: values.transcript,
+            mediaPersonalities: values.media_personalities,
             // medium_id will always be a string, because null won't pass validation
-            medium_id: values.medium_id as string,
-
+            mediumId: values.medium_id as string,
             // released_at will always be a string, because null won't pass validation
-            released_at: values.released_at as string,
+            releasedAt: values.released_at as string,
+            experts: values.experts,
           };
 
           this.props
@@ -108,24 +111,28 @@ class SourceForm extends React.Component<ISourceFormProps> {
                 <div style={{ display: 'flex' }}>
                   <div style={{ flex: '1 1' }}>
                     <FormGroup name="medium_id" label="Pořad">
-                      <SelectComponentField name="medium_id">
-                        {(renderProps) => <MediumSelect {...renderProps} />}
-                      </SelectComponentField>
-                      <div className={Classes.FORM_HELPER_TEXT}>
-                        Chybí ti v seznamu pořad? Přidej si ho přes agendu{' '}
-                        <Link to="/admin/media">Pořady</Link>.
-                      </div>
+                      <>
+                        <SelectComponentField name="medium_id">
+                          {(renderProps) => <MediumSelect {...renderProps} />}
+                        </SelectComponentField>
+                        <div className={Classes.FORM_HELPER_TEXT}>
+                          Chybí ti v seznamu pořad? Přidej si ho přes agendu{' '}
+                          <Link to="/admin/media">Pořady</Link>.
+                        </div>
+                      </>
                     </FormGroup>
                   </div>
                   <div style={{ flex: '1 1', marginLeft: 15 }}>
                     <FormGroup name="media_personalities" label="Moderátoři">
-                      <SelectComponentField name="media_personalities">
-                        {(renderProps) => <MediaPersonalitiesSelect {...renderProps} />}
-                      </SelectComponentField>
-                      <div className={Classes.FORM_HELPER_TEXT}>
-                        Chybí ti v seznamu moderátoři? Přidej si je přes agendu{' '}
-                        <Link to="/admin/media-personalities">Moderátoři</Link>.
-                      </div>
+                      <>
+                        <SelectComponentField name="media_personalities">
+                          {(renderProps) => <MediaPersonalitiesSelect {...renderProps} />}
+                        </SelectComponentField>
+                        <div className={Classes.FORM_HELPER_TEXT}>
+                          Chybí ti v seznamu moderátoři? Přidej si je přes agendu{' '}
+                          <Link to="/admin/media-personalities">Moderátoři</Link>.
+                        </div>
+                      </>
                     </FormGroup>
                   </div>
                 </div>
@@ -155,16 +162,16 @@ class SourceForm extends React.Component<ISourceFormProps> {
 
             <div style={{ display: 'flex', marginTop: 30 }}>
               <div style={{ flex: '0 0 200px', marginRight: 15 }}>
-                <h4 className={Classes.HEADING}>Expert</h4>
+                <h4 className={Classes.HEADING}>Experti</h4>
 
-                <p>
-                  Vybraný expert bude dostávat notifikace při změnách výroků v rámci této diskuze.
-                </p>
+                <p>Vybraní budou dostávat notifikace při změnách výroků v rámci této diskuze.</p>
               </div>
               <div style={{ flex: '1 1' }}>
-                <FormGroup name="expert_id" label="Expert" optional>
-                  <SelectComponentField name="expert_id">
-                    {(renderProps) => <UserSelect roles={['expert', 'admin']} {...renderProps} />}
+                <FormGroup name="experts" label="Experti" optional>
+                  <SelectComponentField name="experts">
+                    {(renderProps) => (
+                      <UserSelect isMulti roles={['expert', 'admin']} {...renderProps} />
+                    )}
                   </SelectComponentField>
                 </FormGroup>
               </div>

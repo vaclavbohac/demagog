@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class Medium < ApplicationRecord
-  default_scope { where(deleted_at: nil) }
+  include Discardable
+
+  default_scope { kept }
 
   has_many :sources
   belongs_to :attachment, optional: true
@@ -9,7 +11,7 @@ class Medium < ApplicationRecord
   has_one_attached :logo
 
   def self.matching_name(name)
-    where("name LIKE ?", "%#{name}%")
+    where("name ILIKE ? OR UNACCENT(name) ILIKE ?", "%#{name}%", "%#{name}%")
   end
 
   def self.create_medium(medium_input)
@@ -33,7 +35,6 @@ class Medium < ApplicationRecord
       raise ActiveModel::ValidationError.new(medium)
     end
 
-    medium.deleted_at = Time.now
-    medium.save!
+    medium.discard
   end
 end

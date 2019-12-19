@@ -44,7 +44,6 @@ EXPERT_PERMISSIONS = [
 
   "users:view",
   "users:edit",
-  "users:edit-user-public",
 
   "visualizations:view",
 ]
@@ -86,6 +85,7 @@ class Role < ApplicationRecord
       ]
     when PROOFREADER then [
         "articles:view",
+        "availability:view",
         "bodies:view",
         "images:view",
         "images:add",
@@ -100,6 +100,7 @@ class Role < ApplicationRecord
         "visualizations:view",
       ]
     when INTERN then [
+        "availability:view",
         "bodies:view",
         "images:view",
         "images:add",

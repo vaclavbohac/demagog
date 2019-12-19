@@ -18,13 +18,14 @@ import { DateTime } from 'luxon';
 import { Link } from 'react-router-dom';
 import * as yup from 'yup';
 
-import { ArticleInputType, GetArticleQuery } from '../../operation-result-types';
+import { ArticleInput, GetArticle as GetArticleQuery } from '../../operation-result-types';
 import DateField from '../forms/controls/DateField';
 import ImageField, { ImageValueType } from '../forms/controls/ImageField';
 import SelectField from '../forms/controls/SelectField';
 import SwitchField from '../forms/controls/SwitchField';
 import FormGroup from '../forms/FormGroup';
 import ArticleIllustration from './ArticleIllustration';
+import ArticlePromiseSegment from './ArticlePromiseSegment';
 import ArticleSourceStatementsSegment from './ArticleSourceStatementsSegment';
 import ArticleTextSegment from './ArticleTextSegment';
 
@@ -36,15 +37,15 @@ const ARTICLE_TYPE_OPTIONS = [
   { label: 'Komentář', value: ARTICLE_TYPE_STATIC },
 ];
 
-type SegmentType = 'text' | 'source_statements';
+type SegmentType = 'text' | 'source_statements' | 'promise';
 
-export interface IArticleFormData extends ArticleInputType {
+export interface IArticleFormData extends ArticleInput {
   illustration: ImageValueType;
 }
 
 interface IArticleFormProps {
   article?: GetArticleQuery['article'];
-  onSubmit: (formData: ArticleInputType) => Promise<any>;
+  onSubmit: (formData: ArticleInput) => Promise<any>;
   title: string;
   backPath: string;
 }
@@ -54,22 +55,23 @@ export class ArticleForm extends React.Component<IArticleFormProps> {
     const { article, backPath, title } = this.props;
 
     const initialValues = {
-      article_type: article ? article.article_type : ARTICLE_TYPE_DEFAULT,
+      article_type: article ? article.articleType : ARTICLE_TYPE_DEFAULT,
       title: article ? article.title : '',
       perex: article && article.perex ? article.perex : '',
       segments:
         article && article.segments
           ? article.segments.map((s) => ({
               id: s.id,
-              segment_type: s.segment_type as SegmentType,
-              text_html: s.text_html,
-              text_slatejson: s.text_slatejson,
+              segment_type: s.segmentType as SegmentType,
+              text_html: s.textHtml,
+              text_slatejson: s.textSlatejson,
               source_id: s.source ? s.source.id : null,
+              promise_url: s.promiseUrl,
             }))
           : [],
       illustration: article ? article.illustration : null,
       published: article ? article.published : false,
-      published_at: article ? article.published_at : DateTime.local().toISODate(),
+      published_at: article ? article.publishedAt : DateTime.local().toISODate(),
     };
 
     return (
@@ -79,7 +81,22 @@ export class ArticleForm extends React.Component<IArticleFormProps> {
           article_type: yup.string().oneOf([ARTICLE_TYPE_DEFAULT, ARTICLE_TYPE_STATIC]),
         })}
         onSubmit={(values, { setSubmitting }) => {
-          const formData: IArticleFormData = values;
+          const formData: IArticleFormData = {
+            articleType: values.article_type,
+            illustration: values.illustration,
+            perex: values.perex,
+            published: values.published,
+            publishedAt: values.published_at,
+            segments: values.segments.map((s) => ({
+              id: s.id,
+              segmentType: s.segment_type,
+              textHtml: s.text_html,
+              textSlatejson: s.text_slatejson,
+              sourceId: s.source_id,
+              promiseUrl: s.promise_url,
+            })),
+            title: values.title,
+          };
 
           this.props
             .onSubmit(formData)
@@ -184,6 +201,14 @@ export class ArticleForm extends React.Component<IArticleFormProps> {
                                     onRemove={() => arrayHelpers.remove(index)}
                                   />
                                 )}
+
+                                {segment.segment_type === 'promise' && (
+                                  <ArticlePromiseSegment
+                                    segment={field.value}
+                                    onChange={(value) => form.setFieldValue(field.name, value)}
+                                    onRemove={() => arrayHelpers.remove(index)}
+                                  />
+                                )}
                               </>
                             )}
                           />
@@ -241,6 +266,7 @@ function AddSegmentButton(props: IAddSegmentButtonProps) {
           <Menu>
             <MenuItem text="Textový segment" onClick={() => props.onAdd('text')} />
             <MenuItem text="Výrokový segment" onClick={() => props.onAdd('source_statements')} />
+            <MenuItem text="Slib vlády Andreje Babiše" onClick={() => props.onAdd('promise')} />
           </Menu>
         }
         position={Position.BOTTOM_RIGHT}

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ArticleController < ApplicationController
+class ArticleController < FrontendController
   def index
     # Redirect pages to new url
     page = Page.published.friendly.find_by(slug: params[:slug])
@@ -42,5 +42,21 @@ class ArticleController < ApplicationController
     #     format.html
     #   end
     # end
+  end
+
+  helper_method :replace_segment_text_html_special_strings
+  def replace_segment_text_html_special_strings(text_html)
+    playbuzz_quiz_html = <<-HEREDOC
+<script>(function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(d.getElementById(id))return;js=d.createElement(s);js.id=id;js.src='https://embed.playbuzz.com/sdk.js';fjs.parentNode.insertBefore(js,fjs);}(document,'script','playbuzz-sdk'));</script>
+<div class="playbuzz" data-id="0c39f886-6c12-4243-9ff9-c2d890ae32c0" data-show-share="false" data-show-info="false" data-comments="false"></div>
+    HEREDOC
+    playbuzz_quiz_html = '<div style="margin-bottom: 1rem; background: white;">' + playbuzz_quiz_html + "</div>"
+
+    text_html.gsub(/(<p>\[playbuzzkviz\]<\/p>)/, playbuzz_quiz_html)
+  end
+
+  helper_method :promise_segment_widget_url
+  def promise_segment_widget_url(promise_path)
+    root_url(only_path: false).delete_suffix("/") + promise_path
   end
 end

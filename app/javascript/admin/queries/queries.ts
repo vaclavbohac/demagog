@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 
 export const GetPages = gql`
   query GetPages($title: String, $offset: Int, $limit: Int) {
-    pages(include_unpublished: true, offset: $offset, limit: $limit, title: $title) {
+    pages(includeUnpublished: true, offset: $offset, limit: $limit, title: $title) {
       id
       title
       slug
@@ -13,33 +13,34 @@ export const GetPages = gql`
 
 export const GetPage = gql`
   query GetPage($id: ID!) {
-    page(id: $id, include_unpublished: true) {
+    page(id: $id, includeUnpublished: true) {
       id
       title
       slug
       published
-      text_html
-      text_slatejson
+      textHtml
+      textSlatejson
     }
   }
 `;
 
 export const GetArticle = gql`
   query GetArticle($id: ID!) {
-    article(id: $id, include_unpublished: true) {
+    article(id: $id, includeUnpublished: true) {
       id
-      article_type
+      articleType
       title
       slug
       perex
       published
-      published_at
+      publishedAt
       illustration
       segments {
         id
-        segment_type
-        text_html
-        text_slatejson
+        segmentType
+        textHtml
+        textSlatejson
+        promiseUrl
         source {
           id
         }
@@ -53,20 +54,20 @@ export const GetArticle = gql`
 
 export const GetArticles = gql`
   query GetArticles($title: String, $offset: Int, $limit: Int) {
-    articles(include_unpublished: true, offset: $offset, limit: $limit, title: $title) {
+    articles(includeUnpublished: true, offset: $offset, limit: $limit, title: $title) {
       id
-      article_type
+      articleType
       title
       slug
       published
-      published_at
+      publishedAt
     }
   }
 `;
 
 export const GetMediaPersonalities = gql`
   query GetMediaPersonalities($name: String) {
-    media_personalities(name: $name) {
+    mediaPersonalities(name: $name) {
       id
       name
     }
@@ -75,7 +76,7 @@ export const GetMediaPersonalities = gql`
 
 export const GetMediaPersonality = gql`
   query GetMediaPersonality($id: ID!) {
-    media_personality(id: $id) {
+    mediaPersonality(id: $id) {
       id
       name
     }
@@ -102,30 +103,35 @@ export const GetMedium = gql`
 
 export const GetSources = gql`
   query GetSources($name: String, $offset: Int, $limit: Int) {
-    sources(name: $name, offset: $offset, limit: $limit) {
+    sources(
+      name: $name
+      offset: $offset
+      limit: $limit
+      includeOnesWithoutPublishedStatements: true
+    ) {
       id
       name
-      source_url
-      released_at
+      sourceUrl
+      releasedAt
       medium {
         id
         name
       }
-      media_personalities {
+      mediaPersonalities {
         id
         name
       }
-      statements_counts_by_evaluation_status {
-        evaluation_status
-        statements_count
+      statementsCountsByEvaluationStatus {
+        evaluationStatus
+        statementsCount
       }
       statements {
         id
       }
-      expert {
+      experts {
         id
-        first_name
-        last_name
+        firstName
+        lastName
       }
     }
   }
@@ -136,30 +142,30 @@ export const GetSource = gql`
     source(id: $id) {
       id
       name
-      source_url
-      released_at
+      sourceUrl
+      releasedAt
       transcript
       medium {
         id
         name
       }
-      media_personalities {
+      mediaPersonalities {
         id
         name
       }
-      statements_counts_by_evaluation_status {
-        evaluation_status
-        statements_count
+      statementsCountsByEvaluationStatus {
+        evaluationStatus
+        statementsCount
       }
       speakers {
         id
-        first_name
-        last_name
+        firstName
+        lastName
       }
-      expert {
+      experts {
         id
-        first_name
-        last_name
+        firstName
+        lastName
       }
     }
   }
@@ -167,10 +173,10 @@ export const GetSource = gql`
 
 export const GetSourcesForSelect = gql`
   query GetSourcesForSelect {
-    sources(offset: 0, limit: 10000) {
+    sources(offset: 0, limit: 10000, includeOnesWithoutPublishedStatements: true) {
       id
       name
-      released_at
+      releasedAt
       medium {
         id
         name
@@ -182,60 +188,76 @@ export const GetSourcesForSelect = gql`
 // TODO: add pagination and control limit
 export const GetSourceStatements = gql`
   query GetSourceStatements($sourceId: Int!, $includeUnpublished: Boolean) {
-    statements(limit: 200, source: $sourceId, include_unpublished: $includeUnpublished) {
+    statements(limit: 200, source: $sourceId, includeUnpublished: $includeUnpublished) {
       id
+      statementType
       content
+      title
       important
       published
       speaker {
         id
-        first_name
-        last_name
+        firstName
+        lastName
         avatar
       }
       assessment {
         id
-        evaluation_status
+        assessmentMethodology {
+          id
+          ratingModel
+          ratingKeys
+        }
+        evaluationStatus
         evaluator {
           id
-          first_name
-          last_name
+          firstName
+          lastName
         }
         veracity {
           id
           key
           name
         }
-        short_explanation
-        short_explanation_characters_length
-        explanation_characters_length
+        promiseRating {
+          id
+          key
+          name
+        }
+        shortExplanation
+        shortExplanationCharactersLength
+        explanationCharactersLength
       }
-      statement_transcript_position {
+      statementTranscriptPosition {
         id
-        start_line
-        start_offset
-        end_line
-        end_offset
+        startLine
+        startOffset
+        endLine
+        endOffset
       }
-      comments_count
-      source_order
+      tags {
+        id
+        name
+      }
+      commentsCount
+      sourceOrder
     }
   }
 `;
 
 export const GetUsers = gql`
   query GetUsers($name: String, $includeInactive: Boolean) {
-    users(limit: 100, name: $name, include_inactive: $includeInactive) {
+    users(limit: 100, name: $name, includeInactive: $includeInactive) {
       id
       email
-      first_name
-      last_name
+      firstName
+      lastName
       avatar
       active
       bio
-      position_description
-      email_notifications
-      user_public
+      positionDescription
+      emailNotifications
+      userPublic
       rank
       role {
         id
@@ -250,14 +272,14 @@ export const GetUser = gql`
     user(id: $id) {
       id
       email
-      first_name
-      last_name
+      firstName
+      lastName
       avatar
       active
       bio
-      position_description
-      email_notifications
-      user_public
+      positionDescription
+      emailNotifications
+      userPublic
       role {
         id
         name
@@ -273,11 +295,11 @@ export const GetBodies = gql`
       logo
       link
       name
-      is_party
-      is_inactive
-      short_name
-      founded_at
-      terminated_at
+      isParty
+      isInactive
+      shortName
+      foundedAt
+      terminatedAt
     }
   }
 `;
@@ -289,11 +311,11 @@ export const GetBody = gql`
       logo
       link
       name
-      is_party
-      is_inactive
-      short_name
-      founded_at
-      terminated_at
+      isParty
+      isInactive
+      shortName
+      foundedAt
+      terminatedAt
     }
   }
 `;
@@ -303,9 +325,9 @@ export const GetSpeakerBodies = gql`
     bodies(limit: 1000) {
       id
       name
-      short_name
-      is_inactive
-      terminated_at
+      shortName
+      isInactive
+      terminatedAt
     }
   }
 `;
@@ -314,15 +336,15 @@ export const GetSpeaker = gql`
   query GetSpeaker($id: Int!) {
     speaker(id: $id) {
       id
-      first_name
-      last_name
-      website_url
+      firstName
+      lastName
+      websiteUrl
       avatar
       memberships {
         id
         body {
           id
-          short_name
+          shortName
         }
         since
         until
@@ -335,18 +357,18 @@ export const GetSpeakers = gql`
   query GetSpeakers($name: String) {
     speakers(limit: 100, name: $name) {
       id
-      first_name
-      last_name
+      firstName
+      lastName
       avatar
-      website_url
+      websiteUrl
       body {
-        short_name
+        shortName
       }
       memberships {
         id
         body {
           id
-          short_name
+          shortName
         }
         since
         until
@@ -357,31 +379,42 @@ export const GetSpeakers = gql`
 
 export const GetStatement = gql`
   query GetStatement($id: Int!) {
-    statement(id: $id, include_unpublished: true) {
+    statement(id: $id, includeUnpublished: true) {
       id
+      statementType
       content
+      title
       important
       published
-      excerpted_at
-      count_in_statistics
+      excerptedAt
       speaker {
         id
-        first_name
-        last_name
+        firstName
+        lastName
         avatar
       }
       assessment {
         id
-        explanation_html
-        explanation_slatejson
-        short_explanation
-        evaluation_status
+        assessmentMethodology {
+          id
+          ratingModel
+          ratingKeys
+        }
+        explanationHtml
+        explanationSlatejson
+        shortExplanation
+        evaluationStatus
         evaluator {
           id
-          first_name
-          last_name
+          firstName
+          lastName
         }
         veracity {
+          id
+          key
+          name
+        }
+        promiseRating {
           id
           key
           name
@@ -390,44 +423,53 @@ export const GetStatement = gql`
       source {
         id
         name
-        source_url
-        released_at
+        sourceUrl
+        releasedAt
         medium {
           id
           name
         }
-        media_personalities {
+        mediaPersonalities {
           id
           name
         }
-        expert {
+        experts {
           id
-          first_name
-          last_name
+          firstName
+          lastName
+        }
+        speakers {
+          id
+          firstName
+          lastName
         }
       }
-      statement_transcript_position {
+      statementTranscriptPosition {
         id
       }
-      comments_count
+      tags {
+        id
+        name
+      }
+      commentsCount
     }
   }
 `;
 
 export const GetStatementComments = gql`
   query GetStatementComments($id: Int!) {
-    statement(id: $id, include_unpublished: true) {
+    statement(id: $id, includeUnpublished: true) {
       id
-      comments_count
+      commentsCount
       comments {
         id
         content
         user {
           id
-          first_name
-          last_name
+          firstName
+          lastName
         }
-        created_at
+        createdAt
       }
     }
   }
@@ -445,10 +487,10 @@ export const GetRoles = gql`
 
 export const GetCurrentUser = gql`
   query GetCurrentUser {
-    current_user {
+    currentUser {
       id
-      first_name
-      last_name
+      firstName
+      lastName
       email
       role {
         id
@@ -462,18 +504,18 @@ export const GetCurrentUser = gql`
 
 export const GetContentImages = gql`
   query GetContentImages($name: String, $offset: Int, $limit: Int) {
-    content_images(offset: $offset, limit: $limit, name: $name) {
-      total_count
+    contentImages(offset: $offset, limit: $limit, name: $name) {
+      totalCount
       items {
         id
         image
-        image_50x50
+        image50x50
         name
-        created_at
+        createdAt
         user {
           id
-          first_name
-          last_name
+          firstName
+          lastName
         }
       }
     }
@@ -482,15 +524,114 @@ export const GetContentImages = gql`
 
 export const GetNotifications = gql`
   query GetNotifications($includeRead: Boolean, $offset: Int, $limit: Int) {
-    notifications(include_read: $includeRead, offset: $offset, limit: $limit) {
-      total_count
+    notifications(includeRead: $includeRead, offset: $offset, limit: $limit) {
+      totalCount
       items {
         id
+        fullText
+        statementText
+        statement {
+          id
+          content
+          statementType
+          speaker {
+            id
+            firstName
+            lastName
+          }
+          source {
+            id
+            name
+          }
+        }
+        createdAt
+        readAt
+      }
+    }
+  }
+`;
+
+export const GetPromiseRatingsForSelect = gql`
+  query GetPromiseRatingsForSelect {
+    promiseRatings {
+      id
+      key
+      name
+    }
+  }
+`;
+
+export const GetTagsForSelect = gql`
+  query GetTagsForSelect($forStatementType: StatementType!) {
+    tags(limit: 10000, forStatementType: $forStatementType) {
+      id
+      name
+    }
+  }
+`;
+
+export const GetVeracitiesForSelect = gql`
+  query GetVeracitiesForSelect {
+    veracities {
+      id
+      key
+      name
+    }
+  }
+`;
+
+export const GetUsersForSelect = gql`
+  query GetUsersForSelect($roles: [String!]) {
+    users(limit: 200, roles: $roles) {
+      id
+      firstName
+      lastName
+    }
+  }
+`;
+
+export const GetSpeakersForSelect = gql`
+  query GetSpeakersForSelect {
+    speakers(limit: 10000) {
+      id
+      firstName
+      lastName
+    }
+  }
+`;
+
+export const GetMediaPersonalitiesForSelect = gql`
+  query GetMediaPersonalitiesForSelect {
+    mediaPersonalities {
+      id
+      name
+    }
+  }
+`;
+
+export const GetSourceWithStatementsAndVideoMarks = gql`
+  query GetSourceWithStatementsAndVideoMarks($id: Int!, $includeUnpublished: Boolean) {
+    source(id: $id) {
+      id
+      name
+      sourceUrl
+      releasedAt
+      transcript
+      videoType
+      videoId
+      statements(includeUnpublished: $includeUnpublished) {
+        id
         content
-        action_link
-        action_text
-        created_at
-        read_at
+        speaker {
+          id
+          firstName
+          lastName
+        }
+        statementVideoMark {
+          id
+          start
+          stop
+        }
       }
     }
   }

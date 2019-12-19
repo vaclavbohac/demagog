@@ -2,17 +2,21 @@
 
 class Article < ApplicationRecord
   extend FriendlyId
+  include Discardable
+  include Searchable
 
-  default_scope { where(deleted_at: nil) }
+  default_scope { kept }
+
+  after_create  { ElasticsearchWorker.perform_async(:article, :index,  self.id) }
+  after_update  { ElasticsearchWorker.perform_async(:article, :update,  self.id) }
+  after_discard { ElasticsearchWorker.perform_async(:article, :destroy,  self.id) }
 
   after_initialize :set_defaults
 
   belongs_to :article_type
   belongs_to :user, optional: true
   belongs_to :document, class_name: "Attachment", optional: true
-  has_many :segments, -> { order(order: :asc) }
-
-  after_update :invalidate_caches
+  has_many :segments, class_name: "ArticleSegment", dependent: :destroy
 
   has_one_attached :illustration
 
@@ -23,12 +27,79 @@ class Article < ApplicationRecord
       .where("published_at <= NOW()")
   }
 
+  mapping do
+    indexes :id, type: "long"
+    ElasticMapping.indexes_text_field self, :title
+    ElasticMapping.indexes_text_field self, :perex
+    ElasticMapping.indexes_text_field self, :segments_text
+    indexes :published, type: "boolean"
+    indexes :published_at, type: "date"
+
+    # Special types for factcheck articles, so they are searchable also by medium or moderators
+    indexes :article_type_default_indexed_context do
+      indexes :medium do
+        ElasticMapping.indexes_name_field self, :name
+      end
+      indexes :media_personalities do
+        ElasticMapping.indexes_name_field self, :name
+      end
+    end
+  end
+
+  def as_indexed_json(options = {})
+    as_json(
+      only: [:id, :title, :perex, :segments_text, :published, :published_at, :article_type_default_indexed_context],
+      methods: [:segments_text, :article_type_default_indexed_context]
+    )
+  end
+
+  def self.query_search_published(query)
+    search(
+      query: {
+        bool: {
+          must: { simple_query_string: simple_query_string_defaults.merge(query: query) },
+          filter: [
+            { term: { published: true } },
+            { range: { published_at: { lte: "now" } } }
+          ]
+        }
+      },
+      sort: [
+        { published_at: { order: "desc" } }
+      ]
+    )
+  end
+
+  def segments_text
+    segments.text_type_only.reduce("") do |result, segment|
+      result + Nokogiri::HTML(segment.text_html).text
+    end
+  end
+
+  def article_type_default_indexed_context
+    return {} if article_type.name != "default" || !source
+
+    medium = nil
+    if source.medium
+      medium = source.medium.slice("name")
+    end
+
+    media_personalities = source.media_personalities.map do |media_personality|
+      media_personality.slice("name")
+    end
+
+    {
+      medium: medium,
+      media_personalities: media_personalities
+    }
+  end
+
   def set_defaults
     self.published ||= false
   end
 
   def self.matching_title(title)
-    where("title LIKE ?", "%#{title}%")
+    where("title ILIKE ? OR UNACCENT(title) ILIKE ?", "%#{title}%", "%#{title}%")
   end
 
   def author
@@ -40,6 +111,11 @@ class Article < ApplicationRecord
     source_statements_segment ? source_statements_segment.source : nil
   end
 
+  def statements
+    source_statements_segment = segments.source_statements_type_only.first
+    source_statements_segment.all_published_statements
+  end
+
   def unique_speakers
     return [] unless source
 
@@ -47,6 +123,10 @@ class Article < ApplicationRecord
       .speakers
       .distinct
       .order(last_name: :asc, first_name: :asc)
+  end
+
+  def speaker_stats(speaker)
+    ArticleStat.where(article_id: id, speaker_id: speaker.id).normalize
   end
 
   def self.cover_story
@@ -61,12 +141,27 @@ class Article < ApplicationRecord
     article[:article_type] = ArticleType.find_by!(name: article[:article_type])
 
     if article[:segments]
-      article[:segments] = article[:segments].map do |seg|
-        if seg[:segment_type] == Segment::TYPE_TEXT
-          Segment.new(segment_type: seg[:segment_type], text_html: seg[:text_html], text_slatejson: seg[:text_slatejson])
-        elsif seg[:segment_type] == Segment::TYPE_SOURCE_STATEMENTS
+      article[:segments] = article[:segments].map.with_index(0) do |seg, order|
+        if seg[:segment_type] == ArticleSegment::TYPE_TEXT
+          ArticleSegment.new(
+            segment_type: seg[:segment_type],
+            text_html: seg[:text_html],
+            text_slatejson: seg[:text_slatejson],
+            order: order
+          )
+        elsif seg[:segment_type] == ArticleSegment::TYPE_SOURCE_STATEMENTS
           source = Source.find(seg[:source_id])
-          Segment.new(segment_type: seg[:segment_type], source: source)
+          ArticleSegment.new(
+            segment_type: seg[:segment_type],
+            source: source,
+            order: order
+          )
+        elsif seg[:segment_type] == ArticleSegment::TYPE_PROMISE
+          ArticleSegment.new(
+            segment_type: seg[:segment_type],
+            promise_url: seg[:promise_url],
+            order: order
+          )
         else
           raise "Creating segment of type #{seg[:segment_type]} is not implemented"
         end
@@ -84,17 +179,23 @@ class Article < ApplicationRecord
     article[:segments] = article[:segments].map.with_index(0) do |seg, order|
       segment = ensure_segment(seg[:id], article_id)
 
-      if seg[:segment_type] == Segment::TYPE_TEXT
+      if seg[:segment_type] == ArticleSegment::TYPE_TEXT
         segment.assign_attributes(
           segment_type: seg[:segment_type],
           text_html: seg[:text_html],
           text_slatejson: seg[:text_slatejson],
           order: order
         )
-      elsif seg[:segment_type] == Segment::TYPE_SOURCE_STATEMENTS
+      elsif seg[:segment_type] == ArticleSegment::TYPE_SOURCE_STATEMENTS
         segment.assign_attributes(
           segment_type: seg[:segment_type],
           source: Source.find(seg[:source_id]),
+          order: order
+        )
+      elsif seg[:segment_type] == ArticleSegment::TYPE_PROMISE
+        segment.assign_attributes(
+          segment_type: seg[:segment_type],
+          promise_url: seg[:promise_url],
           order: order
         )
       else
@@ -116,13 +217,8 @@ class Article < ApplicationRecord
 
     begin
       article.segments.find(segment_id)
-    rescue ActiveRecord::RecordNotFound => err
-      Segment.new
+    rescue ActiveRecord::RecordNotFound
+      ArticleSegment.new
     end
   end
-
-  private
-    def invalidate_caches
-      Stats::Article::StatsBuilderFactory.new.create(Settings).invalidate(self)
-    end
 end

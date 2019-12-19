@@ -42,7 +42,12 @@ const categories = [
     title: 'O nás',
     links: [
       { to: '/admin/users', title: 'Tým', enabled: true, permissions: ['users:view'] },
-      { to: '/admin/availability', title: 'Dostupnost', permissions: ['availability:view'] },
+      {
+        to: '/admin/availability',
+        title: 'Dostupnost',
+        enabled: true,
+        permissions: ['availability:view'],
+      },
       { to: '/admin/pages', title: 'Stránky', enabled: true, permissions: ['pages:view'] },
       { to: '/admin/navigation', title: 'Menu', permissions: ['menu:view'] },
     ],
@@ -150,7 +155,8 @@ export default function Sidebar() {
           )}
         >
           <small>
-            Poslední změny:<br />
+            Poslední změny:
+            <br />
             <a href="https://github.com/Demagog2/demagog/blob/master/CHANGELOG-cs.md">
               {CHANGELOG_LAST_UPDATE_DATE}
             </a>

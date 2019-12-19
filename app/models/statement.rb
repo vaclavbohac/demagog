@@ -1,7 +1,17 @@
 # frozen_string_literal: true
 
 class Statement < ApplicationRecord
+  TYPE_FACTUAL = "factual"
+  TYPE_PROMISE = "promise"
+  TYPE_NEWYEARS = "newyears"
+
   include ActiveModel::Dirty
+  include Searchable
+  include Discardable
+
+  after_create { ElasticsearchWorker.perform_async(:statement, :index, self.id) }
+  after_update { ElasticsearchWorker.perform_async(:statement, :update, self.id) }
+  after_discard { ElasticsearchWorker.perform_async(:statement, :destroy, self.id) }
 
   belongs_to :speaker
   belongs_to :source, optional: true
@@ -10,17 +20,17 @@ class Statement < ApplicationRecord
   has_one :assessment
   has_one :veracity, through: :assessment
   has_one :statement_transcript_position
-
-  after_update :invalidate_caches
+  has_one :statement_video_mark
+  has_and_belongs_to_many :tags
 
   default_scope {
     # We keep here only soft-delete, ordering cannot be here because
     # of has_many :through relations which use statements
-    where(deleted_at: nil)
+    kept
   }
 
   scope :ordered, -> {
-    where(deleted_at: nil)
+    kept
       .left_outer_joins(
         # Doing left outer join so it returns also statements without transcript position
         :statement_transcript_position
@@ -37,33 +47,90 @@ class Statement < ApplicationRecord
     ordered
       .where(published: true)
       .joins(:assessment)
-      .where.not(assessments: {
-        veracity_id: nil
-      })
       .where(assessments: {
         evaluation_status: Assessment::STATUS_APPROVED
       })
   }
 
-  scope :relevant_for_statistics, -> {
+  scope :factual_and_published, -> {
     published
-      .where(count_in_statistics: true)
+      .where(statement_type: Statement::TYPE_FACTUAL)
   }
 
   scope :published_important_first, -> {
     # We first call order and then the published scope so the important DESC
     # order rule is used first and then the ones from scope ordered
     # (source_order, etc.)
-    order(important: :asc).published
+    order(important: :desc).published
   }
+
+  mapping do
+    indexes :id, type: "long"
+    indexes :statement_type, type: "keyword"
+    ElasticMapping.indexes_text_field self, :content
+    indexes :published, type: "boolean"
+    indexes :assessment do
+      ElasticMapping.indexes_text_field self, :short_explanation
+      ElasticMapping.indexes_text_field self, :explanation_text
+      indexes :veracity do
+        ElasticMapping.indexes_name_field self, :name
+      end
+    end
+    indexes :source do
+      indexes :released_at, type: "date"
+      indexes :medium do
+        ElasticMapping.indexes_name_field self, :name
+      end
+    end
+    indexes :speaker do
+      ElasticMapping.indexes_name_field self, :full_name
+    end
+  end
+
+  def as_indexed_json(options = {})
+    as_json(
+      only: [:id, :statement_type, :content, :published],
+      include: {
+        assessment: {
+          only: [:short_explanation, :explanation_text],
+          methods: [:explanation_text],
+          include: {
+            veracity: { only: :name }
+          }
+        },
+        source: {
+          only: :released_at,
+          include: {
+            medium: { only: :name }
+          }
+        },
+        speaker: { only: :full_name, methods: :full_name }
+      }
+    )
+  end
+
+  def self.query_search_published_factual(query)
+    search(
+      query: {
+        bool: {
+          must: { simple_query_string: simple_query_string_defaults.merge(query: query) },
+          filter: [
+            { term: { published: true } },
+            { term: { statement_type: TYPE_FACTUAL } }
+          ]
+        }
+      },
+      sort: [
+        { 'source.released_at': { order: "desc" } }
+      ]
+    )
+  end
 
   def self.interesting_statements
     order(excerpted_at: :desc)
+      .where(statement_type: Statement::TYPE_FACTUAL)
       .where(published: true)
       .joins(:assessment)
-      .where.not(assessments: {
-        veracity_id: nil
-      })
       .where(assessments: {
         evaluation_status: Assessment::STATUS_APPROVED
       })
@@ -88,19 +155,19 @@ class Statement < ApplicationRecord
     # With statements:edit, user can edit anything in statement
     return true if permissions.include? "statements:edit"
 
-    evaluator_allowed_attributes = ["content"]
+    evaluator_allowed_attributes = ["content", "title", "tags"]
     evaluator_allowed_changes =
       assessment.evaluation_status == Assessment::STATUS_BEING_EVALUATED &&
-      (changed_attributes.keys - evaluator_allowed_attributes).empty?
+        (changed_attributes.keys - evaluator_allowed_attributes).empty?
 
     if evaluator_allowed_changes && permissions.include?("statements:edit-as-evaluator") && assessment.user_id == user.id
       return true
     end
 
-    texts_allowed_attributes = ["content"]
+    texts_allowed_attributes = ["content", "title"]
     texts_allowed_changes =
       [Assessment::STATUS_BEING_EVALUATED, Assessment::STATUS_APPROVAL_NEEDED, Assessment::STATUS_PROOFREADING_NEEDED].include?(assessment.evaluation_status) &&
-      (changed_attributes.keys - texts_allowed_attributes).empty?
+        (changed_attributes.keys - texts_allowed_attributes).empty?
 
     if texts_allowed_changes && permissions.include?("statements:edit-as-proofreader")
       return true
@@ -110,19 +177,10 @@ class Statement < ApplicationRecord
   end
 
   def display_in_notification
-    "#{speaker.first_name} #{speaker.last_name}: „#{content.truncate(50, omission: '…')}‟"
+    "#{speaker.first_name} #{speaker.last_name}: „#{content.truncate(50, omission: '…')}“"
   end
 
   def mentioning_articles
-    Article.joins(:segments).where(segments: { source_id: source.id }).distinct.order(published_at: :desc)
+    Article.joins(:segments).where(article_segments: { source_id: source.id }).distinct.order(published_at: :desc)
   end
-
-  private
-    def invalidate_caches
-      Stats::Speaker::StatsBuilderFactory.new.create(Settings).invalidate(speaker)
-
-      mentioning_articles.each do |article|
-        Stats::Article::StatsBuilderFactory.new.create(Settings).invalidate(article)
-      end
-    end
 end

@@ -1,33 +1,62 @@
 <% if @cover_story %>
-  <article class="cover-story <% if @cover_story.unique_speakers.length > 2 %>many-speakers<% end %>">    
-    <h1>
-      <%= link_to(@cover_story.title, article_path(@cover_story)) %>
-    </h1>
-
+  <article class="container-homepage-cover_story">
     <% if @cover_story.illustration.attached? %>
-      <figure>
+      <a title="<%= @cover_story.title %>" href="<%= article_path(@cover_story) %>" class="illustration">
         <img src="<%= polymorphic_url(@cover_story.illustration, only_path: true) %>" alt="<%= @cover_story.title %>" />
-      </figure>
+        <% if show_article_factcheck_video(@cover_story) %>
+          <div class="factcheck-video-label">
+            <img src="<%= asset_path("play-icon.svg") %>" class="factcheck-video-label-play-icon" alt="Spustit videozáznam">
+            <span class="factcheck-video-label-text">Videozáznam propojený s ověřením</span>
+          </div>
+        <% end %>
+      </a>
     <% end %>
 
-    <p class="perex">
-      <%= strip_tags(@cover_story.perex) %>
-      <a href="<%= article_path(@cover_story) %>">
-        Číst&nbsp;dál&nbsp;&rarr;
-      </a>
-    </p>
+    <div class="title-perex-and-speakers">
+      <h1>
+        <%= link_to(@cover_story.title, article_path(@cover_story)) %>
+      </h1>
 
-    <section class="speakers">
-      <% @cover_story.unique_speakers.each do |speaker| %>
-        <%= render(
-          partial: "shared/speaker_stat",
-          locals: {
-            speaker: speaker,
-            stats: controller.article_stats.build(@cover_story, speaker),
-            lazy_load_images: false
-          })
-        %>
-      <% end %>
-    </section>
+      <section class="article-meta">
+        <span class="label <%= @cover_story.article_type.name == "default" ? "factcheck" : "editorial" %>">
+          <% if @cover_story.article_type.name == "default" %>
+              Ověřeno
+          <% end %>
+          <% if @cover_story.article_type.name == "static" %>
+              Komentář
+          <% end %>
+        </span>
+
+        <% if @cover_story.article_type.name == "default" && @cover_story.source %>
+            <i><%= @cover_story.source.medium.name %>, <%= raw(l(@cover_story.source.released_at, format: :long)) %></i>
+        <% end %>
+
+        <% if @cover_story.article_type.name == "static" %>
+          <i><%= raw(l(@cover_story.published_at, format: :long)) %></i>
+        <% end %>
+      </section>
+
+      <p class="perex">
+        <%= strip_tags(@cover_story.perex) %>
+        <a href="<%= article_path(@cover_story) %>">
+          Číst&nbsp;dál&nbsp;&rarr;
+        </a>
+      </p>
+
+      <section class="speakers">
+        <% @cover_story.unique_speakers.each do |speaker| %>
+          <div class="speakers-item">
+            <%= render(
+              partial: "shared/speaker_stat",
+              locals: {
+                speaker: speaker,
+                stats: @cover_story.speaker_stats(speaker),
+                lazy_load_images: false
+              })
+            %>
+          </div>
+        <% end %>
+      </section>
+    </div>
   </article>
 <% end %>

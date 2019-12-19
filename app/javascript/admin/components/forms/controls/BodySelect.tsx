@@ -4,7 +4,7 @@ import { Colors } from '@blueprintjs/core';
 import { Query } from 'react-apollo';
 import Select from 'react-select';
 
-import { GetSpeakerBodiesQuery } from '../../../operation-result-types';
+import { GetSpeakerBodies as GetSpeakerBodiesQuery } from '../../../operation-result-types';
 import { GetSpeakerBodies } from '../../../queries/queries';
 
 interface ISelectOption {
@@ -30,7 +30,7 @@ export default class BodySelect extends React.Component<IProps> {
 
           if (data && !loading) {
             options = data.bodies.map((b) => ({
-              label: `${b.name} (${b.short_name})`,
+              label: `${b.name} (${b.shortName})`,
               value: b.id,
             }));
           }

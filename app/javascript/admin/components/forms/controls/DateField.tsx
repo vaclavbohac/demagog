@@ -51,6 +51,7 @@ const DateInput = (props: IDateInputProps) => (
     locale="cs"
     localeUtils={localeUtils}
     formatDate={formatDate}
+    minDate={new Date('1900-01-01')}
     onChange={(date: Date | null) =>
       props.onChange(date !== null ? DateTime.fromJSDate(date).toISODate() : null)
     }

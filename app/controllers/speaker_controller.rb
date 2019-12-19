@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class SpeakerController < ApplicationController
+class SpeakerController < FrontendController
   def index
     @speakers = Speaker.top_speakers
     @parties = Body.min_members(3)
@@ -12,19 +12,23 @@ class SpeakerController < ApplicationController
     @speaker = Speaker.find(params[:id])
 
     @statements = get_speaker_statements(@speaker)
-
-    @stats = speaker_stats.build(@speaker)
-
-    @veracities = Veracity.all
   end
 
   private
     def get_speaker_statements(speaker)
       statements = if params[:veracity]
-        speaker.published_statements_by_veracity(params[:veracity])
+        speaker.factual_and_published_statements_by_veracity(params[:veracity])
       else
-        speaker.published_statements
+        speaker.factual_and_published_statements
       end
+
+      # We just sort the statements by release date of source first, and then
+      # for the same source the statements are sorted by the usual ordering
+      statements = statements
+        .reorder(nil)
+        .joins(:source)
+        .order("sources.released_at" => :desc)
+        .ordered
 
       statements.page(params[:page])
     end
