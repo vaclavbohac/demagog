@@ -60,7 +60,7 @@ gem "meta-tags"
 gem "prometheus_exporter"
 
 # Enables env. specific configuration
-gem "config"
+gem "config", "~> 2.2.1"
 
 # Authentication
 gem "devise", "~> 4.7.1"
@@ -120,11 +120,11 @@ gem "tty-prompt"
 # Use Capistrano for deployment
 group :development do
   gem "capistrano", require: false
-  gem "capistrano-rvm", require: false
   gem "capistrano-rails", require: false
   gem "capistrano-bundler", require: false
   gem "capistrano3-unicorn", require: false
   gem "guard-livereload", "~> 2.5", require: false
+  gem "rvm1-capistrano3", require: false
 end
 
 group :development, :test do
