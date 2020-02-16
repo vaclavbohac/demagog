@@ -7,10 +7,10 @@ require "capistrano/deploy"
 require "capistrano/scm/git"
 install_plugin Capistrano::SCM::Git
 
+require "capistrano/rvm"
 require "capistrano/rails"
-# require "capistrano/bundler"
+require "capistrano/bundler"
 require "capistrano3/unicorn"
-require "rvm1/capistrano3"
 
 require "whenever/capistrano"
 
@@ -24,22 +24,9 @@ namespace :load do
     set :packs_dir,        "public/packs"
     set :rsync_cmd,        "rsync -av --delete"
 
-    after "rvm1:install:gems", "deploy:assets:prepare"
+    after "bundler:install", "deploy:assets:prepare"
   end
 end
-
-namespace :app do
-  task :update_rvm_key do
-    on roles(:all) do
-      execute :gpg, "--keyserver hkp://keys.gnupg.net --recv-keys D39DC0E3"
-    end
-  end
-end
-
-before "rvm1:install:rvm", "app:update_rvm_key"
-before "deploy", "rvm1:install:rvm"  # install/update RVM
-before "deploy", "rvm1:install:ruby"
-before "deploy", "rvm1:install:gems"  # install/update gems from Gemfile into gemset
 
 # Precompile files locally for faster deployment.
 namespace :deploy do
