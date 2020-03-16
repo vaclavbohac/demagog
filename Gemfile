@@ -117,6 +117,9 @@ gem "slack-notifier"
 gem "graphlient"
 gem "tty-prompt"
 
+# Datadog integration
+gem "ddtrace"
+
 # Use Capistrano for deployment
 group :development do
   gem "capistrano", require: false
