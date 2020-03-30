@@ -220,6 +220,18 @@ class Assessment < ApplicationRecord
         )
       end
 
+      if evaluation_status == STATUS_APPROVED
+        # These notifications will be skipped for users who are being already notified about processed changes
+        User.active.where(notify_on_approval: true).each do |user|
+          notifications << Notification.new(
+            statement_text: "#{current_user.display_in_notification} změnil/a stav na #{evaluation_status_label}",
+            full_text: "#{current_user.display_in_notification} změnil/a stav výroku #{statement.display_in_notification} na #{evaluation_status_label}",
+            statement_id: statement.id,
+            recipient: user
+          )
+        end
+      end
+
       Notification.create_notifications(notifications, current_user)
     end
   end
