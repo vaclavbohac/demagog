@@ -11,6 +11,8 @@ class Comment < ApplicationRecord
   }
 
   MENTION_ALIAS_EXPERTS = "experts"
+  MENTION_ALIAS_PROOFREADERS = "proofreaders"
+  MENTION_ALIAS_SOCIAL_MEDIA_MANAGERS = "social_media_managers"
 
   def display_content
     content.gsub(/@\[([^\]]+)\]\([^\)]+\)/, '@\1')
@@ -72,6 +74,10 @@ class Comment < ApplicationRecord
     case mention
     when MENTION_ALIAS_EXPERTS
       comment.statement.source.experts
+    when MENTION_ALIAS_SOCIAL_MEDIA_MANAGERS
+      User.active.joins(:roles).where(roles: { key: Role::SOCIAL_MEDIA_MANAGER })
+    when MENTION_ALIAS_PROOFREADERS
+      User.active.joins(:roles).where(roles: { key: Role::PROOFREADER })
     else
       [User.find(mention)]
     end
