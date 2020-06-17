@@ -418,9 +418,18 @@ class StatementDetail extends React.Component<IProps, IState> {
                               {[StatementType.promise, StatementType.factual].includes(
                                 statement.statementType,
                               ) && (
-                                <div style={{ flex: '1 1 0', maxWidth: '50%' }}>
+                                <div style={{ flex: '1 0 0px' }}>
                                   {canEditStatement ? (
-                                    <FormGroup label="Štítky" name="tags" inline>
+                                    <FormGroup
+                                      label="Štítky"
+                                      name="tags"
+                                      inline
+                                      className={css`
+                                        .bp3-form-content {
+                                          flex: 1 0 0px;
+                                        }
+                                      `}
+                                    >
                                       <SelectComponentField name="tags">
                                         {(renderProps) => (
                                           <TagsSelect
