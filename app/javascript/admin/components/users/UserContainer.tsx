@@ -4,7 +4,6 @@ import {
   UpdateUserActiveness as UpdateUserActivenessMutation,
   DeleteUser as DeleteUserMutation,
 } from '../../queries/mutations';
-import { addFlashMessage } from '../../actions/flashMessages';
 import {
   UpdateUserActiveness,
   UpdateUserActivenessVariables,
@@ -12,36 +11,32 @@ import {
   DeleteUser,
   DeleteUserVariables,
 } from '../../operation-result-types';
-import { useDispatch } from 'react-redux';
 import { User } from './User';
 import { useModal } from 'react-modal-hook';
 import { DeleteModal } from '../modals/ConfirmDeleteModal';
 import { GetUsers } from '../../queries/queries';
+import { useFlashMessage } from '../../hooks/use-flash-messages';
 
 interface IUserContainerProps {
   user: GetUsers_users;
 }
 
 export function UserContainer(props: IUserContainerProps) {
-  const dispatch = useDispatch();
+  const addFlashMessage = useFlashMessage();
   const [updateUserActiveness, { loading }] = useMutation<
     UpdateUserActiveness,
     UpdateUserActivenessVariables
   >(UpdateUserActivenessMutation, {
     onCompleted() {
-      dispatch(
-        addFlashMessage(
-          `Uživatel úspěšně ${props.user.active ? 'aktivován' : 'deaktivován'}.`,
-          'success',
-        ),
+      addFlashMessage(
+        `Uživatel úspěšně ${props.user.active ? 'aktivován' : 'deaktivován'}.`,
+        'success',
       );
     },
     onError() {
-      dispatch(
-        addFlashMessage(
-          `Došlo k chybě při ${props.user.active ? 'deaktivaci' : 'aktivaci'} uživatele.`,
-          'error',
-        ),
+      addFlashMessage(
+        `Došlo k chybě při ${props.user.active ? 'deaktivaci' : 'aktivaci'} uživatele.`,
+        'error',
       );
     },
   });
@@ -62,22 +57,20 @@ export function UserContainer(props: IUserContainerProps) {
         },
       ],
       onCompleted() {
-        dispatch(addFlashMessage('Uživatel byl úspěšně smazán.', 'success'));
+        addFlashMessage('Uživatel byl úspěšně smazán.', 'success');
 
         closeModal();
       },
       onError(error) {
         if (error.message.match(/cannot be deleted if it is already linked/)) {
-          dispatch(
-            addFlashMessage(
-              'Uživatele nelze smazat, protože už byl v systému aktivní. Deaktivujte jej.',
-              'warning',
-            ),
+          addFlashMessage(
+            'Uživatele nelze smazat, protože už byl v systému aktivní. Deaktivujte jej.',
+            'warning',
           );
           return;
         }
 
-        dispatch(addFlashMessage('Doško k chybě při mazání uživatele', 'error'));
+        addFlashMessage('Doško k chybě při mazání uživatele', 'error');
       },
     },
   );
