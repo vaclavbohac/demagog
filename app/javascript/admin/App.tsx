@@ -61,7 +61,7 @@ import StatementsVideoMarks from './components/StatementsVideoMarks';
 import { UserEdit } from './components/users/UserEdit';
 import { UserNew } from './components/users/UserNew';
 import { UsersPageContainer } from './components/users/UsersPageContainer';
-import UsersSortOnAboutUsPage from './components/UsersSortOnAboutUsPage';
+import { UsersSortOnAboutUsPageContainer } from './components/users/UsersSortOnAboutUsPageContainer';
 
 import Tags from './components/tags/Tags';
 
@@ -185,7 +185,7 @@ class App extends React.Component<IProps> {
                 <Route
                   path="/admin/users/sort-on-about-us-page"
                   exact
-                  component={UsersSortOnAboutUsPage}
+                  component={UsersSortOnAboutUsPageContainer}
                 />
 
                 <Route path="/admin/tags" exact component={Tags} />
