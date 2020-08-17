@@ -2,16 +2,18 @@ import { Classes } from '@blueprintjs/core';
 import { css, cx } from 'emotion';
 import * as React from 'react';
 import { useQuery } from 'react-apollo';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { addFlashMessage } from '../actions/flashMessages';
 import { mailFactualStatementsExport } from '../api';
 import * as ResultTypes from '../operation-result-types';
 import { GetInternalOverallStats } from '../queries/queries';
+import { IState as ReduxState } from '../reducers';
 import Breadcrumbs from './Breadcrumbs';
 
 const OverallStats = () => {
   const dispatch = useDispatch();
+  const currentUser = useSelector((state: ReduxState) => state.currentUser.user);
 
   const { data: dataGetInternalOverallStats } = useQuery<ResultTypes.GetInternalOverallStats>(
     GetInternalOverallStats,
@@ -22,14 +24,15 @@ const OverallStats = () => {
 
   const onExportStatements = React.useCallback(() => {
     mailFactualStatementsExport().then(() => {
+      const email = currentUser ? currentUser.email : null;
       dispatch(
         addFlashMessage(
-          'Export se zpracovává, do minuty by ti jej měl systém poslat mailem.',
+          `Export se zpracovává, do pár minut by ti jej měl systém poslat mailem na ${email}`,
           'success',
         ),
       );
     });
-  }, [dispatch]);
+  }, [currentUser, dispatch]);
 
   const breadcrumbs = [{ text: 'Statistiky' }];
 

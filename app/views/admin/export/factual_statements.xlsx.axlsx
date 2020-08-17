@@ -25,7 +25,7 @@ wb.add_worksheet(name: "Výroky") do |sheet|
 
   # Fetching in batches to reduce memory footprint, because fetching all at once
   # will get killed on server
-  @statements.find_each(batch_size: 300) do |statement|
+  @statements.find_each(batch_size: 100) do |statement|
     sheet.add_row [
       statement.id,
       statement.content,
