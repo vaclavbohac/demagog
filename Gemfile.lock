@@ -112,7 +112,7 @@ GEM
     config (2.2.1)
       deep_merge (~> 1.2, >= 1.2.1)
       dry-validation (~> 1.0, >= 1.0.0)
-    connection_pool (2.2.2)
+    connection_pool (2.2.3)
     crass (1.0.6)
     ddtrace (0.33.1)
       msgpack
@@ -417,11 +417,11 @@ GEM
     sentry-raven (2.13.0)
       faraday (>= 0.7.6, < 1.0)
     shellany (0.0.1)
-    sidekiq (6.0.4)
-      connection_pool (>= 2.2.2)
-      rack (>= 2.0.0)
-      rack-protection (>= 2.0.0)
-      redis (>= 4.1.0)
+    sidekiq (5.2.9)
+      connection_pool (~> 2.2, >= 2.2.2)
+      rack (~> 2.0)
+      rack-protection (>= 1.5.0)
+      redis (>= 3.3.5, < 4.2)
     slack-notifier (2.3.2)
     solargraph (0.38.1)
       backport (~> 1.1)
@@ -544,7 +544,7 @@ DEPENDENCIES
   sass-rails (~> 5.0)
   scenic
   sentry-raven
-  sidekiq
+  sidekiq (~> 5.0)
   slack-notifier
   solargraph
   spring
