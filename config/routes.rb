@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
   get "page_controller/show"
 
@@ -51,6 +53,10 @@ Rails.application.routes.draw do
     end
 
     get "(/*all)" => "admin#index"
+  end
+
+  authenticate :user do
+    mount Sidekiq::Web => "/sidekiq"
   end
 
   mount GraphiQL::Rails::Engine, at: "/graphiql", graphql_path: "/graphql"
