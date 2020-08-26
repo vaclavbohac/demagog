@@ -1,13 +1,9 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-
 import { IconSvgPaths20 } from '@blueprintjs/icons';
-
+import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
-
 import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
-
 import '@ckeditor/ckeditor5-media-embed/theme/mediaembed.css';
-import '@ckeditor/ckeditor5-media-embed/theme/mediaembedediting.css';
+import { injectGlobal } from 'emotion';
 
 export default class Embed extends Plugin {
   public editor;
@@ -152,3 +148,11 @@ const codeIcon =
   IconSvgPaths20.code +
   '" />' +
   '</svg>';
+
+// tslint:disable-next-line:no-unused-expression
+injectGlobal`
+  /* Allow interaction in the embed only when the embed is selected */
+  .ck-editor__editable:not(.ck-read-only) .ck-widget:not(.ck-widget_selected) .ck-media__wrapper > * {
+    pointer-events: none;
+  }
+`;
