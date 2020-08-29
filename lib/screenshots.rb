@@ -10,7 +10,7 @@ module Screenshots
     browser.goto(tweet_uri)
 
     # It takes a moment to render the tweet and browser.network.wait_for_idle does not help
-    sleep(2)
+    sleep(5)
 
     tmpfile = Tempfile.new("demagog-tweetscreenshot-")
 
@@ -31,7 +31,7 @@ module Screenshots
     # are any
     crop_bottom_px = (has_some_retweets || has_some_likes) ? 100 : 50
 
-    image.crop "#{image_width}x#{image_height - crop_bottom_px}"
+    image.crop "#{image_width}x#{image_height - crop_bottom_px}+0+0"
 
     result_file_path = "#{Rails.root}/storage/tweet-#{SecureRandom.alphanumeric(10)}.png"
 
