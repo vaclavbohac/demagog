@@ -2,7 +2,6 @@
 
 require "tempfile"
 require "mini_magick"
-require "image_processing/mini_magick"
 
 module Screenshots
   def self.screenshot_tweet(tweet_uri)
@@ -32,13 +31,11 @@ module Screenshots
     # are any
     crop_bottom_px = (has_some_retweets || has_some_likes) ? 100 : 50
 
+    image.crop "#{image_width}x#{image_height - crop_bottom_px}"
+
     result_file_path = "#{Rails.root}/storage/tweet-#{SecureRandom.alphanumeric(10)}.png"
 
-    ImageProcessing::MiniMagick
-      .source(tmpfile.path)
-      .loader(page: 0)
-      .crop("#{image_width}x#{image_height - crop_bottom_px}")
-      .call(destination: result_file_path)
+    image.write result_file_path
 
     tmpfile.close
     tmpfile.unlink
