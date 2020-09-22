@@ -1,10 +1,11 @@
 import * as React from 'react';
 import Loading from '../Loading';
 import { NonIdealState, Classes } from '@blueprintjs/core';
+import { ApolloError } from 'apollo-client';
 import { Formik, Form } from 'formik';
 import { useMemo } from 'react';
 import * as yup from 'yup';
-import { StatementType } from '../../operation-result-types';
+import { GetSource, StatementType } from '../../operation-result-types';
 import { Link } from 'react-router-dom';
 import classNames from 'classnames';
 import TextareaField from '../forms/controls/TextareaField';
@@ -19,12 +20,29 @@ const STATEMENT_TYPE_OPTIONS = Object.keys(STATEMENT_TYPES).map((statementType) 
   value: statementType,
 }));
 
+export interface IStatementNewFormValues {
+  statement_type: StatementType;
+  note: string;
+  content: string;
+  speaker_id?: string | null;
+  evaluator_id?: string | null;
+  secondary_evaluator_ids: string[];
+}
+
 const validationSchema = yup.object().shape({
   content: yup.string().required('Je třeba vyplnit znění výroku'),
   speaker_id: yup.mixed().notOneOf([null, ''], 'Je třeba vybrat řečníka'),
 });
 
-export function StatementNew(props) {
+interface IStatementNewProps {
+  loading: boolean;
+  saving: boolean;
+  error?: ApolloError;
+  source?: GetSource['source'];
+  onSubmit(values: IStatementNewFormValues): void;
+}
+
+export function StatementNew(props: IStatementNewProps) {
   if (props.loading) {
     return <Loading />;
   }
@@ -33,39 +51,39 @@ export function StatementNew(props) {
     return <NonIdealState title="Došlo k chybě při načítání zdroje" />;
   }
 
-  const initialValues = useMemo(
+  const initialValues: IStatementNewFormValues = useMemo(
     () => ({
       statement_type: StatementType.factual,
       content: '',
-      speaker_id: props.source.speakers?.length ? props.source.speakers[0].id : null,
+      speaker_id: props.source?.speakers?.length ? props.source.speakers[0].id : null,
       evaluator_id: null,
-      secondary_evaluators: [],
+      secondary_evaluator_ids: [],
       note: '',
     }),
     [props.source],
   );
 
   return (
-    <Formik
+    <Formik<IStatementNewFormValues>
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={props.onSubmit}
     >
-      {({ isSubmitting }) => {
+      {() => {
         return (
           <div style={{ padding: '15px 0 40px 0' }}>
             <Form>
               <div style={{ float: 'right' }}>
-                <Link to={`/admin/sources/${props.source.id}`} className={Classes.BUTTON}>
+                <Link to={`/admin/sources/${props.source?.id}`} className={Classes.BUTTON}>
                   Zpět na diskuzi
                 </Link>
                 <button
                   type="submit"
                   className={classNames(Classes.BUTTON, Classes.INTENT_PRIMARY)}
                   style={{ marginLeft: 7 }}
-                  disabled={isSubmitting}
+                  disabled={props.saving}
                 >
-                  {isSubmitting ? 'Ukládám…' : 'Uložit'}
+                  {props.saving ? 'Ukládám…' : 'Uložit'}
                 </button>
               </div>
 
@@ -85,7 +103,7 @@ export function StatementNew(props) {
                         <SelectField
                           name="speaker_id"
                           options={
-                            props.source.speakers?.map((s) => ({
+                            props.source?.speakers?.map((s) => ({
                               label: `${s.firstName} ${s.lastName}`,
                               value: s.id,
                             })) ?? []
@@ -112,8 +130,8 @@ export function StatementNew(props) {
                       {(renderProps) => <UserSelect {...renderProps} />}
                     </SelectComponentField>
                   </FormGroup>
-                  <FormGroup label="Vedlejší ověřovatelé" name="secondary_evaluators" optional>
-                    <SelectComponentField name="secondary_evaluators">
+                  <FormGroup label="Vedlejší ověřovatelé" name="secondary_evaluator_ids" optional>
+                    <SelectComponentField name="secondary_evaluator_ids">
                       {(renderProps) => <UserSelect {...renderProps} isMulti />}
                     </SelectComponentField>
                   </FormGroup>
