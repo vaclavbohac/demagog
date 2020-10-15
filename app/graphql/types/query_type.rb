@@ -188,7 +188,7 @@ class Types::QueryType < GraphQL::Schema::Object
     statements = statements.where(source: args[:source]) if args[:source]
     statements = statements.where(speaker: args[:speaker]) if args[:speaker]
     if args[:veracity]
-      statements = statements.joins(:veracities).where(veracities: { key: args[:veracity] })
+      statements = statements.joins(:veracity).where(veracities: { key: args[:veracity] })
     end
 
     # Include these basics as they are part of most of queries for statements
