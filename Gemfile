@@ -14,6 +14,8 @@ gem "dotenv-rails"
 gem "rails", "~> 6.0"
 # Add possibility for bulk insert to Active Record models
 # gem "bulk_insert"
+# Use puma webserver on production
+gem "puma", "~> 5.0"
 # Use Postgresql as the database for Active Record
 gem "pg"
 # Use scenic for materilized views
