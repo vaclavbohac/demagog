@@ -27,9 +27,9 @@ RUN yarn install
 
 COPY . .
 
-RUN PRODUCTION_DATABASE_URL=postgresql:doesnt_exist SECRET_KEY_BASE=does-not-matter bundle exec rails assets:precompile && \
-  yarn cache clean && \
-  rm -rf node_modules
+RUN PRODUCTION_DATABASE_URL=postgresql:doesnt_exist SECRET_KEY_BASE=does-not-matter bundle exec rails assets:precompile
+RUN yarn cache clean
+RUN rm -rf node_modules
 
 FROM ruby:2.7.0-alpine3.11
 LABEL maintainer="bohac.v@gmail.com"
