@@ -26,7 +26,7 @@ module Types
     def avatar
       return nil unless object.avatar.attached?
 
-      Rails.application.routes.url_helpers.polymorphic_url(object.avatar, only_path: true)
+      Rails.application.routes.url_helpers.rails_public_blob_url(object.avatar)
     end
   end
 end

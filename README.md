@@ -58,6 +58,9 @@ AMAZON_S3_REGION=region
 AMAZON_S3_BUCKET=bucket-name
 AMAZON_S3_ENDPOINT=https://example.com
 
+# Serving active storage blobs via CDN proxy
+ACTIVE_STORAGE_CDN_URL=https://example.com
+
 # Sendgrid SMTP service (only for production)
 SENDGRID_USERNAME=sendgrid-username
 SENDGRID_PASSWORD=sendgrid-password

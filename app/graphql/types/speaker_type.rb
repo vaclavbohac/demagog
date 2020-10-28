@@ -19,7 +19,7 @@ module Types
     def avatar
       return nil unless object.avatar.attached?
 
-      Rails.application.routes.url_helpers.polymorphic_url(object.avatar, only_path: true)
+      Rails.application.routes.url_helpers.rails_public_blob_url(object.avatar)
     end
 
     # Seznam uses portrait of speaker, we need to keep it till they update it
@@ -29,7 +29,7 @@ module Types
     def portrait
       return nil unless object.avatar.attached?
 
-      Rails.application.routes.url_helpers.polymorphic_url(object.avatar, only_path: true)
+      Rails.application.routes.url_helpers.rails_public_blob_url(object.avatar)
     end
 
     field :statements, [Types::StatementType], null: false do
