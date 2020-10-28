@@ -10,15 +10,14 @@ module Types
     field :image, String, null: false
 
     def image
-      Rails.application.routes.url_helpers.polymorphic_url(object.image, only_path: true)
+      Rails.application.routes.url_helpers.rails_public_blob_url(object.image)
     end
 
     field :image_50x50, String, null: false
 
     def image_50x50
-      Rails.application.routes.url_helpers.polymorphic_url(
+      Rails.application.routes.url_helpers.rails_public_blob_url(
         object.image.variant(resize: "50x50"),
-        only_path: true
       )
     end
   end

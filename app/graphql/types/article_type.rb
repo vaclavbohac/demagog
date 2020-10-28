@@ -51,7 +51,7 @@ module Types
     def illustration
       return nil unless object.illustration.attached?
 
-      Rails.application.routes.url_helpers.polymorphic_url(object.illustration, only_path: true)
+      Rails.application.routes.url_helpers.rails_public_blob_url(object.illustration)
     end
 
     field :segments, [Types::ArticleSegmentType], null: false

@@ -32,7 +32,7 @@ module Types
     def logo
       return nil unless object.logo.attached?
 
-      Rails.application.routes.url_helpers.polymorphic_url(object.logo, only_path: true)
+      Rails.application.routes.url_helpers.rails_public_blob_url(object.logo)
     end
 
     field :legacy_logo, String, null: true,

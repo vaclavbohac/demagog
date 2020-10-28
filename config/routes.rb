@@ -11,6 +11,22 @@ Rails.application.routes.draw do
     get "sign_out", to: "devise/sessions#destroy", as: :destroy_user_session
   end
 
+  # Serve active storage blobs via CDN
+  # https://lipanski.com/posts/activestorage-cdn-rails-direct-route
+  direct :rails_public_blob do |blob|
+    if ENV["ACTIVE_STORAGE_CDN_URL"]
+      File.join(ENV["ACTIVE_STORAGE_CDN_URL"], blob.key)
+    else
+      route = if blob.is_a?(ActiveStorage::Variant)
+                :rails_representation
+              else
+                :rails_blob
+              end
+
+      route_for(route, blob)
+    end
+  end
+
   get "rss/index"
 
   namespace :admin do
