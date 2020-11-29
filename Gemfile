@@ -84,9 +84,6 @@ gem "loofah", "~> 2.3.1"
 # Patches security vulnerability CVE-2018-3760
 gem "sprockets", "~> 3.7.2"
 
-# Patches security vulnerability CVE-2018-1000201
-gem "ffi", "~> 1.9.24"
-
 # Patches security vulnerability CVE-2018-1000544
 gem "rubyzip", "~> 1.3.0"
 
