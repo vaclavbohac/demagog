@@ -26,24 +26,21 @@ interface IProps {
 }
 
 export default function StatementComments(props: IProps) {
-  ////
   const { data, error, loading, refetch } = useQuery(GetStatementComments, {
     variables: { id: parseInt(props.statementId, 10) },
-    pollInterval: 20350, // Little more than 20s so it does not sync with other polls
+    pollInterval: 20350, /// Little more than 20s so it does not sync with other polls
   });
 
-  // const [textButton, setTextButton] = React.useState(false);
   const [showStatements, setShowStatements] = React.useState(false);
   const onClick = () => {
     setShowStatements((s) => !s);
-    //  setTextButton((s) => !s);
   };
 
   let allStatements;
   if (showStatements) {
     allStatements = (
       <div>
-        {data.statement.comments.slice(0, data.statement.comments.length - 3).map((comment) => (
+        {data.statement.comments.slice(-3).map((comment) => (
           <div key={comment.id} style={{ marginBottom: 15 }}>
             <strong>
               {comment.user.firstName} {comment.user.lastName}
