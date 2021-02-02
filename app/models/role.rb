@@ -29,6 +29,9 @@ EXPERT_PERMISSIONS = %w[
   statements:view-evaluation-as-evaluator
   statements:comments:add
   statements:delete
+  statementsMy:add
+  statementsMy:edit
+  statementsMy:view
   stats:view
   tags:view
   users:view
@@ -66,7 +69,6 @@ class Role < ApplicationRecord
   has_and_belongs_to_many :users, join_table: :users_roles
 
   def permissions
-    # Hardcoded now, can be turned into dynamic permissions assigning if needed
     case key
     when ADMIN
       ADMIN_PERMISSIONS
@@ -84,16 +86,11 @@ class Role < ApplicationRecord
           web_contents:view
         ]
     when PROOFREADER
-      INTERN_PERMISSIONS +
-        %w[
-          articles:view
-          statements:edit
-          statements:view-unapproved-evaluation
-        ]
+      INTERN_PERMISSIONS + %w[articles:view statements:edit statements:view-unapproved-evaluation]
     when INTERN
       INTERN_PERMISSIONS
     else
       raise Exception.new("Permissions for role #{key} have not been implemented yet")
     end
-  end
+  end # Hardcoded now, can be turned into dynamic permissions assigning if needed
 end
